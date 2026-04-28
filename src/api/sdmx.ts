@@ -95,6 +95,7 @@ export interface DimensionValue {
 export interface Dimension {
   id: string
   name: string
+  description?: string
   position: number
   values: DimensionValue[]
 }

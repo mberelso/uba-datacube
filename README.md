@@ -1,106 +1,42 @@
-# React + TypeScript + Vite
+# UBA-Datacube
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+UBA-Datacube ist eine moderne Web-Applikation zur Visualisierung und Analyse von Umweltdaten des Umweltbundesamtes (UBA). Die Anwendung nutzt die offizielle UBA SDMX REST API, um Datensätze zu Klima, Energie, Abfall und weiteren Umweltthemen interaktiv zugänglich zu machen.
 
-Currently, two official plugins are available:
+## 🚀 Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Dashboard**: Übersichtliche Darstellung ausgewählter Schlüsselindikatoren (Treibhausgasemissionen, Temperaturen, Erneuerbare Energien etc.).
+- **Katalog**: Durchsuchen und Filtern aller verfügbaren UBA-Datensätze (Dataflows).
+- **Dataset-Analyse**: Detaillierte interaktive Charts (Linie, Balken, Fläche) für jeden Datensatz.
+- **Smart Data Discovery**:
+  - **Dimensionale Filter**: Komplexe Datensätze (z. B. mit >6000 Serien) können komfortabel über Dropdown-Menüs gefiltert werden.
+  - **Smart Defaults**: Das System berechnet automatisch die relevantesten Datenreihen (Hauptemittenten) und wählt diese beim Laden eines Datensatzes als Startansicht aus.
+  - **Wissenschaftliche Notation**: Extrem kleine Messwerte werden zur besseren Lesbarkeit automatisch skaliert (z. B. `1.2e-6`).
 
-## React Compiler
+## 🛠️ Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Frontend**: React 18
+- **Framework & Build**: Vite, TypeScript
+- **Visualisierung**: Recharts
+- **Styling**: Vanilla CSS (mit modernen CSS-Variablen)
+- **API**: UBA SDMX REST API (SDMX-JSON v1/v2)
 
-## Expanding the ESLint configuration
+## 📦 Lokale Entwicklung
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+```bash
+# Abhängigkeiten installieren
+npm install
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+# Entwicklungsserver starten
+npm run dev
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# Produktionsbuild erstellen
+npm run build
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🏗️ Architektur & Datenfluss
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-## 🚀 Gemini Superpowers
-
-Dieses Projekt wurde mit dem [Gemini Superpowers Framework](https://github.com/anthonylee991/gemini-superpowers-antigravity) erweitert. Dieses Framework bietet strukturierte Workflows für eine bessere Code-Qualität durch Planung und Test-getriebene Entwicklung (TDD).
-
-### Verfügbare Befehle (Slash Commands)
-
-Du kannst jetzt folgende Befehle in Antigravity nutzen:
-
-- `/superpowers-write-plan` - Erstellt einen detaillierten Plan für deine Aufgabe.
-- `/superpowers-execute-plan` - Führt den Plan Schritt für Schritt aus.
-- `/superpowers-brainstorm` - Hilft bei der Ideenfindung.
-- `/superpowers-review` - Überprüft die Code-Qualität.
-
-### Installation Details
-- Die Framework-Dateien befinden sich im Ordner `.agent/`.
-- Ein Demo-Projekt mit installierten Python-Abhängigkeiten findest du unter `gemini-superpowers-antigravity/`.
-
-## 🛠️ Letzte Optimierungen
-
-### Dashboard & API-Parsing (April 2026)
-Die Datenanzeige wurde robuster gestaltet, um Probleme mit leeren Dashboards zu beheben:
-- **Smart Series Picking**: Das System sucht nun automatisch nach der ersten Datenreihe, die tatsächlich Werte enthält, anstatt blind die erste Reihe der API-Antwort zu nehmen.
-- **SDMX-JSON v2 Support**: Die Parsing-Logik in `sdmx.ts` wurde verbessert, um sowohl Arrays als auch direkte numerische Werte zu verarbeiten.
-- **Fehlertoleranz**: Zeitdimensionen werden nun anhand ihrer ID oder Rolle identifiziert, was die Kompatibilität mit verschiedenen Datensätzen des UBA erhöht.
-- **UX**: Charts zeigen nun eine explizite Meldung an, wenn keine Daten für den gewählten Zeitraum verfügbar sind.
-
-### DatasetPage & Filterung (April 2026)
-Für Datensätze mit tausenden von Serien wurden folgende Verbesserungen implementiert:
-- **Dimensionale Filter**: Dynamische Dropdown-Menüs erlauben das Filtern nach Dimensionen (z.B. nur eine bestimmte Treibhausgas-Substanz).
-- **Smart Defaults**: Anstatt die ersten 5 Serien aus der API auszuwählen, berechnet das System nun beim Laden den Durchschnittswert aller Serien und wählt automatisch die Top-5-Serien mit den absolut höchsten Werten (Hauptemittenten) aus.
-- **Wissenschaftliche Notation**: Die Y-Achse nutzt nun `1.2e-6` Notation für sehr kleine Messwerte, um die Lesbarkeit bei Emissionsdaten zu gewährleisten.
-- **Performance-Limitierung**: Um den Browser nicht zu überlasten, werden in der Auswahl-Liste nur die ersten 100 Treffer angezeigt, was die Nutzung von Filtern forciert und die Performance drastisch verbessert.
+Die Kernlogik für den Datenabruf befindet sich in `src/api/sdmx.ts`. 
+Die UBA-API liefert Daten im SDMX-JSON Format. Da die API-Struktur zwischen verschiedenen Datensätzen variieren kann, wurde ein fehlertolerantes Parsing implementiert:
+- **Zeitdimensionen**: Werden flexibel über ihre Rolle (`time`) oder ID (`TIME_PERIOD`) identifiziert.
+- **Beobachtungen (Observations)**: Es werden sowohl klassische Arrays (`[Wert, Flag]`) als auch direkte numerische Werte unterstützt.
+- **Robustes Fallback**: Wenn eine Datenreihe komplett leer ist, wird sie vom System intelligent ignoriert, um "leere" Charts zu vermeiden.

@@ -23,7 +23,7 @@ export default function ForestFiresAnalysis({ timeValues, seriesMap, activeSerie
 
     const dataByYear: Record<string, Record<string, any>> = {}
     timeValues.forEach(year => {
-      dataByYear[year] = { year, insgesamtAnzahl: 0, insgesamtHektar: 0 }
+      dataByYear[year] = { year }
     })
 
     keys.forEach(key => {
@@ -55,15 +55,17 @@ export default function ForestFiresAnalysis({ timeValues, seriesMap, activeSerie
       }
     })
 
-    const finalChartData = timeValues.map(year => dataByYear[year])
+    const finalChartData = timeValues
+      .map(year => dataByYear[year])
+      .filter(d => Object.keys(d).length > 1) // Keep only years with actual data
 
     // For Intensity: calculate Hectares / Count
     const intensity = finalChartData.map(d => {
-      const count = d.insgesamtAnzahl
-      const area = d.insgesamtHektar
+      const count = d.insgesamtAnzahl ?? 0
+      const area = d.insgesamtHektar ?? 0
       return {
         year: d.year,
-        hektarProBrand: count > 0 ? area / count : 0,
+        hektarProBrand: count > 0 ? area / count : null,
         area,
         count
       }
@@ -132,7 +134,7 @@ export default function ForestFiresAnalysis({ timeValues, seriesMap, activeSerie
                   <YAxis tick={{ fontSize: 10 }} width={65} />
                   <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8 }} />
                   <Legend wrapperStyle={{ fontSize: 11, paddingTop: 10 }} iconType="circle" />
-                  <Area type="monotone" dataKey="insgesamtHektar" name="Insgesamt (Hektar)" stroke="#b91c1c" fill="#fca5a5" strokeWidth={2} />
+                  <Area type="monotone" dataKey="insgesamtHektar" name="Insgesamt (Hektar)" stroke="#b91c1c" fill="#fca5a5" strokeWidth={2} connectNulls />
                 </AreaChart>
               </ResponsiveContainer>
             </div>

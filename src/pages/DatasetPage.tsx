@@ -78,17 +78,21 @@ export default function DatasetPage() {
 
   const chartData = useMemo(() => {
     if (!timeValues.length) return []
-    return timeValues.map((year) => {
+    const data = timeValues.map((year) => {
       const point: Record<string, any> = { year }
+      let hasData = false
       for (const key of selectedSeries) {
         const s = seriesMap[key]
         if (s) {
           const label = s.dimValues.join(' · ') || key
-          point[label] = s.observations[year] ?? null
+          const val = s.observations[year] ?? null
+          point[label] = val
+          if (val !== null) hasData = true
         }
       }
-      return point
+      return { point, hasData }
     })
+    return data.filter(d => d.hasData).map(d => d.point)
   }, [timeValues, selectedSeries, seriesMap])
 
   const filteredSeries = useMemo(() => {
@@ -329,7 +333,8 @@ export default function DatasetPage() {
                       {activeSeriesList.map(({ label }, i) => (
                         <Line key={label} type="monotone" dataKey={label}
                           stroke={CHART_COLORS[i % CHART_COLORS.length]}
-                          dot={false} strokeWidth={2.5} connectNulls />
+                          dot={chartData.length === 1 ? { r: 4 } : false} 
+                          strokeWidth={2.5} connectNulls />
                       ))}
                     </LineChart>
                   ) : (

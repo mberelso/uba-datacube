@@ -9,6 +9,7 @@ import { CATEGORIES } from '../utils/categories'
 
 interface HighlightConfig {
   flowId: string
+  key?: string
   title: string
   subtitle: string
   icon: string
@@ -21,24 +22,28 @@ interface HighlightConfig {
 const HIGHLIGHTS: HighlightConfig[] = [
   {
     flowId: 'DF_CLIMATE_GERMANY_TEMPERATURE_MEAN',
+    key: 'DE.A.DEGC.JM.',
     title: 'Temperatur Deutschland',
     subtitle: 'Jahresmittelwert Lufttemperatur 2m',
     icon: '🌡️', color: '#dc2626', chartType: 'area', unit: '°C',
   },
   {
     flowId: 'DF_CLIMATE_EMISSIONS_GHG_TRENDS',
+    key: 'DE.A.MT_CO2EQ.GESAMT.MT_CO2EQ',
     title: 'Treibhausgasemissionen',
     subtitle: 'Gesamtemissionen nach UNFCCC',
     icon: '🏭', color: '#7c3aed', chartType: 'area', unit: 'Mt CO₂eq',
   },
   {
     flowId: 'DF_ENERGY_AGEE_SHARE',
+    key: 'DE.A.PZ.SHARE_EE_GFEC_RED.EE',
     title: 'Erneuerbare Energien',
     subtitle: 'Anteil am Bruttoendenergieverbrauch',
     icon: '⚡', color: '#16a34a', chartType: 'bar', unit: '%',
   },
   {
     flowId: 'DF_AGRICULTURE_FORESTRY_FOREST_FIRE_AREA',
+    key: 'DE.A.HA.GESAMT.HA',
     title: 'Waldbrandfläche',
     subtitle: 'Jährliche Brandfläche in Deutschland',
     icon: '🔥', color: '#d97706', chartType: 'bar', unit: 'ha', invertColors: true,
@@ -57,10 +62,28 @@ function useHighlightData(config: HighlightConfig, flows: Dataflow[]) {
     setLoading(true)
     fetchData(flow)
       .then(({ seriesMap, timeValues }) => {
-        const firstKey = Object.keys(seriesMap)[0]
-        if (!firstKey) return
-        const obs = seriesMap[firstKey].observations
-        setData(timeValues.map((y) => ({ year: y, value: obs[y] ?? null })).filter((d) => d.value != null))
+        let observations: Record<string, number | null> = {}
+        
+        // If a specific key is provided, use it
+        if (config.key && seriesMap[config.key]) {
+          observations = seriesMap[config.key].observations
+        } else {
+          // Find first series that actually has non-null data
+          const seriesKeys = Object.keys(seriesMap)
+          for (const key of seriesKeys) {
+            const obs = seriesMap[key].observations
+            if (Object.values(obs).some(v => v !== null)) {
+              observations = obs
+              break
+            }
+          }
+          // Fallback to first series if all empty
+          if (Object.keys(observations).length === 0 && seriesKeys.length > 0) {
+            observations = seriesMap[seriesKeys[0]].observations
+          }
+        }
+
+        setData(timeValues.map((y) => ({ year: y, value: observations[y] ?? null })).filter((d) => d.value != null))
       })
       .catch(() => {})
       .finally(() => setLoading(false))
@@ -120,52 +143,61 @@ function HighlightCard({ config, flows }: { config: HighlightConfig; flows: Data
             Lade…
           </div>
         ) : (
-          <ResponsiveContainer width="100%" height="100%">
-            {config.chartType === 'bar' ? (
-              <BarChart data={data} margin={{ top: 2, right: 4, left: -28, bottom: 0 }}>
-                <XAxis dataKey="year" tick={{ fontSize: 9 }} interval="preserveStartEnd" />
-                <YAxis tick={{ fontSize: 9 }} />
-                <Tooltip
-                  contentStyle={{ fontSize: 11, borderRadius: 6 }}
-                  formatter={(v: any) => [
-                    Number(v).toLocaleString('de-DE', { maximumFractionDigits: 1 }),
-                    config.unit ?? '',
-                  ]}
-                />
-                <Bar dataKey="value" fill={config.color} radius={[2, 2, 0, 0]} />
-              </BarChart>
-            ) : config.chartType === 'area' ? (
-              <AreaChart data={data} margin={{ top: 2, right: 4, left: -28, bottom: 0 }}>
-                <defs>
-                  <linearGradient id={`grad-${config.flowId}`} x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor={config.color} stopOpacity={0.25} />
-                    <stop offset="95%" stopColor={config.color} stopOpacity={0.02} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                <XAxis dataKey="year" tick={{ fontSize: 9 }} interval="preserveStartEnd" />
-                <YAxis tick={{ fontSize: 9 }} />
-                <Tooltip
-                  contentStyle={{ fontSize: 11, borderRadius: 6 }}
-                  formatter={(v: any) => [
-                    Number(v).toLocaleString('de-DE', { maximumFractionDigits: 1 }),
-                    config.unit ?? '',
-                  ]}
-                />
-                <Area type="monotone" dataKey="value" stroke={config.color} strokeWidth={2}
-                  fill={`url(#grad-${config.flowId})`} dot={false} connectNulls />
-              </AreaChart>
+          <div style={{ height: '100%' }}>
+            {data.length === 0 ? (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center',
+                height: '100%', color: '#94a3b8', fontSize: 11 }}>
+                Keine Daten für diesen Zeitraum verfügbar.
+              </div>
             ) : (
-              <LineChart data={data} margin={{ top: 2, right: 4, left: -28, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                <XAxis dataKey="year" tick={{ fontSize: 9 }} interval="preserveStartEnd" />
-                <YAxis tick={{ fontSize: 9 }} />
-                <Tooltip contentStyle={{ fontSize: 11, borderRadius: 6 }} />
-                <Line type="monotone" dataKey="value" stroke={config.color}
-                  strokeWidth={2} dot={false} connectNulls />
-              </LineChart>
+              <ResponsiveContainer width="100%" height="100%">
+                {config.chartType === 'bar' ? (
+                  <BarChart data={data} margin={{ top: 2, right: 4, left: -28, bottom: 0 }}>
+                    <XAxis dataKey="year" tick={{ fontSize: 9 }} interval="preserveStartEnd" />
+                    <YAxis tick={{ fontSize: 9 }} />
+                    <Tooltip
+                      contentStyle={{ fontSize: 11, borderRadius: 6 }}
+                      formatter={(v: any) => [
+                        Number(v).toLocaleString('de-DE', { maximumFractionDigits: 1 }),
+                        config.unit ?? '',
+                      ]}
+                    />
+                    <Bar dataKey="value" fill={config.color} radius={[2, 2, 0, 0]} />
+                  </BarChart>
+                ) : config.chartType === 'area' ? (
+                  <AreaChart data={data} margin={{ top: 2, right: 4, left: -28, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id={`grad-${config.flowId}`} x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor={config.color} stopOpacity={0.25} />
+                        <stop offset="95%" stopColor={config.color} stopOpacity={0.02} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                    <XAxis dataKey="year" tick={{ fontSize: 9 }} interval="preserveStartEnd" />
+                    <YAxis tick={{ fontSize: 9 }} />
+                    <Tooltip
+                      contentStyle={{ fontSize: 11, borderRadius: 6 }}
+                      formatter={(v: any) => [
+                        Number(v).toLocaleString('de-DE', { maximumFractionDigits: 1 }),
+                        config.unit ?? '',
+                      ]}
+                    />
+                    <Area type="monotone" dataKey="value" stroke={config.color} strokeWidth={2}
+                      fill={`url(#grad-${config.flowId})`} dot={false} connectNulls />
+                  </AreaChart>
+                ) : (
+                  <LineChart data={data} margin={{ top: 2, right: 4, left: -28, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                    <XAxis dataKey="year" tick={{ fontSize: 9 }} interval="preserveStartEnd" />
+                    <YAxis tick={{ fontSize: 9 }} />
+                    <Tooltip contentStyle={{ fontSize: 11, borderRadius: 6 }} />
+                    <Line type="monotone" dataKey="value" stroke={config.color}
+                      strokeWidth={2} dot={false} connectNulls />
+                  </LineChart>
+                )}
+              </ResponsiveContainer>
             )}
-          </ResponsiveContainer>
+          </div>
         )}
       </div>
 

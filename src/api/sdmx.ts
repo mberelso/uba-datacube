@@ -4,14 +4,23 @@ export interface TimePoint { year: string; value: number }
 
 async function fetchSdmxJson(flowRef: string, key = 'all'): Promise<{ series: Record<string, any>; timeValues: string[] }> {
   const url = `${BASE}/data/${flowRef}/${key}?format=jsondata`
+  console.log(`[SDMX] Fetching: ${url}`)
   const r = await fetch(url, { headers: { Accept: 'application/vnd.sdmx.data+json;version=2.0,application/json' } })
   const json = await r.json()
   const env = json.data ?? json
   const structs: any[] = env.structures ?? (json.structure ? [json.structure] : [])
   const dsets: any[] = env.dataSets ?? []
-  const tvals: any[] = structs[0]?.dimensions?.observation?.[0]?.values ?? []
+  
+  // Find time dimension values more robustly
+  const obsDims = structs[0]?.dimensions?.observation ?? []
+  const timeDim = obsDims.find((d: any) => d.id === 'TIME_PERIOD' || d.role === 'time') ?? obsDims[0]
+  const tvals: any[] = timeDim?.values ?? []
+  
+  const series = dsets[0]?.series ?? {}
+  console.log(`[SDMX] Found ${Object.keys(series).length} series and ${tvals.length} time points`)
+  
   return {
-    series: dsets[0]?.series ?? {},
+    series,
     timeValues: tvals.map((v: any) => v.id ?? String(v)),
   }
 }
@@ -23,7 +32,8 @@ export async function fetchAveragedSeries(flowRef: string, key = 'all'): Promise
   for (const sv of Object.values(series) as any[]) {
     for (const [tidx, val] of Object.entries(sv.observations ?? {})) {
       const yr = timeValues[Number(tidx)] ?? tidx
-      const v = Array.isArray(val) ? (val[0] as number | null) : null
+      // Handle both array [value, status] and direct value
+      const v = Array.isArray(val) ? (val[0] as number | null) : (typeof val === 'number' ? val : null)
       if (v != null) (acc[yr] ??= []).push(v)
     }
   }
@@ -205,8 +215,9 @@ export async function fetchData(flow: Dataflow): Promise<{
         values: (d.values ?? []).map((v: any) => ({ id: v.id ?? String(v), name: v.names?.de ?? v.names?.en ?? v.name ?? v.id ?? String(v) })),
       })
     }
-    if (obsDims[0]) {
-      timeValues = (obsDims[0].values ?? []).map((v: any) => v.id ?? String(v))
+    if (obsDims.length > 0) {
+      const timeDim = obsDims.find((d: any) => d.id === 'TIME_PERIOD' || d.role === 'time') ?? obsDims[0]
+      timeValues = (timeDim.values ?? []).map((v: any) => v.id ?? String(v))
     }
   }
 
@@ -220,7 +231,7 @@ export async function fetchData(flow: Dataflow): Promise<{
     const obs: Record<string, number | null> = {}
     for (const [tIdx, val] of Object.entries((s as any).observations ?? {})) {
       const year = timeValues[Number(tIdx)] ?? tIdx
-      obs[year] = Array.isArray(val) ? (val[0] as number | null) : null
+      obs[year] = Array.isArray(val) ? (val[0] as number | null) : (typeof val === 'number' ? val : null)
     }
     seriesMap[key] = { dimValues, observations: obs }
   }

@@ -66,7 +66,7 @@ function ChartCard({ title, subtitle, kpi, kpiUnit, kpiYear, trend, color, loadi
       <div style={{ height, padding: '0 6px 10px' }}>
         {loading
           ? <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#94a3b8', fontSize: 13 }}>Lade Daten…</div>
-          : children}
+          : (children ? children : <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#94a3b8', fontSize: 12 }}>Keine Daten verfügbar.</div>)}
       </div>
     </div>
   )

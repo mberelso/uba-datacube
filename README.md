@@ -71,3 +71,29 @@ export default defineConfig([
   },
 ])
 ```
+
+## 🚀 Gemini Superpowers
+
+Dieses Projekt wurde mit dem [Gemini Superpowers Framework](https://github.com/anthonylee991/gemini-superpowers-antigravity) erweitert. Dieses Framework bietet strukturierte Workflows für eine bessere Code-Qualität durch Planung und Test-getriebene Entwicklung (TDD).
+
+### Verfügbare Befehle (Slash Commands)
+
+Du kannst jetzt folgende Befehle in Antigravity nutzen:
+
+- `/superpowers-write-plan` - Erstellt einen detaillierten Plan für deine Aufgabe.
+- `/superpowers-execute-plan` - Führt den Plan Schritt für Schritt aus.
+- `/superpowers-brainstorm` - Hilft bei der Ideenfindung.
+- `/superpowers-review` - Überprüft die Code-Qualität.
+
+### Installation Details
+- Die Framework-Dateien befinden sich im Ordner `.agent/`.
+- Ein Demo-Projekt mit installierten Python-Abhängigkeiten findest du unter `gemini-superpowers-antigravity/`.
+
+## 🛠️ Letzte Optimierungen
+
+### Dashboard & API-Parsing (April 2026)
+Die Datenanzeige wurde robuster gestaltet, um Probleme mit leeren Dashboards zu beheben:
+- **Smart Series Picking**: Das System sucht nun automatisch nach der ersten Datenreihe, die tatsächlich Werte enthält, anstatt blind die erste Reihe der API-Antwort zu nehmen.
+- **SDMX-JSON v2 Support**: Die Parsing-Logik in `sdmx.ts` wurde verbessert, um sowohl Arrays als auch direkte numerische Werte zu verarbeiten.
+- **Fehlertoleranz**: Zeitdimensionen werden nun anhand ihrer ID oder Rolle identifiziert, was die Kompatibilität mit verschiedenen Datensätzen des UBA erhöht.
+- **UX**: Charts zeigen nun eine explizite Meldung an, wenn keine Daten für den gewählten Zeitraum verfügbar sind.

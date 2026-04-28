@@ -26,6 +26,7 @@ export default function DatasetPage() {
   const [timeValues, setTimeValues] = useState<string[]>([])
   const [dims, setDims] = useState<Dimension[]>([])
   const [selectedSeries, setSelectedSeries] = useState<Set<string>>(new Set())
+  const [filters, setFilters] = useState<Record<string, string>>({})
 
   useEffect(() => {
     if (!id) return
@@ -42,8 +43,12 @@ export default function DatasetPage() {
         setSeriesMap(seriesMap)
         setTimeValues(timeValues)
         setDims(seriesDimensions)
-        const keys = Object.keys(seriesMap).slice(0, 5)
-        setSelectedSeries(new Set(keys))
+        
+        // Auto-select first few series if none selected
+        if (selectedSeries.size === 0) {
+          const keys = Object.keys(seriesMap).slice(0, 5)
+          setSelectedSeries(new Set(keys))
+        }
       })
       .catch((e) => setError(e.message ?? 'Fehler beim Laden'))
       .finally(() => setLoading(false))
@@ -64,12 +69,23 @@ export default function DatasetPage() {
     })
   }, [timeValues, selectedSeries, seriesMap])
 
-  const seriesLabels = useMemo(() => {
-    return Object.entries(seriesMap).map(([key, s]) => ({
+  const filteredSeries = useMemo(() => {
+    return Object.entries(seriesMap).filter(([_, s]) => {
+      // Each filter must match the corresponding dimension index
+      return Object.entries(filters).every(([dimName, targetVal]) => {
+        if (!targetVal) return true
+        const dimIdx = dims.findIndex(d => d.name === dimName)
+        if (dimIdx === -1) return true
+        return s.dimValues[dimIdx] === targetVal
+      })
+    }).map(([key, s]) => ({
       key,
       label: s.dimValues.join(' · ') || key,
+      dimValues: s.dimValues,
     }))
-  }, [seriesMap])
+  }, [seriesMap, filters, dims])
+
+  const seriesLabels = filteredSeries // Use filtered list for sidebar
 
   const meta = flow ? getCategoryMeta(flow.category) : getCategoryMeta('')
 
@@ -123,26 +139,58 @@ export default function DatasetPage() {
             Serien ({seriesLabels.length})
           </div>
           {dims.length > 0 && (
-            <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 10 }}>
-              {dims.map((d) => d.name).join(' · ')}
+            <div style={{ marginBottom: 12, display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {dims.map((d, i) => {
+                // Get unique values for this dimension across ALL series
+                const uniqueVals = Array.from(new Set(Object.values(seriesMap).map(s => s.dimValues[i]))).sort()
+                if (uniqueVals.length <= 1) return null // Hide dimension if only one value
+                return (
+                  <div key={d.name}>
+                    <div style={{ fontSize: 10, color: '#94a3b8', marginBottom: 2, fontWeight: 600, textTransform: 'uppercase' }}>{d.name}</div>
+                    <select
+                      value={filters[d.name] || ''}
+                      onChange={(e) => setFilters(prev => ({ ...prev, [d.name]: e.target.value }))}
+                      style={{ width: '100%', fontSize: 11, padding: '4px', borderRadius: 4, border: '1px solid #e2e8f0', background: '#fff', color: '#475569' }}
+                    >
+                      <option value="">Alle</option>
+                      {uniqueVals.map(v => <option key={v} value={v}>{v}</option>)}
+                    </select>
+                  </div>
+                )
+              })}
             </div>
           )}
+
           <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
             <button
-              onClick={() => setSelectedSeries(new Set(seriesLabels.map((s) => s.key)))}
+              onClick={() => setSelectedSeries(prev => {
+                const next = new Set(prev)
+                seriesLabels.forEach(s => next.add(s.key))
+                return next
+              })}
               style={{ fontSize: 11, padding: '3px 8px', borderRadius: 4, border: '1px solid #e2e8f0', background: '#f8fafc', cursor: 'pointer', color: '#475569' }}
             >
-              Alle
+              Alle (Gefiltert)
             </button>
             <button
-              onClick={() => setSelectedSeries(new Set())}
+              onClick={() => setSelectedSeries(prev => {
+                const next = new Set(prev)
+                seriesLabels.forEach(s => next.delete(s.key))
+                return next
+              })}
               style={{ fontSize: 11, padding: '3px 8px', borderRadius: 4, border: '1px solid #e2e8f0', background: '#f8fafc', cursor: 'pointer', color: '#475569' }}
             >
               Keine
             </button>
           </div>
-          <div style={{ maxHeight: 400, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 4 }}>
-            {seriesLabels.map(({ key, label }, i) => {
+          <div style={{ maxHeight: 500, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 4, paddingRight: 4 }}>
+            {seriesLabels.length > 100 ? (
+              <div style={{ fontSize: 11, color: '#94a3b8', padding: '10px 0' }}>
+                Zu viele Ergebnisse ({seriesLabels.length}). Bitte Filter nutzen.
+                <br />(Zeige nur erste 100)
+              </div>
+            ) : null}
+            {seriesLabels.slice(0, 100).map(({ key, label }, i) => {
               const checked = selectedSeries.has(key)
               const color = CHART_COLORS[i % CHART_COLORS.length]
               return (
@@ -212,22 +260,50 @@ export default function DatasetPage() {
                   <LineChart data={chartData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                     <XAxis dataKey="year" tick={{ fontSize: 11 }} />
-                    <YAxis tick={{ fontSize: 11 }} width={60} />
-                    <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8 }} />
-                    <Legend wrapperStyle={{ fontSize: 12 }} />
+                    <YAxis
+                      tick={{ fontSize: 10 }}
+                      width={65}
+                      tickFormatter={(val) => {
+                        if (val === 0) return '0'
+                        if (Math.abs(val) < 0.01) return val.toExponential(2)
+                        return val.toLocaleString('de-DE', { maximumFractionDigits: 2 })
+                      }}
+                    />
+                    <Tooltip
+                      contentStyle={{ fontSize: 12, borderRadius: 8 }}
+                      formatter={(v: any) => [
+                        Number(v).toLocaleString('de-DE', { maximumFractionDigits: 6 }),
+                        '',
+                      ]}
+                    />
+                    <Legend wrapperStyle={{ fontSize: 11, paddingTop: 10 }} iconType="circle" />
                     {activeSeriesList.map(({ label }, i) => (
                       <Line key={label} type="monotone" dataKey={label}
                         stroke={CHART_COLORS[i % CHART_COLORS.length]}
-                        dot={false} strokeWidth={2} connectNulls />
+                        dot={false} strokeWidth={2.5} connectNulls />
                     ))}
                   </LineChart>
                 ) : (
                   <BarChart data={chartData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                     <XAxis dataKey="year" tick={{ fontSize: 11 }} />
-                    <YAxis tick={{ fontSize: 11 }} width={60} />
-                    <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8 }} />
-                    <Legend wrapperStyle={{ fontSize: 12 }} />
+                    <YAxis
+                      tick={{ fontSize: 10 }}
+                      width={65}
+                      tickFormatter={(val) => {
+                        if (val === 0) return '0'
+                        if (Math.abs(val) < 0.01) return val.toExponential(2)
+                        return val.toLocaleString('de-DE', { maximumFractionDigits: 2 })
+                      }}
+                    />
+                    <Tooltip
+                      contentStyle={{ fontSize: 12, borderRadius: 8 }}
+                      formatter={(v: any) => [
+                        Number(v).toLocaleString('de-DE', { maximumFractionDigits: 6 }),
+                        '',
+                      ]}
+                    />
+                    <Legend wrapperStyle={{ fontSize: 11, paddingTop: 10 }} iconType="circle" />
                     {activeSeriesList.map(({ label }, i) => (
                       <Bar key={label} dataKey={label}
                         fill={CHART_COLORS[i % CHART_COLORS.length]} radius={[3, 3, 0, 0]} />

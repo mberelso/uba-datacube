@@ -97,3 +97,9 @@ Die Datenanzeige wurde robuster gestaltet, um Probleme mit leeren Dashboards zu 
 - **SDMX-JSON v2 Support**: Die Parsing-Logik in `sdmx.ts` wurde verbessert, um sowohl Arrays als auch direkte numerische Werte zu verarbeiten.
 - **Fehlertoleranz**: Zeitdimensionen werden nun anhand ihrer ID oder Rolle identifiziert, was die Kompatibilität mit verschiedenen Datensätzen des UBA erhöht.
 - **UX**: Charts zeigen nun eine explizite Meldung an, wenn keine Daten für den gewählten Zeitraum verfügbar sind.
+
+### DatasetPage & Filterung (April 2026)
+Für Datensätze mit tausenden von Serien wurden folgende Verbesserungen implementiert:
+- **Dimensionale Filter**: Dynamische Dropdown-Menüs erlauben das Filtern nach Dimensionen (z.B. nur eine bestimmte Treibhausgas-Substanz).
+- **Wissenschaftliche Notation**: Die Y-Achse nutzt nun `1.2e-6` Notation für sehr kleine Messwerte, um die Lesbarkeit bei Emissionsdaten zu gewährleisten.
+- **Performance-Limitierung**: Um den Browser nicht zu überlasten, werden in der Auswahl-Liste nur die ersten 100 Treffer angezeigt, was die Nutzung von Filtern forciert und die Performance drastisch verbessert.

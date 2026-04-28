@@ -187,7 +187,7 @@ export async function fetchData(flow: Dataflow): Promise<{
   // Support both SDMX-JSON v1 and v2 envelopes
   const envelope = json.data ?? json
   const datasets: any[] = envelope.dataSets ?? []
-  const structures: any[] = envelope.structures ?? json.structure ? [json.structure] : []
+  const structures: any[] = envelope.structures ?? (json.structure ? [json.structure] : [])
 
   const struct = structures[0]
   const dims: Dimension[] = []

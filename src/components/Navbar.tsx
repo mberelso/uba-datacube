@@ -2,16 +2,15 @@ import { Link, useLocation } from 'react-router-dom'
 
 export default function Navbar() {
   const loc = useLocation()
-  const base = import.meta.env.BASE_URL
 
   const links = [
-    { to: base, label: 'Dashboard' },
-    { to: `${base}catalog`, label: 'Datenkatalog' },
+    { to: '/', label: 'Dashboard' },
+    { to: '/catalog', label: 'Datenkatalog' },
   ]
 
   return (
     <nav style={{ background: '#1e3a5f', color: '#fff' }} className="px-6 py-3 flex items-center gap-6 shadow-md">
-      <Link to={base} className="flex items-center gap-2 no-underline">
+      <Link to="/" className="flex items-center gap-2 no-underline">
         <span style={{ fontSize: 22 }}>🌍</span>
         <span style={{ fontWeight: 700, fontSize: 16, color: '#fff', letterSpacing: '-0.3px' }}>
           UBA Datacube
@@ -19,7 +18,7 @@ export default function Navbar() {
       </Link>
       <div className="flex gap-1 ml-2">
         {links.map((l) => {
-          const active = loc.pathname === l.to || (l.to !== base && loc.pathname.startsWith(l.to))
+          const active = loc.pathname === l.to || (l.to !== '/' && loc.pathname.startsWith(l.to))
           return (
             <Link
               key={l.to}

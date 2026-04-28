@@ -71,7 +71,6 @@ function useHighlightData(config: HighlightConfig, flows: Dataflow[]) {
 
 function HighlightCard({ config, flows }: { config: HighlightConfig; flows: Dataflow[] }) {
   const { data, loading } = useHighlightData(config, flows)
-  const base = import.meta.env.BASE_URL
 
   const latest = data[data.length - 1]
   const previous = data[data.length - 2]
@@ -172,7 +171,7 @@ function HighlightCard({ config, flows }: { config: HighlightConfig; flows: Data
 
       <div style={{ padding: '8px 16px 12px', borderTop: '1px solid #f1f5f9' }}>
         <Link
-          to={`${base}dataset/${encodeURIComponent(config.flowId)}`}
+          to={`/dataset/${encodeURIComponent(config.flowId)}`}
           style={{ fontSize: 12, color: config.color, textDecoration: 'none', fontWeight: 500 }}
         >
           Details & alle Serien →
@@ -185,7 +184,6 @@ function HighlightCard({ config, flows }: { config: HighlightConfig; flows: Data
 export default function DashboardPage() {
   const [flows, setFlows] = useState<Dataflow[]>([])
   const [loadingFlows, setLoadingFlows] = useState(true)
-  const base = import.meta.env.BASE_URL
 
   useEffect(() => {
     fetchDataflows().then(setFlows).finally(() => setLoadingFlows(false))
@@ -213,7 +211,7 @@ export default function DashboardPage() {
           81 Datensätze zu Klima, Energie, Verkehr, Wasser und mehr –
           direkt aus der SDMX REST API.
         </p>
-        <Link to={`${base}catalog`} style={{
+        <Link to="/catalog" style={{
           display: 'inline-block', background: '#fff', color: '#1e3a5f',
           padding: '10px 22px', borderRadius: 8, fontWeight: 700, fontSize: 14, textDecoration: 'none',
         }}>
@@ -247,7 +245,7 @@ export default function DashboardPage() {
           const count = byCategory[cat.id] ?? 0
           if (!count) return null
           return (
-            <Link key={cat.id} to={`${base}catalog`} style={{ textDecoration: 'none' }}>
+            <Link key={cat.id} to="/catalog" style={{ textDecoration: 'none' }}>
               <div
                 style={{
                   background: cat.bg, border: `1.5px solid ${cat.color}30`,

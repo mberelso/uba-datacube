@@ -31,8 +31,6 @@ export default function CatalogPage() {
     ;(byCategory[f.category] ??= []).push(f)
   }
 
-  const base = import.meta.env.BASE_URL
-
   return (
     <div style={{ maxWidth: 1200, margin: '0 auto', padding: '24px 20px' }}>
       <h1 style={{ fontSize: 28, fontWeight: 700, color: '#1e293b', marginBottom: 4 }}>
@@ -42,7 +40,6 @@ export default function CatalogPage() {
         {flows.length} Datensätze des Umweltbundesamts – SDMX REST API
       </p>
 
-      {/* Search */}
       <input
         type="search"
         placeholder="Datensatz suchen…"
@@ -54,7 +51,6 @@ export default function CatalogPage() {
         }}
       />
 
-      {/* Category filter pills */}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 28 }}>
         <button
           onClick={() => setActiveCategory(null)}
@@ -98,7 +94,6 @@ export default function CatalogPage() {
       )}
       {error && <div style={{ color: '#dc2626', padding: 20 }}>{error}</div>}
 
-      {/* Grouped by category */}
       {!loading && !error && Object.entries(byCategory).map(([catId, catFlows]) => {
         const meta = getCategoryMeta(catId)
         return (
@@ -118,16 +113,26 @@ export default function CatalogPage() {
               {catFlows.map((f) => (
                 <Link
                   key={f.id}
-                  to={`${base}dataset/${encodeURIComponent(f.id)}`}
+                  to={`/dataset/${encodeURIComponent(f.id)}`}
                   style={{ textDecoration: 'none' }}
                 >
-                  <div style={{
-                    background: '#fff', border: '1.5px solid #e2e8f0', borderRadius: 10,
-                    padding: '14px 16px', cursor: 'pointer', transition: 'all 0.15s',
-                    borderLeft: `4px solid ${meta.color}`,
-                  }}
-                    onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)'; (e.currentTarget as HTMLElement).style.borderColor = meta.color }}
-                    onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.boxShadow = 'none'; (e.currentTarget as HTMLElement).style.borderColor = '#e2e8f0'; (e.currentTarget as HTMLElement).style.borderLeftColor = meta.color }}
+                  <div
+                    style={{
+                      background: '#fff', border: '1.5px solid #e2e8f0', borderRadius: 10,
+                      padding: '14px 16px', cursor: 'pointer', transition: 'all 0.15s',
+                      borderLeft: `4px solid ${meta.color}`,
+                    }}
+                    onMouseEnter={(e) => {
+                      const el = e.currentTarget as HTMLElement
+                      el.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)'
+                      el.style.borderColor = meta.color
+                    }}
+                    onMouseLeave={(e) => {
+                      const el = e.currentTarget as HTMLElement
+                      el.style.boxShadow = 'none'
+                      el.style.borderColor = '#e2e8f0'
+                      el.style.borderLeftColor = meta.color
+                    }}
                   >
                     <div style={{ fontSize: 13, fontWeight: 600, color: '#1e293b', marginBottom: 4, lineHeight: 1.4 }}>
                       {f.name}
@@ -136,8 +141,10 @@ export default function CatalogPage() {
                       {f.id} · v{f.version}
                     </div>
                     {f.description && (
-                      <div style={{ fontSize: 12, color: '#64748b', marginTop: 6, lineHeight: 1.5,
-                        display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                      <div style={{
+                        fontSize: 12, color: '#64748b', marginTop: 6, lineHeight: 1.5,
+                        display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden',
+                      }}>
                         {f.description}
                       </div>
                     )}

@@ -44,10 +44,20 @@ export default function DatasetPage() {
         setTimeValues(timeValues)
         setDims(seriesDimensions)
         
-        // Auto-select first few series if none selected
+        // Auto-select top 5 series with the highest average values if none selected
         if (selectedSeries.size === 0) {
-          const keys = Object.keys(seriesMap).slice(0, 5)
-          setSelectedSeries(new Set(keys))
+          const seriesWithAverages = Object.entries(seriesMap).map(([key, s]) => {
+            const validValues = Object.values(s.observations).filter((v) => v !== null) as number[]
+            if (validValues.length === 0) return { key, avg: -Infinity }
+            
+            // Calculate average of absolute values to also catch large negative trends
+            const sum = validValues.reduce((acc, val) => acc + Math.abs(val), 0)
+            return { key, avg: sum / validValues.length }
+          })
+          
+          seriesWithAverages.sort((a, b) => b.avg - a.avg)
+          const topKeys = seriesWithAverages.slice(0, 5).map(s => s.key)
+          setSelectedSeries(new Set(topKeys))
         }
       })
       .catch((e) => setError(e.message ?? 'Fehler beim Laden'))

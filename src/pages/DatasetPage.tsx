@@ -14,6 +14,16 @@ const CHART_COLORS = [
 
 type ChartType = 'line' | 'bar'
 
+const InfoTooltip = ({ text }: { text: string }) => (
+  <span title={text} style={{ 
+    cursor: 'help', color: '#94a3b8', marginLeft: '6px', fontSize: '11px', 
+    display: 'inline-flex', alignItems: 'center', justifyContent: 'center', 
+    width: '16px', height: '16px', borderRadius: '50%', background: '#f1f5f9', fontWeight: 600 
+  }}>
+    ?
+  </span>
+)
+
 export default function DatasetPage() {
   const { id } = useParams<{ id: string }>()
 
@@ -140,6 +150,9 @@ export default function DatasetPage() {
         {flow.description && (
           <p style={{ fontSize: 13, color: '#64748b', lineHeight: 1.6 }}>{flow.description}</p>
         )}
+        <div style={{ marginTop: 12, padding: '10px 14px', background: '#f8fafc', borderRadius: 6, borderLeft: `3px solid ${meta.color}`, fontSize: 13, color: '#475569' }}>
+          💡 <strong>Tipp zur Analyse:</strong> Nutze die Filter auf der linken Seite, um die Daten einzugrenzen. Führe die Maus über das <InfoTooltip text="Beispiel-Hilfe: Tooltips zeigen dir Erklärungen an" /> Symbol neben den Filtern, um Erklärungen zu erhalten.
+        </div>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '240px 1fr', gap: 20 }}>
@@ -156,7 +169,10 @@ export default function DatasetPage() {
                 if (uniqueVals.length <= 1) return null // Hide dimension if only one value
                 return (
                   <div key={d.name}>
-                    <div style={{ fontSize: 10, color: '#94a3b8', marginBottom: 2, fontWeight: 600, textTransform: 'uppercase' }}>{d.name}</div>
+                    <div style={{ fontSize: 10, color: '#94a3b8', marginBottom: 2, fontWeight: 600, textTransform: 'uppercase', display: 'flex', alignItems: 'center' }}>
+                      {d.name}
+                      <InfoTooltip text={d.description || `Wähle Werte für '${d.name}', um die Liste der Serien einzugrenzen.`} />
+                    </div>
                     <select
                       value={filters[d.name] || ''}
                       onChange={(e) => setFilters(prev => ({ ...prev, [d.name]: e.target.value }))}
@@ -261,8 +277,12 @@ export default function DatasetPage() {
 
           <div style={{ background: '#fff', borderRadius: 10, border: '1.5px solid #e2e8f0', padding: '16px 8px' }}>
             {selectedSeries.size === 0 ? (
-              <div style={{ textAlign: 'center', padding: 60, color: '#94a3b8' }}>
-                Bitte mindestens eine Serie auswählen
+              <div style={{ textAlign: 'center', padding: '80px 20px', color: '#64748b', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ fontSize: 48, marginBottom: 16 }}>📊</div>
+                <h3 style={{ margin: '0 0 8px', color: '#1e293b' }}>Keine Datenreihen ausgewählt</h3>
+                <p style={{ margin: 0, fontSize: 14, maxWidth: 400, lineHeight: 1.5 }}>
+                  Bitte setze links Filter oder hake mindestens eine spezifische Serie an, um das Diagramm zu visualisieren.
+                </p>
               </div>
             ) : (
               <ResponsiveContainer width="100%" height={380}>

@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useMemo, useCallback } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import {
   LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid,
@@ -7,6 +7,7 @@ import {
 import { fetchDataflows, fetchData, type Dataflow, type Dimension } from '../api/sdmx'
 import { getCategoryMeta } from '../utils/categories'
 import ForestFiresAnalysis from '../components/ForestFiresAnalysis'
+import { DatasetPresets } from '../components/DatasetPresets'
 
 const CHART_COLORS = [
   '#1e3a5f', '#dc2626', '#16a34a', '#d97706', '#7c3aed',
@@ -113,6 +114,23 @@ export default function DatasetPage() {
 
   const seriesLabels = filteredSeries // Use filtered list for sidebar
 
+  const applyPreset = useCallback((presetFilters: Record<string, string>) => {
+    setFilters(presetFilters)
+    // Find matching keys instantly based on the new filters
+    const matchingKeys = Object.entries(seriesMap).filter(([_, s]) => {
+      return Object.entries(presetFilters).every(([dimName, targetVal]) => {
+        if (!targetVal) return true
+        const dimIdx = dims.findIndex(d => d.name === dimName)
+        if (dimIdx === -1) return true
+        return s.dimValues[dimIdx] === targetVal
+      })
+    }).map(([key]) => key)
+    setSelectedSeries(new Set(matchingKeys))
+    
+    // Scroll to the top of the grid to show the chart
+    window.scrollTo({ top: 300, behavior: 'smooth' })
+  }, [seriesMap, dims])
+
   const meta = flow ? getCategoryMeta(flow.category) : getCategoryMeta('')
 
   if (loading) return (
@@ -160,6 +178,8 @@ export default function DatasetPage() {
           💡 <strong>Tipp zur Analyse:</strong> Nutze die Filter auf der linken Seite, um die Daten einzugrenzen. Führe die Maus über das <InfoTooltip text="Beispiel-Hilfe: Tooltips zeigen dir Erklärungen an" /> Symbol neben den Filtern, um Erklärungen zu erhalten.
         </div>
       </div>
+
+      <DatasetPresets flowId={flow.id} onApplyPreset={applyPreset} />
 
       <div style={{ display: 'grid', gridTemplateColumns: '240px 1fr', gap: 20 }}>
         {/* Sidebar */}

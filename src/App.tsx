@@ -3,6 +3,7 @@ import Navbar from './components/Navbar'
 import DashboardPage from './pages/DashboardPage'
 import CatalogPage from './pages/CatalogPage'
 import DatasetPage from './pages/DatasetPage'
+import AnalysePage from './pages/AnalysePage'
 
 export default function App() {
   return (
@@ -11,6 +12,7 @@ export default function App() {
         <Navbar />
         <Routes>
           <Route path="/" element={<DashboardPage />} />
+          <Route path="/analysen" element={<AnalysePage />} />
           <Route path="/catalog" element={<CatalogPage />} />
           <Route path="/dataset/:id" element={<DatasetPage />} />
         </Routes>

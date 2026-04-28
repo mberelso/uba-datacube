@@ -1,5 +1,73 @@
 const BASE = 'https://daten.uba.de/release/rest'
 
+export interface TimePoint { year: string; value: number }
+
+async function fetchSdmxJson(flowRef: string, key = 'all'): Promise<{ series: Record<string, any>; timeValues: string[] }> {
+  const url = `${BASE}/data/${flowRef}/${key}?format=jsondata`
+  const r = await fetch(url, { headers: { Accept: 'application/vnd.sdmx.data+json;version=2.0,application/json' } })
+  const json = await r.json()
+  const env = json.data ?? json
+  const structs: any[] = env.structures ?? (json.structure ? [json.structure] : [])
+  const dsets: any[] = env.dataSets ?? []
+  const tvals: any[] = structs[0]?.dimensions?.observation?.[0]?.values ?? []
+  return {
+    series: dsets[0]?.series ?? {},
+    timeValues: tvals.map((v: any) => v.id ?? String(v)),
+  }
+}
+
+/** Average all series per year, return sorted array */
+export async function fetchAveragedSeries(flowRef: string, key = 'all'): Promise<TimePoint[]> {
+  const { series, timeValues } = await fetchSdmxJson(flowRef, key)
+  const acc: Record<string, number[]> = {}
+  for (const sv of Object.values(series) as any[]) {
+    for (const [tidx, val] of Object.entries(sv.observations ?? {})) {
+      const yr = timeValues[Number(tidx)] ?? tidx
+      const v = Array.isArray(val) ? (val[0] as number | null) : null
+      if (v != null) (acc[yr] ??= []).push(v)
+    }
+  }
+  return Object.entries(acc)
+    .map(([year, vs]) => ({ year, value: vs.reduce((a, b) => a + b, 0) / vs.length }))
+    .sort((a, b) => a.year.localeCompare(b.year))
+}
+
+/** Pick a single named series by 0-based series index */
+export async function fetchSingleSeries(flowRef: string, key = 'all', seriesIndex = 0): Promise<TimePoint[]> {
+  const { series, timeValues } = await fetchSdmxJson(flowRef, key)
+  const sv = Object.values(series)[seriesIndex] as any
+  if (!sv) return []
+  return Object.entries(sv.observations ?? {})
+    .map(([tidx, val]) => ({
+      year: timeValues[Number(tidx)] ?? tidx,
+      value: Array.isArray(val) ? (val[0] as number) : (val as number),
+    }))
+    .filter((p) => p.value != null)
+    .sort((a, b) => a.year.localeCompare(b.year))
+}
+
+/** Fetch multiple named series, returns { label → TimePoint[] } */
+export async function fetchNamedSeries(
+  flowRef: string,
+  key: string,
+  labelMap: Record<string, string>,  // seriesKey → display label
+): Promise<Record<string, TimePoint[]>> {
+  const { series, timeValues } = await fetchSdmxJson(flowRef, key)
+  const result: Record<string, TimePoint[]> = {}
+  for (const [seriesKey, label] of Object.entries(labelMap)) {
+    const sv = series[seriesKey] as any
+    if (!sv) continue
+    result[label] = Object.entries(sv.observations ?? {})
+      .map(([tidx, val]) => ({
+        year: timeValues[Number(tidx)] ?? tidx,
+        value: Array.isArray(val) ? (val[0] as number) : (val as number),
+      }))
+      .filter((p) => p.value != null)
+      .sort((a, b) => a.year.localeCompare(b.year))
+  }
+  return result
+}
+
 export interface Dataflow {
   id: string
   name: string

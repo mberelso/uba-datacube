@@ -101,5 +101,6 @@ Die Datenanzeige wurde robuster gestaltet, um Probleme mit leeren Dashboards zu 
 ### DatasetPage & Filterung (April 2026)
 Für Datensätze mit tausenden von Serien wurden folgende Verbesserungen implementiert:
 - **Dimensionale Filter**: Dynamische Dropdown-Menüs erlauben das Filtern nach Dimensionen (z.B. nur eine bestimmte Treibhausgas-Substanz).
+- **Smart Defaults**: Anstatt die ersten 5 Serien aus der API auszuwählen, berechnet das System nun beim Laden den Durchschnittswert aller Serien und wählt automatisch die Top-5-Serien mit den absolut höchsten Werten (Hauptemittenten) aus.
 - **Wissenschaftliche Notation**: Die Y-Achse nutzt nun `1.2e-6` Notation für sehr kleine Messwerte, um die Lesbarkeit bei Emissionsdaten zu gewährleisten.
 - **Performance-Limitierung**: Um den Browser nicht zu überlasten, werden in der Auswahl-Liste nur die ersten 100 Treffer angezeigt, was die Nutzung von Filtern forciert und die Performance drastisch verbessert.

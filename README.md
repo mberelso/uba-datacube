@@ -11,6 +11,7 @@ UBA-Datacube ist eine moderne Web-Applikation zur Visualisierung und Analyse von
   - **Dimensionale Filter**: Komplexe Datensätze (z. B. mit >6000 Serien) können komfortabel über Dropdown-Menüs gefiltert werden.
   - **Smart Defaults**: Das System berechnet automatisch die relevantesten Datenreihen (Hauptemittenten) und wählt diese beim Laden eines Datensatzes als Startansicht aus.
   - **Guided Analytics UX**: Info-Tooltips an Filtern, "Empty States" bei abgewählten Serien und Onboarding-Tipps führen Anfänger sicher durch die Daten.
+  - **Spezial-Analysen**: Maßgeschneiderte Ansichten für komplexe Datensätze (z. B. Waldbrände), die verschiedene Einheiten (Anzahl vs. Fläche) trennen und abgeleitete Metriken (wie "Brandintensität") on-the-fly berechnen, um echte Erkenntnisse zu liefern.
   - **Wissenschaftliche Notation**: Extrem kleine Messwerte werden zur besseren Lesbarkeit automatisch skaliert (z. B. `1.2e-6`).
 
 ## 🛠️ Tech Stack
@@ -41,3 +42,4 @@ Die UBA-API liefert Daten im SDMX-JSON Format. Da die API-Struktur zwischen vers
 - **Zeitdimensionen**: Werden flexibel über ihre Rolle (`time`) oder ID (`TIME_PERIOD`) identifiziert.
 - **Beobachtungen (Observations)**: Es werden sowohl klassische Arrays (`[Wert, Flag]`) als auch direkte numerische Werte unterstützt.
 - **Robustes Fallback**: Wenn eine Datenreihe komplett leer ist, wird sie vom System intelligent ignoriert, um "leere" Charts zu vermeiden.
+- **Spezial-Komponenten (Custom Views)**: Für Datensätze, bei denen Standard-Visualisierungen an ihre Grenzen stoßen (z. B. `DF_AGRICULTURE_FORESTRY_FOREST_FIRE_AREA` wegen gemischter Einheiten), existieren maßgeschneiderte Komponenten (wie `ForestFiresAnalysis.tsx`). Diese werden dynamisch eingebunden, nutzen synchrone Diagramme (`syncId`) und berechnen auf Basis des API-Responses abgeleitete Metriken für tiefere Einblicke.

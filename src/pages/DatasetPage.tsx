@@ -6,6 +6,7 @@ import {
 } from 'recharts'
 import { fetchDataflows, fetchData, type Dataflow, type Dimension } from '../api/sdmx'
 import { getCategoryMeta } from '../utils/categories'
+import ForestFiresAnalysis from '../components/ForestFiresAnalysis'
 
 const CHART_COLORS = [
   '#1e3a5f', '#dc2626', '#16a34a', '#d97706', '#7c3aed',
@@ -31,6 +32,7 @@ export default function DatasetPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [chartType, setChartType] = useState<ChartType>('line')
+  const [showAdvanced, setShowAdvanced] = useState(true)
 
   const [seriesMap, setSeriesMap] = useState<Record<string, { dimValues: string[]; observations: Record<string, number | null> }>>({})
   const [timeValues, setTimeValues] = useState<string[]>([])
@@ -270,79 +272,97 @@ export default function DatasetPage() {
                 {t === 'line' ? '📈 Linie' : '📊 Balken'}
               </button>
             ))}
+            {flow.id === 'DF_AGRICULTURE_FORESTRY_FOREST_FIRE_AREA' && (
+              <button
+                onClick={() => setShowAdvanced(!showAdvanced)}
+                style={{
+                  padding: '5px 14px', borderRadius: 6, border: '1.5px solid #16a34a',
+                  background: showAdvanced ? '#16a34a' : '#fff',
+                  color: showAdvanced ? '#fff' : '#16a34a',
+                  fontSize: 13, cursor: 'pointer', fontWeight: showAdvanced ? 600 : 400,
+                  marginLeft: 8
+                }}
+              >
+                🔍 Erweiterte Analyse
+              </button>
+            )}
             <span style={{ marginLeft: 'auto', fontSize: 12, color: '#94a3b8' }}>
               {timeValues.length} Zeitpunkte · {selectedSeries.size} Serien aktiv
             </span>
           </div>
 
-          <div style={{ background: '#fff', borderRadius: 10, border: '1.5px solid #e2e8f0', padding: '16px 8px' }}>
-            {selectedSeries.size === 0 ? (
-              <div style={{ textAlign: 'center', padding: '80px 20px', color: '#64748b', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                <div style={{ fontSize: 48, marginBottom: 16 }}>📊</div>
-                <h3 style={{ margin: '0 0 8px', color: '#1e293b' }}>Keine Datenreihen ausgewählt</h3>
-                <p style={{ margin: 0, fontSize: 14, maxWidth: 400, lineHeight: 1.5 }}>
-                  Bitte setze links Filter oder hake mindestens eine spezifische Serie an, um das Diagramm zu visualisieren.
-                </p>
-              </div>
-            ) : (
-              <ResponsiveContainer width="100%" height={380}>
-                {chartType === 'line' ? (
-                  <LineChart data={chartData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                    <XAxis dataKey="year" tick={{ fontSize: 11 }} />
-                    <YAxis
-                      tick={{ fontSize: 10 }}
-                      width={65}
-                      tickFormatter={(val) => {
-                        if (val === 0) return '0'
-                        if (Math.abs(val) < 0.01) return val.toExponential(2)
-                        return val.toLocaleString('de-DE', { maximumFractionDigits: 2 })
-                      }}
-                    />
-                    <Tooltip
-                      contentStyle={{ fontSize: 12, borderRadius: 8 }}
-                      formatter={(v: any) => [
-                        Number(v).toLocaleString('de-DE', { maximumFractionDigits: 6 }),
-                        '',
-                      ]}
-                    />
-                    <Legend wrapperStyle={{ fontSize: 11, paddingTop: 10 }} iconType="circle" />
-                    {activeSeriesList.map(({ label }, i) => (
-                      <Line key={label} type="monotone" dataKey={label}
-                        stroke={CHART_COLORS[i % CHART_COLORS.length]}
-                        dot={false} strokeWidth={2.5} connectNulls />
-                    ))}
-                  </LineChart>
-                ) : (
-                  <BarChart data={chartData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                    <XAxis dataKey="year" tick={{ fontSize: 11 }} />
-                    <YAxis
-                      tick={{ fontSize: 10 }}
-                      width={65}
-                      tickFormatter={(val) => {
-                        if (val === 0) return '0'
-                        if (Math.abs(val) < 0.01) return val.toExponential(2)
-                        return val.toLocaleString('de-DE', { maximumFractionDigits: 2 })
-                      }}
-                    />
-                    <Tooltip
-                      contentStyle={{ fontSize: 12, borderRadius: 8 }}
-                      formatter={(v: any) => [
-                        Number(v).toLocaleString('de-DE', { maximumFractionDigits: 6 }),
-                        '',
-                      ]}
-                    />
-                    <Legend wrapperStyle={{ fontSize: 11, paddingTop: 10 }} iconType="circle" />
-                    {activeSeriesList.map(({ label }, i) => (
-                      <Bar key={label} dataKey={label}
-                        fill={CHART_COLORS[i % CHART_COLORS.length]} radius={[3, 3, 0, 0]} />
-                    ))}
-                  </BarChart>
-                )}
-              </ResponsiveContainer>
-            )}
-          </div>
+          {showAdvanced && flow.id === 'DF_AGRICULTURE_FORESTRY_FOREST_FIRE_AREA' ? (
+            <ForestFiresAnalysis timeValues={timeValues} seriesMap={seriesMap} activeSeriesKeys={selectedSeries} />
+          ) : (
+            <div style={{ background: '#fff', borderRadius: 10, border: '1.5px solid #e2e8f0', padding: '16px 8px' }}>
+              {selectedSeries.size === 0 ? (
+                <div style={{ textAlign: 'center', padding: '80px 20px', color: '#64748b', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                  <div style={{ fontSize: 48, marginBottom: 16 }}>📊</div>
+                  <h3 style={{ margin: '0 0 8px', color: '#1e293b' }}>Keine Datenreihen ausgewählt</h3>
+                  <p style={{ margin: 0, fontSize: 14, maxWidth: 400, lineHeight: 1.5 }}>
+                    Bitte setze links Filter oder hake mindestens eine spezifische Serie an, um das Diagramm zu visualisieren.
+                  </p>
+                </div>
+              ) : (
+                <ResponsiveContainer width="100%" height={380}>
+                  {chartType === 'line' ? (
+                    <LineChart data={chartData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                      <XAxis dataKey="year" tick={{ fontSize: 11 }} />
+                      <YAxis
+                        tick={{ fontSize: 10 }}
+                        width={65}
+                        tickFormatter={(val) => {
+                          if (val === 0) return '0'
+                          if (Math.abs(val) < 0.01) return val.toExponential(2)
+                          return val.toLocaleString('de-DE', { maximumFractionDigits: 2 })
+                        }}
+                      />
+                      <Tooltip
+                        contentStyle={{ fontSize: 12, borderRadius: 8 }}
+                        formatter={(v: any) => [
+                          Number(v).toLocaleString('de-DE', { maximumFractionDigits: 6 }),
+                          '',
+                        ]}
+                      />
+                      <Legend wrapperStyle={{ fontSize: 11, paddingTop: 10 }} iconType="circle" />
+                      {activeSeriesList.map(({ label }, i) => (
+                        <Line key={label} type="monotone" dataKey={label}
+                          stroke={CHART_COLORS[i % CHART_COLORS.length]}
+                          dot={false} strokeWidth={2.5} connectNulls />
+                      ))}
+                    </LineChart>
+                  ) : (
+                    <BarChart data={chartData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                      <XAxis dataKey="year" tick={{ fontSize: 11 }} />
+                      <YAxis
+                        tick={{ fontSize: 10 }}
+                        width={65}
+                        tickFormatter={(val) => {
+                          if (val === 0) return '0'
+                          if (Math.abs(val) < 0.01) return val.toExponential(2)
+                          return val.toLocaleString('de-DE', { maximumFractionDigits: 2 })
+                        }}
+                      />
+                      <Tooltip
+                        contentStyle={{ fontSize: 12, borderRadius: 8 }}
+                        formatter={(v: any) => [
+                          Number(v).toLocaleString('de-DE', { maximumFractionDigits: 6 }),
+                          '',
+                        ]}
+                      />
+                      <Legend wrapperStyle={{ fontSize: 11, paddingTop: 10 }} iconType="circle" />
+                      {activeSeriesList.map(({ label }, i) => (
+                        <Bar key={label} dataKey={label}
+                          fill={CHART_COLORS[i % CHART_COLORS.length]} radius={[3, 3, 0, 0]} />
+                      ))}
+                    </BarChart>
+                  )}
+                </ResponsiveContainer>
+              )}
+            </div>
+          )}
 
           {selectedSeries.size > 0 && (
             <details style={{ marginTop: 16 }}>

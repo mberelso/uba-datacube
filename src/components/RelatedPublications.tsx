@@ -11,38 +11,38 @@ interface Publication {
 const PUBLICATION_MAPPINGS: Record<string, Publication[]> = {
   'DF_CLIMATE_EMISSIONS_GHG_TRENDS': [
     {
-      title: 'Nationaler Inventarbericht zum Deutschen Treibhausgasinventar',
-      url: 'https://www.umweltbundesamt.de/publikationen/berichterstattung-unter-der-klimarahmenkonvention-1',
-      description: 'Detaillierter Bericht über die Emissionen und Senken von Treibhausgasen in Deutschland.',
+      title: 'Daten zu Treibhausgas-Emissionen',
+      url: 'https://www.umweltbundesamt.de/themen/klima-energie/treibhausgas-emissionen/daten-zu-treibhausgas-emissionen',
+      description: 'Detaillierte Fakten über die Emissionen und Senken von Treibhausgasen in Deutschland.',
       icon: '📊',
-      tag: 'Studie'
+      tag: 'Datenblatt'
     },
     {
       title: 'Projektionsbericht der Bundesregierung',
-      url: 'https://www.umweltbundesamt.de/publikationen/projektionsbericht-der-bundesregierung-2023',
+      url: 'https://www.umweltbundesamt.de/publikationen/projektionsbericht-2023-fuer-deutschland',
       description: 'Abschätzung der zukünftigen Treibhausgasemissionen und Bewertung von Klimaschutzmaßnahmen.',
       icon: '🔮',
       tag: 'Bericht'
     },
     {
-      title: 'Klimaschutz in Zahlen',
-      url: 'https://www.umweltbundesamt.de/themen/klima-energie/klimaschutz-energiepolitik-in-deutschland/treibhausgas-emissionen/klimaschutz-in-zahlen',
-      description: 'Fakten, Trends und Impulse deutscher Klimapolitik kompakt zusammengefasst.',
+      title: 'Treibhausgas-Emissionen in Deutschland',
+      url: 'https://www.umweltbundesamt.de/themen/klima-energie/treibhausgas-emissionen',
+      description: 'Offizieller Überblick, Trends und Impulse deutscher Klimapolitik kompakt zusammengefasst.',
       icon: '📈',
-      tag: 'Faktenblatt'
+      tag: 'Übersicht'
     }
   ],
   'DF_AGRICULTURE_FORESTRY_FOREST_FIRE_AREA': [
     {
       title: 'Klimawirkungs- und Risikoanalyse für Deutschland',
-      url: 'https://www.umweltbundesamt.de/publikationen/klimawirkungs-risikoanalyse-2021-fuer-deutschland',
+      url: 'https://www.umweltbundesamt.de/publikationen/KWRA-Zusammenfassung',
       description: 'Umfassende Analyse der Risiken durch den Klimawandel, inkl. zunehmender Waldbrandgefahr.',
       icon: '🔥',
       tag: 'Analyse'
     },
     {
-      title: 'Waldzustandsbericht',
-      url: 'https://www.umweltbundesamt.de/daten/land-forstwirtschaft/waldzustand',
+      title: 'Waldzustand: Kronenverlichtung',
+      url: 'https://www.umweltbundesamt.de/daten/flaeche-boden-land-oekosysteme/land-oekosysteme/waldzustand-kronenverlichtung',
       description: 'Offizielle Daten und Berichte zum Zustand der Wälder in Deutschland und den Folgen von Dürren.',
       icon: '🌲',
       tag: 'Daten'

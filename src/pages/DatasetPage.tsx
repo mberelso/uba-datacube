@@ -8,6 +8,7 @@ import { fetchDataflows, fetchData, type Dataflow, type Dimension } from '../api
 import { getCategoryMeta } from '../utils/categories'
 import ForestFiresAnalysis from '../components/ForestFiresAnalysis'
 import { DatasetPresets } from '../components/DatasetPresets'
+import RelatedPublications from '../components/RelatedPublications'
 
 const CHART_COLORS = [
   '#1e3a5f', '#dc2626', '#16a34a', '#d97706', '#7c3aed',
@@ -179,6 +180,7 @@ export default function DatasetPage() {
         </div>
       </div>
 
+      <RelatedPublications flowId={flow.id} flowName={flow.name} color={meta.color} />
       <DatasetPresets flowId={flow.id} onApplyPreset={applyPreset} />
 
       <div style={{ display: 'grid', gridTemplateColumns: '240px 1fr', gap: 20 }}>

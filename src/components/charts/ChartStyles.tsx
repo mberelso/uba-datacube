@@ -59,6 +59,9 @@ export const CHART_COLORS_PALETTE = [
   '#0891b2', '#be185d', '#65a30d', '#0284c7', '#92400e',
 ]
 
+// Alias for direct import
+export const CHART_COLORS = CHART_COLORS_PALETTE
+
 // --- Glassmorphism Tooltip component (reusable) ---
 export function GlassTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null

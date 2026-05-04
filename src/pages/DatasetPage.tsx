@@ -1,9 +1,6 @@
 import { useEffect, useState, useMemo, useCallback } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import {
-  LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid,
-  Tooltip, Legend, ResponsiveContainer,
-} from 'recharts'
+
 import { fetchDataflows, fetchData, type Dataflow, type Dimension } from '../api/sdmx'
 import { getCategoryMeta } from '../utils/categories'
 import ForestFiresAnalysis from '../components/ForestFiresAnalysis'

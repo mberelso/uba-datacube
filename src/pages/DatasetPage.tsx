@@ -9,6 +9,7 @@ import { getCategoryMeta } from '../utils/categories'
 import ForestFiresAnalysis from '../components/ForestFiresAnalysis'
 import { DatasetPresets } from '../components/DatasetPresets'
 import RelatedPublications from '../components/RelatedPublications'
+import { ChartRenderer } from '../components/charts/ChartRenderer'
 
 const CHART_COLORS = [
   '#1e3a5f', '#dc2626', '#16a34a', '#d97706', '#7c3aed',
@@ -330,63 +331,12 @@ export default function DatasetPage() {
                   </p>
                 </div>
               ) : (
-                <ResponsiveContainer width="100%" height={380}>
-                  {chartType === 'line' ? (
-                    <LineChart data={chartData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                      <XAxis dataKey="year" tick={{ fontSize: 11 }} />
-                      <YAxis
-                        tick={{ fontSize: 10 }}
-                        width={65}
-                        tickFormatter={(val) => {
-                          if (val === 0) return '0'
-                          if (Math.abs(val) < 0.01) return val.toExponential(2)
-                          return val.toLocaleString('de-DE', { maximumFractionDigits: 2 })
-                        }}
-                      />
-                      <Tooltip
-                        contentStyle={{ fontSize: 12, borderRadius: 8 }}
-                        formatter={(v: any) => [
-                          Number(v).toLocaleString('de-DE', { maximumFractionDigits: 6 }),
-                          '',
-                        ]}
-                      />
-                      <Legend wrapperStyle={{ fontSize: 11, paddingTop: 10 }} iconType="circle" />
-                      {activeSeriesList.map(({ label }, i) => (
-                        <Line key={label} type="monotone" dataKey={label}
-                          stroke={CHART_COLORS[i % CHART_COLORS.length]}
-                          dot={chartData.length === 1 ? { r: 4 } : false} 
-                          strokeWidth={2.5} connectNulls />
-                      ))}
-                    </LineChart>
-                  ) : (
-                    <BarChart data={chartData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                      <XAxis dataKey="year" tick={{ fontSize: 11 }} />
-                      <YAxis
-                        tick={{ fontSize: 10 }}
-                        width={65}
-                        tickFormatter={(val) => {
-                          if (val === 0) return '0'
-                          if (Math.abs(val) < 0.01) return val.toExponential(2)
-                          return val.toLocaleString('de-DE', { maximumFractionDigits: 2 })
-                        }}
-                      />
-                      <Tooltip
-                        contentStyle={{ fontSize: 12, borderRadius: 8 }}
-                        formatter={(v: any) => [
-                          Number(v).toLocaleString('de-DE', { maximumFractionDigits: 6 }),
-                          '',
-                        ]}
-                      />
-                      <Legend wrapperStyle={{ fontSize: 11, paddingTop: 10 }} iconType="circle" />
-                      {activeSeriesList.map(({ label }, i) => (
-                        <Bar key={label} dataKey={label}
-                          fill={CHART_COLORS[i % CHART_COLORS.length]} radius={[3, 3, 0, 0]} />
-                      ))}
-                    </BarChart>
-                  )}
-                </ResponsiveContainer>
+                <ChartRenderer
+                  flow={flow}
+                  chartData={chartData}
+                  activeSeriesList={activeSeriesList}
+                  chartType={chartType}
+                />
               )}
             </div>
           )}

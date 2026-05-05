@@ -1,4 +1,5 @@
 import { useEffect, useState, type ReactNode } from 'react'
+import { Link } from 'react-router-dom'
 import {
   AreaChart, Area, BarChart, Bar, LineChart, Line,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -38,10 +39,10 @@ function Section({ title, icon, color, children }: { title: string; icon: string
   )
 }
 
-function ChartCard({ title, subtitle, kpi, kpiUnit, kpiYear, trend, color, loading, height = 200, children }: {
+function ChartCard({ title, subtitle, kpi, kpiUnit, kpiYear, trend, color, loading, height = 200, flowId, children }: {
   title: string; subtitle: string
   kpi?: number; kpiUnit?: string; kpiYear?: string; trend?: number
-  color: string; loading: boolean; height?: number; children: ReactNode
+  color: string; loading: boolean; height?: number; flowId?: string; children: ReactNode
 }) {
   return (
     <div style={{ background: '#fff', borderRadius: 12, border: '1.5px solid #e2e8f0',
@@ -68,6 +69,16 @@ function ChartCard({ title, subtitle, kpi, kpiUnit, kpiYear, trend, color, loadi
           ? <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#94a3b8', fontSize: 13 }}>Lade Daten…</div>
           : (children ? children : <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#94a3b8', fontSize: 12 }}>Keine Daten verfügbar.</div>)}
       </div>
+      {flowId && (
+        <div style={{ padding: '6px 20px 10px', textAlign: 'right' }}>
+          <Link
+            to={`/dataset/${encodeURIComponent(flowId)}`}
+            style={{ fontSize: 11, color: '#1e3a5f', textDecoration: 'none', fontWeight: 500, opacity: 0.8 }}
+          >
+            → Rohdaten erkunden
+          </Link>
+        </div>
+      )}
     </div>
   )
 }
@@ -119,7 +130,7 @@ function TemperatureChart() {
     <ChartCard title="Temperaturanomalie Deutschland" subtitle="Abweichung vom Referenzmittel 1961–1990 (8,2 °C) · Ø aller Bundesländer"
       kpi={anomaly} kpiUnit="°C Anomalie" kpiYear={latest?.year}
       trend={anomaly != null && prevAnomaly != null ? anomaly - prevAnomaly : undefined}
-      color="#dc2626" loading={loading}>
+      color="#dc2626" loading={loading} flowId="DF_CLIMATE_GERMANY_TEMPERATURE_MEAN">
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart data={chartData} margin={{ top: 4, right: 10, left: -24, bottom: 0 }}>
           <Grad id="tGrad" color="#dc2626" />
@@ -150,7 +161,7 @@ function HotDaysChart() {
   return (
     <ChartCard title="Heißtage pro Jahr" subtitle="Tage mit Tmax > 30 °C · Ø aller Bundesländer · farbkodiert nach Intensität"
       kpi={latest?.value} kpiUnit="Tage" kpiYear={latest?.year}
-      color="#d97706" loading={loading}>
+      color="#d97706" loading={loading} flowId="DF_CLIMATE_GERMANY_HOT_DAYS">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={pts ?? []} margin={{ top: 4, right: 10, left: -24, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
@@ -179,7 +190,7 @@ function PrecipitationChart() {
   return (
     <ChartCard title="Jahresniederschlag Deutschland" subtitle="Ø aller Bundesländer (mm) · 1881–2025"
       kpi={latest?.value} kpiUnit="mm" kpiYear={latest?.year}
-      color="#0369a1" loading={loading}>
+      color="#0369a1" loading={loading} flowId="DF_CLIMATE_GERMANY_PRECIPATION">
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart data={pts ?? []} margin={{ top: 4, right: 10, left: -24, bottom: 0 }}>
           <Grad id="pGrad" color="#0369a1" />
@@ -210,7 +221,7 @@ function RenewableShareChart() {
   return (
     <ChartCard title="Anteil Erneuerbarer Energien" subtitle="Am Brutto-Endenergieverbrauch (RED-Methodik)"
       kpi={latest?.value} kpiUnit="%" kpiYear={latest?.year}
-      color="#16a34a" loading={loading}>
+      color="#16a34a" loading={loading} flowId="DF_ENERGY_AGEE_SHARE">
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={pts ?? []} margin={{ top: 4, right: 10, left: -24, bottom: 0 }}>
           <Grad id="eeGrad" color="#16a34a" />
@@ -248,7 +259,7 @@ function ElectricCarChart() {
   return (
     <ChartCard title="Pkw-Bestand nach Antriebsart" subtitle="Millionen Fahrzeuge (Stichtag 1. Januar)"
       kpi={latestBEV} kpiUnit="Mio. BEV" kpiYear={data?.[data.length - 1]?.year}
-      color="#0284c7" loading={loading}>
+      color="#0284c7" loading={loading} flowId="DF_TRANSPORT_VEHICLE_STOCK_TREND_FUEL">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data ?? []} margin={{ top: 4, right: 10, left: -18, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
@@ -277,7 +288,7 @@ function FuelConsumptionChart() {
     <ChartCard title="Kraftstoffverbrauch Pkw" subtitle="Durchschnittlicher Verbrauch im Straßenverkehr (L/100 km)"
       kpi={latest?.value} kpiUnit="L/100 km" kpiYear={latest?.year}
       trend={first && latest ? latest.value - first.value : undefined}
-      color="#b45309" loading={loading}>
+      color="#b45309" loading={loading} flowId="DF_TRANSPORT_ENERGY_FUEL_CONSUMPTION">
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart data={pts ?? []} margin={{ top: 4, right: 10, left: -24, bottom: 0 }}>
           <Grad id="fcGrad" color="#b45309" />
@@ -321,7 +332,7 @@ function AirPollutantsChart() {
 
   return (
     <ChartCard title="Luftschadstoff-Emissionsindex" subtitle="Index 2005 = 100 · alle Schadstoffe klar rückläufig"
-      color="#7c3aed" loading={loading} height={220}>
+      color="#7c3aed" loading={loading} height={220} flowId="DF_AIR_EMISSIONS_INDEX">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data ?? []} margin={{ top: 4, right: 10, left: -24, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
@@ -361,7 +372,7 @@ function FuelPricesChart() {
   return (
     <ChartCard title="Kraftstoffpreise im Straßenverkehr" subtitle="Jahresdurchschnitt Benzin und Diesel (€/L)"
       kpi={latestBenzin} kpiUnit="€/L (Benzin)" kpiYear={data?.[data.length - 1]?.year}
-      color="#f59e0b" loading={loading}>
+      color="#f59e0b" loading={loading} flowId="DF_TRANSPORT_ENERGY_FUEL_PRICES">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data ?? []} margin={{ top: 4, right: 10, left: -24, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
@@ -404,7 +415,7 @@ function NitrogenChart() {
   return (
     <ChartCard title="Stickstoffüberschuss Landwirtschaft" subtitle="Gesamtbilanz (kg N/ha) · Ziel: ≤ 70 kg/ha bis 2030"
       kpi={latestSaldo} kpiUnit="kg N/ha (Saldo)" kpiYear={data?.[data.length - 1]?.year}
-      color="#65a30d" loading={loading} height={220}>
+      color="#65a30d" loading={loading} height={220} flowId="DF_AGRICULTURE_FORESTRY_NITROGEN_SURPLUS">
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart data={data ?? []} margin={{ top: 4, right: 10, left: -18, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
@@ -451,7 +462,7 @@ function ForestFireChart() {
   return (
     <ChartCard title="Waldbrandfläche nach Ursache" subtitle="Hektar pro Jahr · gestapelt nach Brandursache"
       kpi={latest?.['gesamt']} kpiUnit="ha gesamt" kpiYear={latest?.year}
-      color="#d97706" loading={loading} height={220}>
+      color="#d97706" loading={loading} height={220} flowId="DF_AGRICULTURE_FORESTRY_FOREST_FIRE_AREA">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data ?? []} margin={{ top: 4, right: 10, left: -18, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
@@ -497,7 +508,7 @@ function GreenMobilityChart() {
   return (
     <ChartCard title="Umweltfreundliche Mobilität" subtitle="Anteil an der Personenverkehrsleistung (%) · gestapelt nach Verkehrsträger"
       kpi={total} kpiUnit="% gesamt" kpiYear={latest?.year}
-      color="#16a34a" loading={loading} height={220}>
+      color="#16a34a" loading={loading} height={220} flowId="DF_TRANSPORT_PASSENGER_PERFORMANCE_SHARE">
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={data ?? []} margin={{ top: 4, right: 10, left: -24, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
@@ -527,7 +538,7 @@ function WaterTempChart() {
   return (
     <ChartCard title="Wassertemperatur der Fließgewässer" subtitle="DAS WW-I-10 · Ø aller Messstellen (°C)"
       kpi={latest?.value} kpiUnit="°C" kpiYear={latest?.year}
-      color="#0369a1" loading={loading}>
+      color="#0369a1" loading={loading} flowId="DF_DAS_WASSER_WW_I_10">
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={pts ?? []} margin={{ top: 4, right: 10, left: -24, bottom: 0 }}>
           <Grad id="wGrad" color="#0369a1" />
@@ -551,7 +562,7 @@ function RiverDischargeChart() {
   return (
     <ChartCard title="Mittlerer Abfluss der Flüsse" subtitle="DAS WW-I-3 · Ø aller Pegel (Abweichung vom Mittel)"
       kpi={latest?.value} kpiUnit="" kpiYear={latest?.year}
-      color="#0891b2" loading={loading}>
+      color="#0891b2" loading={loading} flowId="DF_DAS_WASSER_WW_I_3">
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart data={pts ?? []} margin={{ top: 4, right: 10, left: -24, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
@@ -595,7 +606,7 @@ function WasteRecyclingRateChart() {
   return (
     <ChartCard title="Abfallrecyclingquoten" subtitle="Recyclingquote (%) nach Abfallkategorie · 2021–2023"
       kpi={latest?.['Gesamtabfall (nicht-gef.)']} kpiUnit="% Gesamtabfall" kpiYear={latest?.year}
-      color="#0891b2" loading={loading} height={220}>
+      color="#0891b2" loading={loading} height={220} flowId="DF_WASTE_RECOVERY_RATE">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data ?? []} margin={{ top: 4, right: 10, left: -18, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
@@ -642,7 +653,7 @@ function WasteDisposalChart() {
   return (
     <ChartCard title="Brutto-Abfallaufkommen nach Verwertungsweg" subtitle="Mio. Tonnen gesamt · gestapelt nach Entsorgungspfad"
       kpi={total} kpiUnit="Mio. t gesamt" kpiYear={latest?.year}
-      color="#475569" loading={loading} height={220}>
+      color="#475569" loading={loading} height={220} flowId="DF_WASTE_VOLUME">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data ?? []} margin={{ top: 4, right: 10, left: -18, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
@@ -691,7 +702,7 @@ function ConsumerFootprintChart() {
 
   return (
     <ChartCard title="Globaler Umwelt-Fußabdruck privater Haushalte" subtitle="Index 2010 = 100 · direkte und indirekte Effekte"
-      color="#dc2626" loading={loading} height={220}>
+      color="#dc2626" loading={loading} height={220} flowId="DF_CONSUMPTION_GLOBAL_ENV_FOOTPRINT">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data ?? []} margin={{ top: 4, right: 10, left: -24, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
@@ -739,7 +750,7 @@ function EnvTaxRevenueChart() {
   return (
     <ChartCard title="Umweltsteuereinnahmen" subtitle="Mrd. € · gestapelt nach Steuerart"
       kpi={total} kpiUnit="Mrd. € gesamt" kpiYear={latestTotal?.year}
-      color="#475569" loading={loading} height={220}>
+      color="#475569" loading={loading} height={220} flowId="DF_ENV_ECON_REVENUE_ENV_TAXES">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data ?? []} margin={{ top: 4, right: 10, left: -18, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />

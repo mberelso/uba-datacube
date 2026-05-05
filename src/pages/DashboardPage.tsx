@@ -243,12 +243,21 @@ export default function DashboardPage() {
           81 Datensätze zu Klima, Energie, Verkehr, Wasser und mehr –
           direkt aus der SDMX REST API.
         </p>
-        <Link to="/catalog" style={{
-          display: 'inline-block', background: '#fff', color: '#1e3a5f',
-          padding: '10px 22px', borderRadius: 8, fontWeight: 700, fontSize: 14, textDecoration: 'none',
-        }}>
-          Alle {loadingFlows ? '…' : flows.length} Datensätze →
-        </Link>
+        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+          <Link to="/catalog" style={{
+            display: 'inline-block', background: '#fff', color: '#1e3a5f',
+            padding: '10px 22px', borderRadius: 8, fontWeight: 700, fontSize: 14, textDecoration: 'none',
+          }}>
+            Alle {loadingFlows ? '…' : flows.length} Datensätze →
+          </Link>
+          <Link to="/analysen" style={{
+            display: 'inline-block', background: 'rgba(255,255,255,0.15)', color: '#fff',
+            padding: '10px 22px', borderRadius: 8, fontWeight: 700, fontSize: 14, textDecoration: 'none',
+            border: '1.5px solid rgba(255,255,255,0.3)', backdropFilter: 'blur(4px)',
+          }}>
+            Analysen entdecken →
+          </Link>
+        </div>
       </div>
 
       {/* Highlight charts */}

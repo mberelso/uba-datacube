@@ -10,7 +10,8 @@ UBA-Datacube ist eine moderne Web-Applikation zur Visualisierung und Analyse von
 - **Smart Data Discovery**:
   - **Dimensionale Filter**: Komplexe Datensätze (z. B. mit >6000 Serien) können komfortabel über Dropdown-Menüs gefiltert werden.
   - **Smart Defaults**: Das System berechnet automatisch die relevantesten Datenreihen (Hauptemittenten) und wählt diese beim Laden eines Datensatzes als Startansicht aus.
-  - **Guided Analytics UX**: Info-Tooltips an Filtern, "Empty States" bei abgewählten Serien und Onboarding-Tipps führen Anfänger sicher durch die Daten.
+  - **Guided Analytics UX**: Schließbare Onboarding-Tipps (`GuidedTip`), Info-Tooltips an Filtern und kontextsensitive Deep-Links zwischen Analysen und Rohdaten führen Nutzer sicher durch die Anwendung.
+  - **Share-Funktion**: Jede Datensatzansicht kann per Share-Button als URL geteilt werden.
   - **Spezial-Analysen**: Maßgeschneiderte Ansichten für komplexe Datensätze (z. B. Waldbrände), die verschiedene Einheiten (Anzahl vs. Fläche) trennen und abgeleitete Metriken (wie "Brandintensität") on-the-fly berechnen, um echte Erkenntnisse zu liefern.
   - **Wissenschaftliche Notation**: Extrem kleine Messwerte werden zur besseren Lesbarkeit automatisch skaliert (z. B. `1.2e-6`).
 

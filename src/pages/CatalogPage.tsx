@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { fetchDataflows, type Dataflow } from '../api/sdmx'
 import { CATEGORIES, getCategoryMeta } from '../utils/categories'
+import { GuidedTip } from '../components/GuidedTip'
 
 export default function CatalogPage() {
   const [flows, setFlows] = useState<Dataflow[]>([])
@@ -36,9 +37,14 @@ export default function CatalogPage() {
       <h1 style={{ fontSize: 28, fontWeight: 700, color: '#1e293b', marginBottom: 4 }}>
         Datenkatalog
       </h1>
-      <p style={{ color: '#64748b', marginBottom: 24 }}>
+      <p style={{ color: '#64748b', marginBottom: 16 }}>
         {flows.length} Datensätze des Umweltbundesamts – SDMX REST API
       </p>
+
+      <GuidedTip
+        id="catalog-tip"
+        text="Wähle oben eine Themenkategorie oder suche nach einem Datensatz – dann öffne ihn und nutze die Presets für einen schnellen Einstieg."
+      />
 
       <input
         type="search"

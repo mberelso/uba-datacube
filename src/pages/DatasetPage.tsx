@@ -7,6 +7,7 @@ import ForestFiresAnalysis from '../components/ForestFiresAnalysis'
 import { DatasetPresets } from '../components/DatasetPresets'
 import RelatedPublications from '../components/RelatedPublications'
 import { ChartRenderer } from '../components/charts/ChartRenderer'
+import { GuidedTip } from '../components/GuidedTip'
 
 const CHART_COLORS = [
   '#1e3a5f', '#dc2626', '#16a34a', '#d97706', '#7c3aed',
@@ -33,6 +34,7 @@ export default function DatasetPage() {
   const [error, setError] = useState('')
   const [chartType, setChartType] = useState<ChartType>('line')
   const [showAdvanced, setShowAdvanced] = useState(true)
+  const [shareCopied, setShareCopied] = useState(false)
 
   const [seriesMap, setSeriesMap] = useState<Record<string, { dimValues: string[]; observations: Record<string, number | null> }>>({})
   const [timeValues, setTimeValues] = useState<string[]>([])
@@ -173,9 +175,11 @@ export default function DatasetPage() {
         {flow.description && (
           <p style={{ fontSize: 13, color: '#64748b', lineHeight: 1.6 }}>{flow.description}</p>
         )}
-        <div style={{ marginTop: 12, padding: '10px 14px', background: '#f8fafc', borderRadius: 6, borderLeft: `3px solid ${meta.color}`, fontSize: 13, color: '#475569' }}>
-          💡 <strong>Tipp zur Analyse:</strong> Nutze die Filter auf der linken Seite, um die Daten einzugrenzen. Führe die Maus über das <InfoTooltip text="Beispiel-Hilfe: Tooltips zeigen dir Erklärungen an" /> Symbol neben den Filtern, um Erklärungen zu erhalten.
-        </div>
+        <GuidedTip
+          id="dataset-tip"
+          text="Nutze die Filter links, um Serien einzugrenzen. Über den Share-Button kannst du die aktuelle Ansicht als Link teilen."
+          color={meta.color}
+        />
       </div>
 
       <RelatedPublications flowId={flow.id} flowName={flow.name} color={meta.color} />
@@ -310,8 +314,29 @@ export default function DatasetPage() {
                 🔍 Erweiterte Analyse
               </button>
             )}
-            <span style={{ marginLeft: 'auto', fontSize: 12, color: '#94a3b8' }}>
-              {timeValues.length} Zeitpunkte · {selectedSeries.size} Serien aktiv
+            <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 10 }}>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(window.location.href).then(() => {
+                    setShareCopied(true)
+                    setTimeout(() => setShareCopied(false), 2000)
+                  })
+                }}
+                title="Aktuelle Ansicht als Link kopieren"
+                style={{
+                  padding: '5px 12px', borderRadius: 6,
+                  border: `1.5px solid ${shareCopied ? '#16a34a' : '#e2e8f0'}`,
+                  background: shareCopied ? '#f0fdf4' : '#fff',
+                  color: shareCopied ? '#16a34a' : '#64748b',
+                  fontSize: 12, cursor: 'pointer', fontWeight: 500,
+                  transition: 'all 0.2s',
+                }}
+              >
+                {shareCopied ? '✓ Link kopiert!' : '🔗 Teilen'}
+              </button>
+              <span style={{ fontSize: 12, color: '#94a3b8' }}>
+                {timeValues.length} Zeitpunkte · {selectedSeries.size} Serien aktiv
+              </span>
             </span>
           </div>
 

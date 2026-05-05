@@ -10,3 +10,4 @@
 - [x] Top 10 Filter-Presets für Treibhausgase-Datensatz hinzugefügt
 - [x] Verwandte Publikationen (UBA-Studien) als kontextuelle Infobox integriert
 - [x] Kategoriespezifische Darstellungsformen implementiert (ChartRenderer, ClimateChart, EconomyChart, GlassTooltip)
+- [x] UX-Verbesserungen implementiert (Guided Onboarding, Share-Button, Deep-Links, Dashboard CTA)

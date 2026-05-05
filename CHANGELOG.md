@@ -10,6 +10,17 @@ Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/).
 
 ---
 
+## [0.6.0] – 2026-05-05
+
+### Added
+- **Guided Onboarding**: Schliessbare `GuidedTip`-Komponente in Katalog und Dataset-Ansicht (`src/components/GuidedTip.tsx`).
+- **Share-Funktion**: „🔗 Teilen“-Button in der Chart-Toolbar zum Kopieren des aktuellen Links inkl. Feedback-Status.
+- **Deep-Links**: „→ Rohdaten erkunden“-Links in der Analyse-Ansicht führen direkt zum Quelldatensatz (`AnalysePage.tsx`).
+- **Dashboard CTA**: „Analysen entdecken“-Button im Hero-Bereich für schnelleren Einstieg.
+- **Persistence**: Schliess-Zustand der Tipps wird im `localStorage` gespeichert.
+
+---
+
 ## [0.5.0] – 2026-05-04
 
 ### Added

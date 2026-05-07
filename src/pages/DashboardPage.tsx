@@ -10,6 +10,7 @@ import {
   BookOpen, Translate, ChartBar, ArrowRight, Warning,
 } from '@phosphor-icons/react'
 import { fetchData, fetchDataflows, type Dataflow } from '../api/sdmx'
+import { CubeMark } from '../components/CubeMark'
 import { CATEGORIES } from '../utils/categories'
 import heroBg from '../assets/hero_background.png'
 
@@ -406,11 +407,28 @@ export default function DashboardPage() {
 
         {/* Content — left-aligned, asymmetric */}
         <div className="relative z-10 p-10 md:p-14 max-w-[640px]">
+
+          {/* Logo mark */}
+          <motion.div
+            initial={{ opacity: 0, x: -12 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.06, type: 'spring', stiffness: 120, damping: 24 }}
+            className="flex items-center gap-3 mb-6"
+          >
+            <CubeMark size={28} color="rgba(255,255,255,0.95)" accent="#4A6741" />
+            <span style={{
+              fontSize: 15, fontWeight: 700, color: 'rgba(255,255,255,0.90)',
+              letterSpacing: '-0.2px',
+            }}>
+              UBA-Datacube
+            </span>
+          </motion.div>
+
           <motion.p
             initial={{ opacity: 0, x: -12 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.1, type: 'spring', stiffness: 120, damping: 24 }}
-            className="text-xs font-semibold tracking-widest uppercase text-emerald-400 mb-4"
+            style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.12em', color: '#4A6741', marginBottom: 16, textTransform: 'uppercase' }}
           >
             Umweltbundesamt · Datenkatalog
           </motion.p>
@@ -418,10 +436,10 @@ export default function DashboardPage() {
             initial={{ opacity: 0, x: -12 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.18, type: 'spring', stiffness: 120, damping: 24 }}
-            className="text-4xl md:text-5xl font-extrabold tracking-tight leading-[1.08] text-white mb-4"
+            style={{ fontSize: 'clamp(32px, 4vw, 48px)', fontWeight: 800, letterSpacing: '-0.8px', lineHeight: 1.08, color: 'white', marginBottom: 16 }}
           >
-            Umwelt in Zahlen — <br />
-            <span className="text-emerald-400">klar verständlich.</span>
+            Umweltdaten. <br />
+            <span style={{ color: '#6B9A5E' }}>Klar gemacht.</span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0 }}
@@ -492,19 +510,22 @@ export default function DashboardPage() {
             variants={fadeUp}
             className="p-6 rounded-2xl border border-slate-200/70 bg-white shadow-[0_2px_12px_-4px_rgba(0,0,0,0.04)]"
           >
-            <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center mb-4">
-              <Icon size={18} weight="duotone" className="text-slate-600" />
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center mb-4" style={{ background: '#4A674114' }}>
+              <Icon size={18} weight="duotone" style={{ color: '#4A6741' }} />
             </div>
-            <h3 className="text-[13px] font-semibold text-slate-800 mb-2 leading-snug tracking-tight">{title}</h3>
-            <p className="text-[12px] text-slate-500 leading-relaxed">{body}</p>
+            <h3 style={{ fontSize: 13, fontWeight: 700, color: '#1B2B3A', marginBottom: 6, lineHeight: 1.35, letterSpacing: '-0.2px' }}>{title}</h3>
+            <p style={{ fontSize: 12, color: '#64748b', lineHeight: 1.65, margin: 0 }}>{body}</p>
           </motion.div>
         ))}
       </motion.div>
 
       {/* ── Highlights ───────────────────────────────────────────────────── */}
-      <div className="mb-3 flex items-baseline justify-between">
-        <h2 className="text-base font-semibold text-slate-800 tracking-tight">Highlights</h2>
-        <Link to="/catalog" className="text-xs text-slate-400 hover:text-slate-600 transition-colors">
+      <div className="mb-4 flex items-center justify-between">
+        <div>
+          <h2 style={{ fontSize: 18, fontWeight: 800, color: '#1B2B3A', letterSpacing: '-0.4px', margin: 0 }}>Highlights</h2>
+          <div style={{ width: 28, height: 2, background: '#4A6741', borderRadius: 1, marginTop: 5 }} />
+        </div>
+        <Link to="/catalog" style={{ fontSize: 12, color: '#7A9BAD', textDecoration: 'none', fontWeight: 500 }}>
           Alle Datensätze →
         </Link>
       </div>
@@ -536,8 +557,9 @@ export default function DashboardPage() {
       </AnimatePresence>
 
       {/* ── Category tiles ───────────────────────────────────────────────── */}
-      <div className="mb-3 flex items-baseline justify-between">
-        <h2 className="text-base font-semibold text-slate-800 tracking-tight">Themenbereiche</h2>
+      <div className="mb-4 mt-12">
+        <h2 style={{ fontSize: 18, fontWeight: 800, color: '#1B2B3A', letterSpacing: '-0.4px', margin: 0 }}>Themenbereiche</h2>
+        <div style={{ width: 28, height: 2, background: '#4A6741', borderRadius: 1, marginTop: 5 }} />
       </div>
 
       <motion.div

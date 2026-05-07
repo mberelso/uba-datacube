@@ -1,5 +1,10 @@
 import { useEffect, useState, useMemo, useCallback } from 'react'
 import { useParams, Link } from 'react-router-dom'
+import { motion, AnimatePresence } from 'framer-motion'
+import {
+  ArrowLeft, ShareNetwork, ChartLine, ChartBar,
+  MagnifyingGlass, Funnel, CaretDown, Check,
+} from '@phosphor-icons/react'
 
 import { fetchDataflows, fetchData, type Dataflow, type Dimension } from '../api/sdmx'
 import { getCategoryMeta } from '../utils/categories'
@@ -12,21 +17,33 @@ import { DatasetStory } from '../components/DatasetStory'
 import { getDatasetContent } from '../data/datasetContent'
 
 const CHART_COLORS = [
-  '#1e3a5f', '#dc2626', '#16a34a', '#d97706', '#7c3aed',
-  '#0891b2', '#be185d', '#65a30d', '#0284c7', '#92400e',
+  '#1B2B3A', '#dc2626', '#4A6741', '#d97706', '#7c3aed',
+  '#3D5A6E', '#be185d', '#65a30d', '#0284c7', '#92400e',
 ]
 
 type ChartType = 'line' | 'bar'
 
-const InfoTooltip = ({ text }: { text: string }) => (
-  <span title={text} style={{ 
-    cursor: 'help', color: '#94a3b8', marginLeft: '6px', fontSize: '11px', 
-    display: 'inline-flex', alignItems: 'center', justifyContent: 'center', 
-    width: '16px', height: '16px', borderRadius: '50%', background: '#f1f5f9', fontWeight: 600 
-  }}>
-    ?
-  </span>
-)
+// ─── Loading skeleton ─────────────────────────────────────────────────────────
+
+function PageSkeleton() {
+  return (
+    <div className="max-w-[1100px] mx-auto px-5 py-6 animate-pulse">
+      <div className="h-4 w-48 rounded-full bg-slate-100 mb-6" />
+      <div className="rounded-2xl border border-slate-200 bg-white p-7 mb-5">
+        <div className="h-3 w-24 rounded-full bg-slate-100 mb-4" />
+        <div className="h-7 w-2/3 rounded-lg bg-slate-100 mb-3" />
+        <div className="h-3 w-full rounded-full bg-slate-100 mb-2" />
+        <div className="h-3 w-4/5 rounded-full bg-slate-100" />
+      </div>
+      <div className="grid grid-cols-[240px_1fr] gap-5">
+        <div className="rounded-2xl border border-slate-200 bg-white h-64" />
+        <div className="rounded-2xl border border-slate-200 bg-white h-64" />
+      </div>
+    </div>
+  )
+}
+
+// ─── Main ─────────────────────────────────────────────────────────────────────
 
 export default function DatasetPage() {
   const { id } = useParams<{ id: string }>()
@@ -59,21 +76,14 @@ export default function DatasetPage() {
         setSeriesMap(seriesMap)
         setTimeValues(timeValues)
         setDims(seriesDimensions)
-        
-        // Auto-select top 5 series with the highest average values if none selected
         if (selectedSeries.size === 0) {
-          const seriesWithAverages = Object.entries(seriesMap).map(([key, s]) => {
-            const validValues = Object.values(s.observations).filter((v) => v !== null) as number[]
-            if (validValues.length === 0) return { key, avg: -Infinity }
-            
-            // Calculate average of absolute values to also catch large negative trends
-            const sum = validValues.reduce((acc, val) => acc + Math.abs(val), 0)
-            return { key, avg: sum / validValues.length }
+          const ranked = Object.entries(seriesMap).map(([key, s]) => {
+            const vals = Object.values(s.observations).filter((v) => v !== null) as number[]
+            const avg = vals.length ? vals.reduce((a, v) => a + Math.abs(v), 0) / vals.length : -Infinity
+            return { key, avg }
           })
-          
-          seriesWithAverages.sort((a, b) => b.avg - a.avg)
-          const topKeys = seriesWithAverages.slice(0, 5).map(s => s.key)
-          setSelectedSeries(new Set(topKeys))
+          ranked.sort((a, b) => b.avg - a.avg)
+          setSelectedSeries(new Set(ranked.slice(0, 5).map((s) => s.key)))
         }
       })
       .catch((e) => setError(e.message ?? 'Fehler beim Laden'))
@@ -82,7 +92,7 @@ export default function DatasetPage() {
 
   const chartData = useMemo(() => {
     if (!timeValues.length) return []
-    const data = timeValues.map((year) => {
+    return timeValues.map((year) => {
       const point: Record<string, any> = { year }
       let hasData = false
       for (const key of selectedSeries) {
@@ -95,237 +105,292 @@ export default function DatasetPage() {
         }
       }
       return { point, hasData }
-    })
-    return data.filter(d => d.hasData).map(d => d.point)
+    }).filter(d => d.hasData).map(d => d.point)
   }, [timeValues, selectedSeries, seriesMap])
 
   const filteredSeries = useMemo(() => {
-    return Object.entries(seriesMap).filter(([_, s]) => {
-      // Each filter must match the corresponding dimension index
-      return Object.entries(filters).every(([dimName, targetVal]) => {
+    return Object.entries(seriesMap).filter(([_, s]) =>
+      Object.entries(filters).every(([dimName, targetVal]) => {
         if (!targetVal) return true
         const dimIdx = dims.findIndex(d => d.name === dimName)
-        if (dimIdx === -1) return true
-        return s.dimValues[dimIdx] === targetVal
+        return dimIdx === -1 || s.dimValues[dimIdx] === targetVal
       })
-    }).map(([key, s]) => ({
-      key,
-      label: s.dimValues.join(' · ') || key,
-      dimValues: s.dimValues,
-    }))
+    ).map(([key, s]) => ({ key, label: s.dimValues.join(' · ') || key, dimValues: s.dimValues }))
   }, [seriesMap, filters, dims])
-
-  const seriesLabels = filteredSeries // Use filtered list for sidebar
 
   const applyPreset = useCallback((presetFilters: Record<string, string>) => {
     setFilters(presetFilters)
-    // Find matching keys instantly based on the new filters
-    const matchingKeys = Object.entries(seriesMap).filter(([_, s]) => {
-      return Object.entries(presetFilters).every(([dimName, targetVal]) => {
+    const matchingKeys = Object.entries(seriesMap).filter(([_, s]) =>
+      Object.entries(presetFilters).every(([dimName, targetVal]) => {
         if (!targetVal) return true
         const dimIdx = dims.findIndex(d => d.name === dimName)
-        if (dimIdx === -1) return true
-        return s.dimValues[dimIdx] === targetVal
+        return dimIdx === -1 || s.dimValues[dimIdx] === targetVal
       })
-    }).map(([key]) => key)
+    ).map(([key]) => key)
     setSelectedSeries(new Set(matchingKeys))
-    
-    // Scroll to the top of the grid to show the chart
     window.scrollTo({ top: 300, behavior: 'smooth' })
   }, [seriesMap, dims])
 
   const meta = flow ? getCategoryMeta(flow.category) : getCategoryMeta('')
+  const activeSeriesList = filteredSeries.filter((s) => selectedSeries.has(s.key))
 
-  if (loading) return (
-    <div style={{ textAlign: 'center', padding: 80, color: '#94a3b8' }}>
-      <div style={{ fontSize: 40 }}>⏳</div>
-      <p style={{ marginTop: 12 }}>Lade Datensatz…</p>
-    </div>
-  )
+  // ── States ────────────────────────────────────────────────────────────────
+
+  if (loading) return <PageSkeleton />
 
   if (error) return (
-    <div style={{ maxWidth: 800, margin: '40px auto', padding: 20 }}>
-      <div style={{ color: '#dc2626', background: '#fef2f2', borderRadius: 8, padding: 16 }}>{error}</div>
-      <Link to="/catalog" style={{ color: '#1e3a5f', marginTop: 16, display: 'inline-block' }}>← Zurück zum Katalog</Link>
+    <div className="max-w-[800px] mx-auto px-5 py-10">
+      <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-red-700 text-sm leading-relaxed mb-4">
+        {error}
+      </div>
+      <Link to="/catalog" className="inline-flex items-center gap-2 text-sm text-[#3D5A6E] font-medium no-underline hover:text-[#1B2B3A] transition-colors">
+        <ArrowLeft size={14} weight="bold" /> Zurück zum Katalog
+      </Link>
     </div>
   )
 
   if (!flow) return null
 
-  const activeSeriesList = seriesLabels.filter((s) => selectedSeries.has(s.key))
+  const isForestFire = flow.id === 'DF_AGRICULTURE_FORESTRY_FOREST_FIRE_AREA'
 
   return (
-    <div style={{ maxWidth: 1100, margin: '0 auto', padding: '24px 20px' }}>
-      {/* Breadcrumb */}
-      <div style={{ fontSize: 13, color: '#94a3b8', marginBottom: 16, display: 'flex', gap: 6, alignItems: 'center' }}>
-        <Link to="/catalog" style={{ color: '#1e3a5f', textDecoration: 'none' }}>Katalog</Link>
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ type: 'spring', stiffness: 100, damping: 22 }}
+      className="max-w-[1100px] mx-auto px-5 py-6"
+    >
+      {/* ── Breadcrumb ───────────────────────────────────────────────────── */}
+      <div className="flex items-center gap-2 text-[12px] text-slate-400 mb-5">
+        <Link
+          to="/catalog"
+          className="inline-flex items-center gap-1 text-[#3D5A6E] font-medium no-underline hover:text-[#1B2B3A] transition-colors"
+        >
+          <ArrowLeft size={12} weight="bold" />
+          Katalog
+        </Link>
         <span>›</span>
-        <span style={{ color: meta.color }}>{meta.icon} {meta.label}</span>
+        <span style={{ color: meta.color }} className="font-medium">
+          {meta.icon} {meta.label}
+        </span>
         <span>›</span>
-        <span style={{ color: '#475569' }}>{flow.name}</span>
+        <span className="text-slate-500 truncate max-w-[300px]">{flow.name}</span>
       </div>
 
-      {/* Header */}
-      <div style={{
-        background: '#fff', borderRadius: 12, border: '1px solid #e2e8f0',
-        padding: '24px 28px', marginBottom: 20,
-        borderLeft: `4px solid ${meta.color}`,
-      }}>
-        <h1 style={{ fontSize: 24, fontWeight: 800, color: '#0f172a', margin: '0 0 4px', letterSpacing: '-0.4px', lineHeight: 1.2 }}>{flow.name}</h1>
-        <div style={{ fontSize: 11, fontFamily: 'monospace', color: '#94a3b8', marginBottom: 18, letterSpacing: '0.03em' }}>
-          {flow.agencyID}:{flow.id} · Version {flow.version}
+      {/* ── Header ───────────────────────────────────────────────────────── */}
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.05, type: 'spring', stiffness: 110, damping: 22 }}
+        className="bg-white rounded-2xl border border-slate-200/80 shadow-[0_2px_16px_-4px_rgba(0,0,0,0.06)] mb-5 overflow-hidden"
+        style={{ borderLeft: `4px solid ${meta.color}` }}
+      >
+        <div className="px-7 pt-6 pb-5">
+          {/* Dataset ID badge */}
+          <div className="text-[10px] font-mono text-slate-400 tracking-wider mb-3 uppercase">
+            {flow.agencyID}:{flow.id} · v{flow.version}
+          </div>
+
+          <h1 className="text-[22px] font-extrabold text-[#0f172a] tracking-tight leading-tight mb-5">
+            {flow.name}
+          </h1>
+
+          {(() => {
+            const story = getDatasetContent(flow.id)
+            return story
+              ? <DatasetStory content={story} color={meta.color} />
+              : flow.description && (
+                  <p className="text-[13px] text-slate-500 leading-relaxed m-0">{flow.description}</p>
+                )
+          })()}
+
+          <GuidedTip
+            id="dataset-tip"
+            text="Nutze die Filter links, um Serien einzugrenzen. Über den Share-Button kannst du die aktuelle Ansicht als Link teilen."
+            color={meta.color}
+          />
         </div>
-
-        {/* Editorial story — shown if available; falls back to raw API description */}
-        {(() => {
-          const story = getDatasetContent(flow.id)
-          return story
-            ? <DatasetStory content={story} color={meta.color} />
-            : flow.description && (
-                <p style={{ fontSize: 13, color: '#64748b', lineHeight: 1.6 }}>{flow.description}</p>
-              )
-        })()}
-
-        <GuidedTip
-          id="dataset-tip"
-          text="Nutze die Filter links, um Serien einzugrenzen. Über den Share-Button kannst du die aktuelle Ansicht als Link teilen."
-          color={meta.color}
-        />
-      </div>
+      </motion.div>
 
       <RelatedPublications flowId={flow.id} flowName={flow.name} color={meta.color} />
       <DatasetPresets flowId={flow.id} onApplyPreset={applyPreset} />
 
-      <div style={{ display: 'grid', gridTemplateColumns: '240px 1fr', gap: 20 }}>
-        {/* Sidebar */}
-        <div style={{ background: '#fff', borderRadius: 10, border: '1.5px solid #e2e8f0', padding: 16, height: 'fit-content' }}>
-          <div style={{ fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 12 }}>
-            Serien ({seriesLabels.length})
+      {/* ── Main grid ────────────────────────────────────────────────────── */}
+      <div className="grid gap-5" style={{ gridTemplateColumns: '240px 1fr' }}>
+
+        {/* ── Sidebar ──────────────────────────────────────────────────── */}
+        <motion.aside
+          initial={{ opacity: 0, x: -8 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.1, type: 'spring', stiffness: 110, damping: 22 }}
+          className="bg-white rounded-2xl border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.05)] h-fit"
+        >
+          {/* Sidebar header */}
+          <div className="px-4 pt-4 pb-3 border-b border-slate-100">
+            <div className="flex items-center gap-2">
+              <Funnel size={13} weight="duotone" className="text-slate-400" />
+              <span className="text-[11px] font-bold text-[#1B2B3A] tracking-wide uppercase">
+                Serien
+              </span>
+              <span className="ml-auto text-[11px] font-mono text-slate-400">
+                {filteredSeries.length}
+              </span>
+            </div>
           </div>
-          {dims.length > 0 && (
-            <div style={{ marginBottom: 12, display: 'flex', flexDirection: 'column', gap: 6 }}>
-              {dims.map((d, i) => {
-                // Get unique values for this dimension across ALL series
-                const uniqueVals = Array.from(new Set(Object.values(seriesMap).map(s => s.dimValues[i]))).sort()
-                if (uniqueVals.length <= 1) return null // Hide dimension if only one value
-                return (
-                  <div key={d.name}>
-                    <div style={{ fontSize: 10, color: '#94a3b8', marginBottom: 2, fontWeight: 600, textTransform: 'uppercase', display: 'flex', alignItems: 'center' }}>
-                      {d.name}
-                      <InfoTooltip text={d.description || `Wähle Werte für '${d.name}', um die Liste der Serien einzugrenzen.`} />
+
+          <div className="px-3 py-3">
+            {/* Dimension filters */}
+            {dims.length > 0 && (
+              <div className="flex flex-col gap-3 mb-3">
+                {dims.map((d, i) => {
+                  const uniqueVals = Array.from(new Set(Object.values(seriesMap).map(s => s.dimValues[i]))).sort()
+                  if (uniqueVals.length <= 1) return null
+                  return (
+                    <div key={d.name}>
+                      <div className="text-[9px] font-bold text-slate-400 tracking-widest uppercase mb-1.5 flex items-center gap-1">
+                        <MagnifyingGlass size={9} />
+                        {d.name}
+                      </div>
+                      <div className="relative">
+                        <select
+                          value={filters[d.name] || ''}
+                          onChange={(e) => setFilters(prev => ({ ...prev, [d.name]: e.target.value }))}
+                          className="w-full text-[11px] py-1.5 pl-2.5 pr-7 rounded-lg border border-slate-200 bg-slate-50 text-slate-600 appearance-none focus:outline-none focus:border-slate-400 focus:bg-white transition-colors cursor-pointer"
+                        >
+                          <option value="">Alle</option>
+                          {uniqueVals.map(v => <option key={v} value={v}>{v}</option>)}
+                        </select>
+                        <CaretDown size={9} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                      </div>
                     </div>
-                    <select
-                      value={filters[d.name] || ''}
-                      onChange={(e) => setFilters(prev => ({ ...prev, [d.name]: e.target.value }))}
-                      style={{ width: '100%', fontSize: 11, padding: '4px', borderRadius: 4, border: '1px solid #e2e8f0', background: '#fff', color: '#475569' }}
+                  )
+                })}
+              </div>
+            )}
+
+            {/* Select all / none */}
+            <div className="flex gap-2 mb-3">
+              <button
+                onClick={() => setSelectedSeries(prev => {
+                  const next = new Set(prev)
+                  filteredSeries.forEach(s => next.add(s.key))
+                  return next
+                })}
+                className="flex-1 text-[10px] py-1.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-500 font-medium hover:bg-slate-100 hover:text-slate-700 transition-colors cursor-pointer"
+              >
+                Alle
+              </button>
+              <button
+                onClick={() => setSelectedSeries(prev => {
+                  const next = new Set(prev)
+                  filteredSeries.forEach(s => next.delete(s.key))
+                  return next
+                })}
+                className="flex-1 text-[10px] py-1.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-500 font-medium hover:bg-slate-100 hover:text-slate-700 transition-colors cursor-pointer"
+              >
+                Keine
+              </button>
+            </div>
+
+            {/* Series list */}
+            {filteredSeries.length > 100 && (
+              <div className="text-[11px] text-slate-400 px-1 pb-2 leading-relaxed">
+                {filteredSeries.length} Ergebnisse — bitte Filter nutzen.
+              </div>
+            )}
+            <div className="max-h-[460px] overflow-y-auto flex flex-col gap-0.5 pr-0.5">
+              {filteredSeries.slice(0, 100).map(({ key, label }, i) => {
+                const checked = selectedSeries.has(key)
+                const color = CHART_COLORS[i % CHART_COLORS.length]
+                return (
+                  <label
+                    key={key}
+                    className="flex items-start gap-2 cursor-pointer px-2 py-1.5 rounded-lg transition-colors"
+                    style={{ background: checked ? `${color}0d` : 'transparent' }}
+                  >
+                    <div
+                      className="flex-shrink-0 mt-0.5 w-3.5 h-3.5 rounded flex items-center justify-center border transition-all"
+                      style={{
+                        borderColor: checked ? color : '#cbd5e1',
+                        background: checked ? color : 'transparent',
+                      }}
                     >
-                      <option value="">Alle</option>
-                      {uniqueVals.map(v => <option key={v} value={v}>{v}</option>)}
-                    </select>
-                  </div>
+                      {checked && <Check size={8} color="#fff" weight="bold" />}
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={() => setSelectedSeries(prev => {
+                        const next = new Set(prev)
+                        next.has(key) ? next.delete(key) : next.add(key)
+                        return next
+                      })}
+                      className="sr-only"
+                    />
+                    <span
+                      className="text-[11px] leading-[1.45]"
+                      style={{ color: checked ? color : '#64748b', fontWeight: checked ? 500 : 400 }}
+                    >
+                      {label || key}
+                    </span>
+                  </label>
                 )
               })}
             </div>
-          )}
-
-          <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
-            <button
-              onClick={() => setSelectedSeries(prev => {
-                const next = new Set(prev)
-                seriesLabels.forEach(s => next.add(s.key))
-                return next
-              })}
-              style={{ fontSize: 11, padding: '3px 8px', borderRadius: 4, border: '1px solid #e2e8f0', background: '#f8fafc', cursor: 'pointer', color: '#475569' }}
-            >
-              Alle (Gefiltert)
-            </button>
-            <button
-              onClick={() => setSelectedSeries(prev => {
-                const next = new Set(prev)
-                seriesLabels.forEach(s => next.delete(s.key))
-                return next
-              })}
-              style={{ fontSize: 11, padding: '3px 8px', borderRadius: 4, border: '1px solid #e2e8f0', background: '#f8fafc', cursor: 'pointer', color: '#475569' }}
-            >
-              Keine
-            </button>
           </div>
-          <div style={{ maxHeight: 500, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 4, paddingRight: 4 }}>
-            {seriesLabels.length > 100 ? (
-              <div style={{ fontSize: 11, color: '#94a3b8', padding: '10px 0' }}>
-                Zu viele Ergebnisse ({seriesLabels.length}). Bitte Filter nutzen.
-                <br />(Zeige nur erste 100)
-              </div>
-            ) : null}
-            {seriesLabels.slice(0, 100).map(({ key, label }, i) => {
-              const checked = selectedSeries.has(key)
-              const color = CHART_COLORS[i % CHART_COLORS.length]
-              return (
-                <label key={key} style={{
-                  display: 'flex', alignItems: 'flex-start', gap: 8, cursor: 'pointer',
-                  padding: '4px 6px', borderRadius: 6,
-                  background: checked ? `${color}10` : 'transparent',
-                }}>
-                  <input
-                    type="checkbox"
-                    checked={checked}
-                    onChange={() => {
-                      setSelectedSeries((prev) => {
-                        const next = new Set(prev)
-                        if (next.has(key)) next.delete(key)
-                        else next.add(key)
-                        return next
-                      })
-                    }}
-                    style={{ marginTop: 2, accentColor: color }}
-                  />
-                  <span style={{ fontSize: 12, color: checked ? color : '#64748b', fontWeight: checked ? 500 : 400, lineHeight: 1.4 }}>
-                    {label || key}
-                  </span>
-                </label>
-              )
-            })}
-          </div>
-        </div>
+        </motion.aside>
 
-        {/* Chart area */}
-        <div>
-          <div style={{
-            background: '#fff', borderRadius: 10, border: '1.5px solid #e2e8f0',
-            padding: '12px 16px', marginBottom: 16,
-            display: 'flex', alignItems: 'center', gap: 12,
-          }}>
-            <span style={{ fontSize: 13, color: '#64748b' }}>Diagrammtyp:</span>
-            {(['line', 'bar'] as ChartType[]).map((t) => (
-              <button
-                key={t}
-                onClick={() => setChartType(t)}
-                style={{
-                  padding: '5px 14px', borderRadius: 6, border: '1.5px solid',
-                  borderColor: chartType === t ? '#1e3a5f' : '#e2e8f0',
-                  background: chartType === t ? '#1e3a5f' : '#fff',
-                  color: chartType === t ? '#fff' : '#64748b',
-                  fontSize: 13, cursor: 'pointer', fontWeight: chartType === t ? 600 : 400,
-                }}
-              >
-                {t === 'line' ? '📈 Linie' : '📊 Balken'}
-              </button>
-            ))}
-            {flow.id === 'DF_AGRICULTURE_FORESTRY_FOREST_FIRE_AREA' && (
+        {/* ── Chart area ───────────────────────────────────────────────── */}
+        <motion.div
+          initial={{ opacity: 0, x: 8 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.12, type: 'spring', stiffness: 110, damping: 22 }}
+        >
+          {/* Toolbar */}
+          <div className="bg-white rounded-2xl border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.05)] px-4 py-3 mb-4 flex items-center gap-3">
+            {/* Chart type toggle */}
+            <div className="flex items-center gap-1 bg-slate-100 rounded-xl p-1">
+              {([
+                { type: 'line' as ChartType, Icon: ChartLine, label: 'Linie' },
+                { type: 'bar' as ChartType, Icon: ChartBar, label: 'Balken' },
+              ]).map(({ type, Icon, label }) => (
+                <button
+                  key={type}
+                  onClick={() => setChartType(type)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-medium transition-all cursor-pointer border-0"
+                  style={{
+                    background: chartType === type ? '#fff' : 'transparent',
+                    color: chartType === type ? '#1B2B3A' : '#94a3b8',
+                    boxShadow: chartType === type ? '0 1px 4px rgba(0,0,0,0.08)' : 'none',
+                  }}
+                >
+                  <Icon size={13} weight={chartType === type ? 'duotone' : 'regular'} />
+                  {label}
+                </button>
+              ))}
+            </div>
+
+            {/* Advanced analysis toggle (forest fires only) */}
+            {isForestFire && (
               <button
                 onClick={() => setShowAdvanced(!showAdvanced)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-medium transition-all cursor-pointer border"
                 style={{
-                  padding: '5px 14px', borderRadius: 6, border: '1.5px solid #16a34a',
-                  background: showAdvanced ? '#16a34a' : '#fff',
-                  color: showAdvanced ? '#fff' : '#16a34a',
-                  fontSize: 13, cursor: 'pointer', fontWeight: showAdvanced ? 600 : 400,
-                  marginLeft: 8
+                  borderColor: showAdvanced ? '#4A6741' : '#e2e8f0',
+                  background: showAdvanced ? '#4A674114' : '#fff',
+                  color: showAdvanced ? '#4A6741' : '#94a3b8',
                 }}
               >
-                🔍 Erweiterte Analyse
+                <MagnifyingGlass size={12} weight={showAdvanced ? 'duotone' : 'regular'} />
+                Erweiterte Analyse
               </button>
             )}
-            <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 10 }}>
+
+            {/* Stats + share */}
+            <div className="ml-auto flex items-center gap-3">
+              <span className="text-[11px] text-slate-400 font-mono tabular-nums">
+                {timeValues.length} Zeitpunkte · {selectedSeries.size} aktiv
+              </span>
               <button
                 onClick={() => {
                   navigator.clipboard.writeText(window.location.href).then(() => {
@@ -333,76 +398,106 @@ export default function DatasetPage() {
                     setTimeout(() => setShareCopied(false), 2000)
                   })
                 }}
-                title="Aktuelle Ansicht als Link kopieren"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-medium border transition-all cursor-pointer"
                 style={{
-                  padding: '5px 12px', borderRadius: 6,
-                  border: `1.5px solid ${shareCopied ? '#16a34a' : '#e2e8f0'}`,
-                  background: shareCopied ? '#f0fdf4' : '#fff',
-                  color: shareCopied ? '#16a34a' : '#64748b',
-                  fontSize: 12, cursor: 'pointer', fontWeight: 500,
-                  transition: 'all 0.2s',
+                  borderColor: shareCopied ? '#4A6741' : '#e2e8f0',
+                  background: shareCopied ? '#4A674108' : '#fff',
+                  color: shareCopied ? '#4A6741' : '#64748b',
                 }}
               >
-                {shareCopied ? '✓ Link kopiert!' : '🔗 Teilen'}
+                {shareCopied
+                  ? <><Check size={12} weight="bold" /> Kopiert</>
+                  : <><ShareNetwork size={12} weight="duotone" /> Teilen</>
+                }
               </button>
-              <span style={{ fontSize: 12, color: '#94a3b8' }}>
-                {timeValues.length} Zeitpunkte · {selectedSeries.size} Serien aktiv
-              </span>
-            </span>
+            </div>
           </div>
 
-          {showAdvanced && flow.id === 'DF_AGRICULTURE_FORESTRY_FOREST_FIRE_AREA' ? (
-            <ForestFiresAnalysis timeValues={timeValues} seriesMap={seriesMap} activeSeriesKeys={selectedSeries} />
-          ) : (
-            <div style={{ background: '#fff', borderRadius: 10, border: '1.5px solid #e2e8f0', padding: '16px 8px' }}>
-              {selectedSeries.size === 0 ? (
-                <div style={{ textAlign: 'center', padding: '80px 20px', color: '#64748b', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                  <div style={{ fontSize: 48, marginBottom: 16 }}>📊</div>
-                  <h3 style={{ margin: '0 0 8px', color: '#1e293b' }}>Keine Datenreihen ausgewählt</h3>
-                  <p style={{ margin: 0, fontSize: 14, maxWidth: 400, lineHeight: 1.5 }}>
-                    Bitte setze links Filter oder hake mindestens eine spezifische Serie an, um das Diagramm zu visualisieren.
-                  </p>
-                </div>
-              ) : (
-                <ChartRenderer
-                  flow={flow}
-                  chartData={chartData}
-                  activeSeriesList={activeSeriesList}
-                  chartType={chartType}
-                />
-              )}
-            </div>
-          )}
+          {/* Chart */}
+          <AnimatePresence mode="wait">
+            {showAdvanced && isForestFire ? (
+              <motion.div
+                key="advanced"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                <ForestFiresAnalysis timeValues={timeValues} seriesMap={seriesMap} activeSeriesKeys={selectedSeries} />
+              </motion.div>
+            ) : (
+              <motion.div
+                key="chart"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="bg-white rounded-2xl border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.05)] overflow-hidden"
+              >
+                {selectedSeries.size === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-20 px-8 text-center">
+                    <div
+                      className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4"
+                      style={{ background: `${meta.color}12` }}
+                    >
+                      <ChartLine size={22} weight="duotone" style={{ color: meta.color }} />
+                    </div>
+                    <h3 className="text-[15px] font-bold text-[#1B2B3A] mb-2 tracking-tight">
+                      Keine Datenreihen ausgewählt
+                    </h3>
+                    <p className="text-[13px] text-slate-400 max-w-[360px] leading-relaxed m-0">
+                      Setze links Filter oder wähle mindestens eine Serie aus, um das Diagramm anzuzeigen.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="p-2">
+                    <ChartRenderer
+                      flow={flow}
+                      chartData={chartData}
+                      activeSeriesList={activeSeriesList}
+                      chartType={chartType}
+                    />
+                  </div>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
 
+          {/* Data table */}
           {selectedSeries.size > 0 && (
-            <details style={{ marginTop: 16 }}>
-              <summary style={{
-                cursor: 'pointer', fontSize: 13, color: '#475569', fontWeight: 600,
-                background: '#fff', border: '1.5px solid #e2e8f0', borderRadius: 8, padding: '10px 14px',
-              }}>
-                📋 Datentabelle
+            <details className="mt-4 group">
+              <summary className="list-none cursor-pointer">
+                <div className="flex items-center gap-2 bg-white rounded-xl border border-slate-200/80 px-4 py-2.5 text-[12px] font-semibold text-slate-600 select-none hover:bg-slate-50 transition-colors">
+                  <ChartBar size={13} weight="duotone" className="text-slate-400" />
+                  Datentabelle
+                  <CaretDown size={10} className="ml-auto text-slate-400 group-open:rotate-180 transition-transform" />
+                </div>
               </summary>
-              <div style={{ overflowX: 'auto', background: '#fff', border: '1.5px solid #e2e8f0', borderTop: 'none', borderRadius: '0 0 8px 8px' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+              <div className="overflow-x-auto bg-white border border-slate-200/80 border-t-0 rounded-b-xl">
+                <table className="w-full border-collapse text-[12px]">
                   <thead>
-                    <tr style={{ background: '#f8fafc' }}>
-                      <th style={{ padding: '8px 12px', textAlign: 'left', color: '#475569', borderBottom: '1px solid #e2e8f0' }}>Jahr</th>
+                    <tr className="bg-slate-50">
+                      <th className="px-4 py-2.5 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">
+                        Jahr
+                      </th>
                       {activeSeriesList.map(({ label }) => (
-                        <th key={label} style={{ padding: '8px 12px', textAlign: 'right', color: '#475569', borderBottom: '1px solid #e2e8f0' }}>
+                        <th key={label} className="px-4 py-2.5 text-right text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">
                           {label}
                         </th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
-                    {chartData.map((row) => (
-                      <tr key={row.year} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                        <td style={{ padding: '6px 12px', fontWeight: 600, color: '#1e293b' }}>{row.year}</td>
+                    {chartData.map((row, rowIdx) => (
+                      <tr
+                        key={row.year}
+                        className="border-b border-slate-50 hover:bg-slate-50/60 transition-colors"
+                      >
+                        <td className="px-4 py-2 font-semibold text-[#1B2B3A] tabular-nums">{row.year}</td>
                         {activeSeriesList.map(({ label }) => (
-                          <td key={label} style={{ padding: '6px 12px', textAlign: 'right', color: '#475569' }}>
+                          <td key={label} className="px-4 py-2 text-right text-slate-500 tabular-nums">
                             {row[label] != null
                               ? Number(row[label]).toLocaleString('de-DE', { maximumFractionDigits: 3 })
-                              : '–'}
+                              : <span className="text-slate-300">–</span>
+                            }
                           </td>
                         ))}
                       </tr>
@@ -412,8 +507,8 @@ export default function DatasetPage() {
               </div>
             </details>
           )}
-        </div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   )
 }

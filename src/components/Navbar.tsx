@@ -1,4 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
+import { CubeMark } from './CubeMark'
 
 export default function Navbar() {
   const loc = useLocation()
@@ -13,9 +14,9 @@ export default function Navbar() {
   return (
     <nav style={{ background: '#1e3a5f', color: '#fff' }} className="px-6 py-3 flex items-center gap-6 shadow-md">
       <Link to="/" className="flex items-center gap-2 no-underline">
-        <span style={{ fontSize: 22 }}>🌍</span>
+        <CubeMark size={20} color="rgba(255,255,255,0.95)" accent="#4A6741" />
         <span style={{ fontWeight: 700, fontSize: 16, color: '#fff', letterSpacing: '-0.3px' }}>
-          UBA Datacube
+          UBA-Datacube
         </span>
       </Link>
       <div className="flex gap-1 ml-2">

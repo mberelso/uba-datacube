@@ -486,7 +486,7 @@ export default function DatasetPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {chartData.map((row, rowIdx) => (
+                    {chartData.map((row) => (
                       <tr
                         key={row.year}
                         className="border-b border-slate-50 hover:bg-slate-50/60 transition-colors"

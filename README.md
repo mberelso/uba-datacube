@@ -5,6 +5,7 @@ UBA-Datacube ist eine moderne Web-Applikation zur Visualisierung und Analyse von
 ## 🚀 Features
 
 - **Dashboard**: Übersichtliche Darstellung ausgewählter Schlüsselindikatoren (Treibhausgasemissionen, Temperaturen, Erneuerbare Energien etc.).
+- **Emotionales Visual Design (Story First)**: Die Startseite nutzt ein bildstarkes Layout ("Kompass für die Umwelt") mit atmosphärischen Natur-Fotografien und Hover-Effekten, um einen emotionalen Zugang zu den Umweltdaten zu schaffen.
 - **Katalog**: Durchsuchen und Filtern aller verfügbaren UBA-Datensätze (Dataflows).
 - **Dataset-Analyse**: Detaillierte interaktive Charts (Linie, Balken, Fläche) für jeden Datensatz.
 - **Smart Data Discovery**:

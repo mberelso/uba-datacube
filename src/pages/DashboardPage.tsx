@@ -6,6 +6,7 @@ import {
 } from 'recharts'
 import { fetchData, fetchDataflows, type Dataflow } from '../api/sdmx'
 import { CATEGORIES } from '../utils/categories'
+import heroBg from '../assets/hero_background.png'
 
 interface HighlightConfig {
   flowId: string
@@ -230,33 +231,75 @@ export default function DashboardPage() {
     <div style={{ maxWidth: 1100, margin: '0 auto', padding: '28px 20px' }}>
       {/* Hero */}
       <div style={{
-        background: 'linear-gradient(135deg, #1e3a5f 0%, #0f4c81 100%)',
-        borderRadius: 16, padding: '32px 36px', color: '#fff', marginBottom: 32,
+        position: 'relative',
+        borderRadius: 16,
+        padding: '48px 56px',
+        color: '#fff',
+        marginBottom: 32,
+        overflow: 'hidden',
+        boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)',
       }}>
-        <div style={{ fontSize: 40, marginBottom: 10 }}>🌍</div>
-        <h1 style={{ fontSize: 28, fontWeight: 800, margin: '0 0 8px', letterSpacing: '-0.5px' }}>
-          UBA Datacube
-        </h1>
-        <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.85)', margin: '0 0 20px',
-          maxWidth: 600, lineHeight: 1.6 }}>
-          Interaktive Visualisierung der Umweltdaten des Umweltbundesamts.
-          81 Datensätze zu Klima, Energie, Verkehr, Wasser und mehr –
-          direkt aus der SDMX REST API.
-        </p>
-        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-          <Link to="/catalog" style={{
-            display: 'inline-block', background: '#fff', color: '#1e3a5f',
-            padding: '10px 22px', borderRadius: 8, fontWeight: 700, fontSize: 14, textDecoration: 'none',
-          }}>
-            Alle {loadingFlows ? '…' : flows.length} Datensätze →
-          </Link>
-          <Link to="/analysen" style={{
-            display: 'inline-block', background: 'rgba(255,255,255,0.15)', color: '#fff',
-            padding: '10px 22px', borderRadius: 8, fontWeight: 700, fontSize: 14, textDecoration: 'none',
-            border: '1.5px solid rgba(255,255,255,0.3)', backdropFilter: 'blur(4px)',
-          }}>
-            Analysen entdecken →
-          </Link>
+        {/* Background Image with Overlay */}
+        <div style={{
+          position: 'absolute', inset: 0, zIndex: 0,
+          backgroundImage: `url(${heroBg})`,
+          backgroundSize: 'cover', backgroundPosition: 'center',
+        }} />
+        <div style={{
+          position: 'absolute', inset: 0, zIndex: 0,
+          background: 'linear-gradient(to right, rgba(15, 23, 42, 0.85) 0%, rgba(30, 58, 95, 0.5) 50%, rgba(15, 76, 129, 0.1) 100%)',
+        }} />
+        
+        {/* Content */}
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <div style={{ fontSize: 48, marginBottom: 16 }}>🧭</div>
+          <h1 style={{ fontSize: 32, fontWeight: 800, margin: '0 0 12px', letterSpacing: '-0.5px' }}>
+            Dein Kompass für die Umwelt in Deutschland
+          </h1>
+          <h2 style={{ fontSize: 18, fontWeight: 600, color: '#93c5fd', margin: '0 0 20px' }}>
+            Offizielle Daten. Klar verständlich. Auf den Punkt gebracht.
+          </h2>
+          <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.9)', margin: '0 0 28px',
+            maxWidth: 680, lineHeight: 1.6 }}>
+            Wie steht es um die Luftqualität in unseren Städten? Wie entwickeln sich die Treibhausgas-Emissionen, und welche Auswirkungen hat extreme Trockenheit auf unsere Wälder? 
+            <br /><br />
+            Der UBA-Datacube ist der zentrale Ort für fundierte Antworten. Wir bündeln offizielle Umwelt-Indikatoren und machen sie für jeden greifbar – von der interessierten Öffentlichkeit bis hin zu politischen Entscheidungsträgern.
+          </p>
+          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+            <Link to="/catalog" style={{
+              display: 'inline-block', background: '#fff', color: '#1e3a5f',
+              padding: '12px 24px', borderRadius: 8, fontWeight: 700, fontSize: 14, textDecoration: 'none',
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+            }}>
+              Datenkatalog öffnen ({loadingFlows ? '…' : flows.length} Themen) →
+            </Link>
+            <Link to="/analysen" style={{
+              display: 'inline-block', background: 'rgba(255,255,255,0.15)', color: '#fff',
+              padding: '12px 24px', borderRadius: 8, fontWeight: 700, fontSize: 14, textDecoration: 'none',
+              border: '1.5px solid rgba(255,255,255,0.3)', backdropFilter: 'blur(4px)',
+            }}>
+              Analysen entdecken →
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* Feature Section */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20, marginBottom: 40 }}>
+        <div style={{ background: '#f8fafc', padding: '24px', borderRadius: 12, border: '1px solid #e2e8f0' }}>
+           <div style={{ fontSize: 28, marginBottom: 12 }}>📖</div>
+           <h3 style={{ fontSize: 15, fontWeight: 700, margin: '0 0 8px', color: '#1e293b' }}>Die Geschichte hinter den Zahlen</h3>
+           <p style={{ fontSize: 13, color: '#475569', margin: 0, lineHeight: 1.5 }}>Wir lassen dich mit nackten Daten nicht allein. Jeder Datensatz startet mit den wichtigsten Erkenntnissen auf einen Blick ("Story First").</p>
+        </div>
+        <div style={{ background: '#f8fafc', padding: '24px', borderRadius: 12, border: '1px solid #e2e8f0' }}>
+           <div style={{ fontSize: 28, marginBottom: 12 }}>💡</div>
+           <h3 style={{ fontSize: 15, fontWeight: 700, margin: '0 0 8px', color: '#1e293b' }}>Integrierter Daten-Dolmetscher</h3>
+           <p style={{ fontSize: 13, color: '#475569', margin: 0, lineHeight: 1.5 }}>Komplexe Einheiten und Grenzwerte übersetzen wir direkt in den interaktiven Diagrammen durch intuitive Tooltips in verständliche Fakten.</p>
+        </div>
+        <div style={{ background: '#f8fafc', padding: '24px', borderRadius: 12, border: '1px solid #e2e8f0' }}>
+           <div style={{ fontSize: 28, marginBottom: 12 }}>📊</div>
+           <h3 style={{ fontSize: 15, fontWeight: 700, margin: '0 0 8px', color: '#1e293b' }}>Maßgeschneiderte Analysen</h3>
+           <p style={{ fontSize: 13, color: '#475569', margin: 0, lineHeight: 1.5 }}>Vergleiche Jahre, filtere nach Ursachen, erkenne Trends selbstständig und lade die aktuellen Diagrammansichten und Daten direkt herunter.</p>
         </div>
       </div>
 
@@ -281,26 +324,60 @@ export default function DashboardPage() {
       <h2 style={{ fontSize: 18, fontWeight: 700, color: '#1e293b', marginBottom: 16 }}>
         Themenbereiche
       </h2>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 10 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 16 }}>
         {CATEGORIES.map((cat) => {
           const count = byCategory[cat.id] ?? 0
-          if (!count) return null
           return (
             <Link key={cat.id} to="/catalog" style={{ textDecoration: 'none' }}>
               <div
                 style={{
-                  background: cat.bg, border: `1.5px solid ${cat.color}30`,
-                  borderRadius: 10, padding: '14px 16px', cursor: 'pointer', transition: 'transform 0.15s',
+                  position: 'relative',
+                  borderRadius: 12,
+                  overflow: 'hidden',
+                  cursor: 'pointer',
+                  height: 150,
+                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
                 }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)' }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.transform = 'translateY(0)' }}
+                onMouseEnter={(e) => { 
+                  const bg = e.currentTarget.querySelector('.cat-bg') as HTMLElement;
+                  if(bg) bg.style.transform = 'scale(1.08)';
+                }}
+                onMouseLeave={(e) => { 
+                  const bg = e.currentTarget.querySelector('.cat-bg') as HTMLElement;
+                  if(bg) bg.style.transform = 'scale(1)';
+                }}
               >
-                <div style={{ fontSize: 24 }}>{cat.icon}</div>
-                <div style={{ fontSize: 13, fontWeight: 600, color: cat.color, marginTop: 6 }}>
-                  {cat.label}
-                </div>
-                <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>
-                  {count} Datensätze
+                {/* Background Image */}
+                <div 
+                  className="cat-bg"
+                  style={{
+                    position: 'absolute', inset: 0,
+                    backgroundImage: cat.image ? `url("${cat.image}")` : 'none',
+                    backgroundColor: cat.bg,
+                    backgroundSize: 'cover', backgroundPosition: 'center',
+                    transition: 'transform 0.4s ease-out',
+                  }}
+                />
+                {/* Dark Gradient Overlay */}
+                <div style={{
+                  position: 'absolute', inset: 0,
+                  background: `linear-gradient(to top, rgba(15, 23, 42, 0.85) 0%, rgba(15, 23, 42, 0.3) 60%, rgba(15, 23, 42, 0.1) 100%)`,
+                }} />
+                
+                {/* Content */}
+                <div style={{
+                  position: 'absolute', inset: 0, padding: '16px',
+                  display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
+                }}>
+                  <div style={{ fontSize: 24, position: 'absolute', top: 12, right: 16, opacity: 0.9 }}>
+                    {cat.icon}
+                  </div>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: '#fff', textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>
+                    {cat.label}
+                  </div>
+                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', marginTop: 2 }}>
+                    {count} Datensätze
+                  </div>
                 </div>
               </div>
             </Link>

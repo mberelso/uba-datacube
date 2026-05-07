@@ -10,6 +10,18 @@ Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/).
 
 ---
 
+## [0.7.0] – 2026-05-07
+
+### Added
+- **Visual Redesign (Dashboard)**: Neuer, atmosphärischer "Kompass"-Hero-Bereich mit lokal gehostetem Natur-Hintergrundbild (`hero_background.png`) für optimale Lesbarkeit und emotionale Bindung.
+- **Themen-Kacheln mit Bild-Unterstützung**: Alle Kategorien auf der Startseite (Klima, Wasser, Energie etc.) nutzen jetzt hochqualitative Fotomotive von Unsplash mit eleganten Hover-Zoom-Effekten.
+- **Feature-Cards**: Drei neue Info-Boxen auf der Startseite ("Die Geschichte hinter den Zahlen", "Integrierter Daten-Dolmetscher", "Maßgeschneiderte Analysen"), die das UX-Konzept erklären.
+
+### Changed
+- Kategorien ohne Datensätze (z.B. "0 Datensätze") werden auf dem Dashboard nicht mehr ausgeblendet, um das visuelle Grid der schönen Bild-Kacheln stabil und einladend zu halten.
+
+---
+
 ## [0.6.0] – 2026-05-05
 
 ### Added

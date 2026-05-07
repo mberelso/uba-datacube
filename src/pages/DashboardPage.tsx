@@ -1,57 +1,99 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion'
 import {
   LineChart, Line, AreaChart, Area, BarChart, Bar,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts'
+import {
+  Thermometer, Factory, Lightning, Fire,
+  BookOpen, Translate, ChartBar, ArrowRight,
+} from '@phosphor-icons/react'
 import { fetchData, fetchDataflows, type Dataflow } from '../api/sdmx'
 import { CATEGORIES } from '../utils/categories'
 import heroBg from '../assets/hero_background.png'
+
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 interface HighlightConfig {
   flowId: string
   key?: string
   title: string
   subtitle: string
-  icon: string
+  Icon: React.ElementType
   color: string
   chartType: 'area' | 'line' | 'bar'
   unit?: string
   invertColors?: boolean
 }
 
+interface ChartPoint { year: string; value: number | null }
+
+// ─── Data ─────────────────────────────────────────────────────────────────────
+
 const HIGHLIGHTS: HighlightConfig[] = [
   {
     flowId: 'DF_CLIMATE_GERMANY_TEMPERATURE_MEAN',
     key: 'DE.A.DEGC.JM.',
-    title: 'Temperatur Deutschland',
+    title: 'Temperatur',
     subtitle: 'Jahresmittelwert Lufttemperatur 2m',
-    icon: '🌡️', color: '#dc2626', chartType: 'area', unit: '°C',
+    Icon: Thermometer,
+    color: '#dc2626',
+    chartType: 'area',
+    unit: '°C',
   },
   {
     flowId: 'DF_CLIMATE_EMISSIONS_GHG_TRENDS',
     key: 'DE.A.MT_CO2EQ.GESAMT.MT_CO2EQ',
-    title: 'Treibhausgasemissionen',
+    title: 'Treibhausgase',
     subtitle: 'Gesamtemissionen nach UNFCCC',
-    icon: '🏭', color: '#7c3aed', chartType: 'area', unit: 'Mt CO₂eq',
+    Icon: Factory,
+    color: '#0f766e',
+    chartType: 'area',
+    unit: 'Mt CO₂eq',
   },
   {
     flowId: 'DF_ENERGY_AGEE_SHARE',
     key: 'DE.A.PZ.SHARE_EE_GFEC_RED.EE',
     title: 'Erneuerbare Energien',
     subtitle: 'Anteil am Bruttoendenergieverbrauch',
-    icon: '⚡', color: '#16a34a', chartType: 'bar', unit: '%',
+    Icon: Lightning,
+    color: '#0369a1',
+    chartType: 'bar',
+    unit: '%',
   },
   {
     flowId: 'DF_AGRICULTURE_FORESTRY_FOREST_FIRE_AREA',
     key: 'DE.A.HA.GESAMT.HA',
     title: 'Waldbrandfläche',
     subtitle: 'Jährliche Brandfläche in Deutschland',
-    icon: '🔥', color: '#d97706', chartType: 'bar', unit: 'ha', invertColors: true,
+    Icon: Fire,
+    color: '#b45309',
+    chartType: 'bar',
+    unit: 'ha',
+    invertColors: true,
   },
 ]
 
-interface ChartPoint { year: string; value: number | null }
+const FEATURES = [
+  {
+    Icon: BookOpen,
+    title: 'Die Geschichte hinter den Zahlen',
+    body: 'Jeder Datensatz startet mit den wichtigsten Erkenntnissen auf einen Blick — keine nackten Tabellen, sondern eingeordnete Fakten.',
+  },
+  {
+    Icon: Translate,
+    title: 'Integrierter Daten-Dolmetscher',
+    body: 'Komplexe Einheiten und Grenzwerte übersetzt der Datacube direkt in den interaktiven Diagrammen durch kontextuelle Tooltips.',
+  },
+  {
+    Icon: ChartBar,
+    title: 'Maßgeschneiderte Analysen',
+    body: 'Jahre vergleichen, nach Ursachen filtern, Trends erkennen — und aktuelle Diagrammansichten direkt herunterladen.',
+  },
+]
+
+// ─── Hooks ────────────────────────────────────────────────────────────────────
 
 function useHighlightData(config: HighlightConfig, flows: Dataflow[]) {
   const [data, setData] = useState<ChartPoint[]>([])
@@ -64,26 +106,18 @@ function useHighlightData(config: HighlightConfig, flows: Dataflow[]) {
     fetchData(flow)
       .then(({ seriesMap, timeValues }) => {
         let observations: Record<string, number | null> = {}
-        
-        // If a specific key is provided, use it
         if (config.key && seriesMap[config.key]) {
           observations = seriesMap[config.key].observations
         } else {
-          // Find first series that actually has non-null data
-          const seriesKeys = Object.keys(seriesMap)
-          for (const key of seriesKeys) {
-            const obs = seriesMap[key].observations
-            if (Object.values(obs).some(v => v !== null)) {
-              observations = obs
-              break
-            }
+          const keys = Object.keys(seriesMap)
+          for (const k of keys) {
+            const obs = seriesMap[k].observations
+            if (Object.values(obs).some((v) => v !== null)) { observations = obs; break }
           }
-          // Fallback to first series if all empty
-          if (Object.keys(observations).length === 0 && seriesKeys.length > 0) {
-            observations = seriesMap[seriesKeys[0]].observations
+          if (Object.keys(observations).length === 0 && keys.length > 0) {
+            observations = seriesMap[keys[0]].observations
           }
         }
-
         setData(timeValues.map((y) => ({ year: y, value: observations[y] ?? null })).filter((d) => d.value != null))
       })
       .catch(() => {})
@@ -93,126 +127,241 @@ function useHighlightData(config: HighlightConfig, flows: Dataflow[]) {
   return { data, loading }
 }
 
+// ─── Sub-components ───────────────────────────────────────────────────────────
+
+const stagger = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.08 } },
+}
+const fadeUp = {
+  hidden: { opacity: 0, y: 16 },
+  show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 120, damping: 22 } },
+}
+
+function SkeletonCard() {
+  return (
+    <div className="rounded-[1.5rem] border border-slate-200/60 bg-white p-6 overflow-hidden">
+      <div className="h-3 w-24 rounded-full bg-slate-100 animate-pulse mb-3" />
+      <div className="h-8 w-16 rounded-md bg-slate-100 animate-pulse mb-6" />
+      <div className="h-[90px] rounded-lg bg-slate-100 animate-pulse" />
+    </div>
+  )
+}
+
+function MagneticButton({ children, className, ...props }: React.AnchorHTMLAttributes<HTMLAnchorElement> & { to?: string; children: React.ReactNode; className?: string }) {
+  const ref = useRef<HTMLAnchorElement>(null)
+  const x = useMotionValue(0)
+  const y = useMotionValue(0)
+  const tx = useTransform(x, (v) => `${v}px`)
+  const ty = useTransform(y, (v) => `${v}px`)
+
+  function onMove(e: React.MouseEvent) {
+    const el = ref.current
+    if (!el) return
+    const rect = el.getBoundingClientRect()
+    const cx = rect.left + rect.width / 2
+    const cy = rect.top + rect.height / 2
+    x.set((e.clientX - cx) * 0.2)
+    y.set((e.clientY - cy) * 0.2)
+  }
+  function onLeave() { x.set(0); y.set(0) }
+
+  return (
+    <motion.a
+      ref={ref}
+      onMouseMove={onMove}
+      onMouseLeave={onLeave}
+      style={{ x: tx, y: ty }}
+      whileTap={{ scale: 0.97 }}
+      className={className}
+      {...(props as any)}
+    >
+      {children}
+    </motion.a>
+  )
+}
+
 function HighlightCard({ config, flows }: { config: HighlightConfig; flows: Dataflow[] }) {
   const { data, loading } = useHighlightData(config, flows)
-
   const latest = data[data.length - 1]
   const previous = data[data.length - 2]
   const trend =
-    latest?.value != null && previous?.value != null
-      ? latest.value - previous.value
-      : null
+    latest?.value != null && previous?.value != null ? latest.value - previous.value : null
+  const { Icon } = config
+
+  const trendPositive = trend != null && (config.invertColors ? trend < 0 : trend > 0)
+  const trendNegative = trend != null && (config.invertColors ? trend > 0 : trend < 0)
 
   return (
-    <div style={{ background: '#fff', borderRadius: 12, border: '1.5px solid #e2e8f0',
-      overflow: 'hidden', borderTop: `4px solid ${config.color}` }}>
-      <div style={{ padding: '16px 20px 10px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+    <motion.div
+      variants={fadeUp}
+      className="rounded-[1.5rem] border border-slate-200/60 bg-white overflow-hidden shadow-[0_4px_24px_-8px_rgba(0,0,0,0.06)] flex flex-col"
+    >
+      {/* Top accent line */}
+      <div className="h-[3px] w-full" style={{ background: config.color }} />
+
+      <div className="p-6 flex-1 flex flex-col">
+        {/* Header row */}
+        <div className="flex items-start justify-between mb-4">
           <div>
-            <div style={{ fontSize: 24 }}>{config.icon}</div>
-            <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1e293b', margin: '4px 0 2px' }}>
+            <div
+              className="inline-flex items-center justify-center w-9 h-9 rounded-xl mb-3"
+              style={{ background: `${config.color}14` }}
+            >
+              <Icon size={18} weight="duotone" style={{ color: config.color }} />
+            </div>
+            <h3 className="text-sm font-semibold text-slate-800 tracking-tight leading-tight">
               {config.title}
             </h3>
-            <p style={{ fontSize: 12, color: '#94a3b8', margin: 0 }}>{config.subtitle}</p>
+            <p className="text-xs text-slate-400 mt-0.5 leading-snug">{config.subtitle}</p>
           </div>
+
           {latest?.value != null && (
-            <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: 22, fontWeight: 700, color: config.color }}>
+            <div className="text-right shrink-0 ml-4">
+              <div
+                className="text-2xl font-bold tracking-tight"
+                style={{ color: config.color, fontFamily: "'Geist Mono', monospace" }}
+              >
                 {Number(latest.value).toLocaleString('de-DE', { maximumFractionDigits: 1 })}
               </div>
-              <div style={{ fontSize: 11, color: '#94a3b8' }}>
-                {config.unit} ({latest.year})
-              </div>
+              <div className="text-[11px] text-slate-400 mt-0.5">{config.unit} · {latest.year}</div>
               {trend != null && (
-                <div style={{
-                  fontSize: 12, marginTop: 2,
-                  color: (config.invertColors ? trend > 0 : trend < 0) ? '#16a34a' : '#dc2626',
-                }}>
-                  {trend > 0 ? '▲' : '▼'}{' '}
-                  {Math.abs(trend).toLocaleString('de-DE', { maximumFractionDigits: 2 })}
+                <div
+                  className="text-[11px] font-medium mt-1 flex items-center justify-end gap-0.5"
+                  style={{ color: trendPositive ? '#16a34a' : trendNegative ? '#dc2626' : '#94a3b8' }}
+                >
+                  <span>{trend > 0 ? '▲' : '▼'}</span>
+                  <span style={{ fontFamily: "'Geist Mono', monospace" }}>
+                    {Math.abs(trend).toLocaleString('de-DE', { maximumFractionDigits: 2 })}
+                  </span>
                 </div>
               )}
             </div>
           )}
         </div>
-      </div>
 
-      <div style={{ height: 110, padding: '0 6px 4px' }}>
-        {loading ? (
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center',
-            height: '100%', color: '#94a3b8', fontSize: 12 }}>
-            Lade…
-          </div>
-        ) : (
-          <div style={{ height: '100%' }}>
-            {data.length === 0 ? (
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center',
-                height: '100%', color: '#94a3b8', fontSize: 11 }}>
-                Keine Daten für diesen Zeitraum verfügbar.
-              </div>
+        {/* Chart */}
+        <div className="h-[100px] mt-auto">
+          <AnimatePresence mode="wait">
+            {loading ? (
+              <motion.div
+                key="skeleton"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="h-full rounded-lg bg-slate-100 animate-pulse"
+              />
+            ) : data.length === 0 ? (
+              <motion.div
+                key="empty"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="h-full flex items-center justify-center text-xs text-slate-400"
+              >
+                Keine Daten verfügbar
+              </motion.div>
             ) : (
-              <ResponsiveContainer width="100%" height="100%">
-                {config.chartType === 'bar' ? (
-                  <BarChart data={data} margin={{ top: 2, right: 4, left: -28, bottom: 0 }}>
-                    <XAxis dataKey="year" tick={{ fontSize: 9 }} interval="preserveStartEnd" />
-                    <YAxis tick={{ fontSize: 9 }} />
-                    <Tooltip
-                      contentStyle={{ fontSize: 11, borderRadius: 6 }}
-                      formatter={(v: any) => [
-                        Number(v).toLocaleString('de-DE', { maximumFractionDigits: 1 }),
-                        config.unit ?? '',
-                      ]}
-                    />
-                    <Bar dataKey="value" fill={config.color} radius={[2, 2, 0, 0]} />
-                  </BarChart>
-                ) : config.chartType === 'area' ? (
-                  <AreaChart data={data} margin={{ top: 2, right: 4, left: -28, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id={`grad-${config.flowId}`} x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor={config.color} stopOpacity={0.25} />
-                        <stop offset="95%" stopColor={config.color} stopOpacity={0.02} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                    <XAxis dataKey="year" tick={{ fontSize: 9 }} interval="preserveStartEnd" />
-                    <YAxis tick={{ fontSize: 9 }} />
-                    <Tooltip
-                      contentStyle={{ fontSize: 11, borderRadius: 6 }}
-                      formatter={(v: any) => [
-                        Number(v).toLocaleString('de-DE', { maximumFractionDigits: 1 }),
-                        config.unit ?? '',
-                      ]}
-                    />
-                    <Area type="monotone" dataKey="value" stroke={config.color} strokeWidth={2}
-                      fill={`url(#grad-${config.flowId})`} dot={false} connectNulls />
-                  </AreaChart>
-                ) : (
-                  <LineChart data={data} margin={{ top: 2, right: 4, left: -28, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                    <XAxis dataKey="year" tick={{ fontSize: 9 }} interval="preserveStartEnd" />
-                    <YAxis tick={{ fontSize: 9 }} />
-                    <Tooltip contentStyle={{ fontSize: 11, borderRadius: 6 }} />
-                    <Line type="monotone" dataKey="value" stroke={config.color}
-                      strokeWidth={2} dot={false} connectNulls />
-                  </LineChart>
-                )}
-              </ResponsiveContainer>
+              <motion.div
+                key="chart"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="h-full"
+              >
+                <ResponsiveContainer width="100%" height="100%">
+                  {config.chartType === 'bar' ? (
+                    <BarChart data={data} margin={{ top: 2, right: 2, left: -32, bottom: 0 }}>
+                      <XAxis dataKey="year" tick={{ fontSize: 8, fill: '#94a3b8' }} interval="preserveStartEnd" axisLine={false} tickLine={false} />
+                      <YAxis tick={{ fontSize: 8, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                      <Tooltip
+                        contentStyle={{ fontSize: 11, borderRadius: 8, border: '1px solid #e2e8f0', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}
+                        formatter={(v: any) => [Number(v).toLocaleString('de-DE', { maximumFractionDigits: 1 }), config.unit ?? '']}
+                      />
+                      <Bar dataKey="value" fill={config.color} radius={[3, 3, 0, 0]} opacity={0.85} />
+                    </BarChart>
+                  ) : (
+                    <AreaChart data={data} margin={{ top: 2, right: 2, left: -32, bottom: 0 }}>
+                      <defs>
+                        <linearGradient id={`g-${config.flowId}`} x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor={config.color} stopOpacity={0.2} />
+                          <stop offset="95%" stopColor={config.color} stopOpacity={0.01} />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                      <XAxis dataKey="year" tick={{ fontSize: 8, fill: '#94a3b8' }} interval="preserveStartEnd" axisLine={false} tickLine={false} />
+                      <YAxis tick={{ fontSize: 8, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                      <Tooltip
+                        contentStyle={{ fontSize: 11, borderRadius: 8, border: '1px solid #e2e8f0', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}
+                        formatter={(v: any) => [Number(v).toLocaleString('de-DE', { maximumFractionDigits: 1 }), config.unit ?? '']}
+                      />
+                      <Area type="monotone" dataKey="value" stroke={config.color} strokeWidth={1.5}
+                        fill={`url(#g-${config.flowId})`} dot={false} connectNulls />
+                    </AreaChart>
+                  )}
+                </ResponsiveContainer>
+              </motion.div>
             )}
-          </div>
-        )}
+          </AnimatePresence>
+        </div>
       </div>
 
-      <div style={{ padding: '8px 16px 12px', borderTop: '1px solid #f1f5f9' }}>
+      {/* Footer link */}
+      <div className="px-6 py-3 border-t border-slate-100">
         <Link
           to={`/dataset/${encodeURIComponent(config.flowId)}`}
-          style={{ fontSize: 12, color: config.color, textDecoration: 'none', fontWeight: 500 }}
+          className="text-xs font-medium flex items-center gap-1 hover:gap-2 transition-all duration-200"
+          style={{ color: config.color }}
         >
-          Details & alle Serien →
+          Details & alle Serien <ArrowRight size={12} weight="bold" />
         </Link>
       </div>
-    </div>
+    </motion.div>
   )
 }
+
+function CategoryTile({ cat, count }: { cat: typeof CATEGORIES[0]; count: number }) {
+  return (
+    <motion.div variants={fadeUp}>
+      <Link to={`/catalog?category=${cat.id}`} className="block group">
+        <div
+          className="relative rounded-2xl overflow-hidden cursor-pointer"
+          style={{ height: 140 }}
+        >
+          {/* Background */}
+          <div
+            className="absolute inset-0 transition-transform duration-500 ease-out group-hover:scale-105"
+            style={{
+              backgroundImage: cat.image ? `url("${cat.image}")` : 'none',
+              backgroundColor: cat.bg,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            }}
+          />
+          {/* Gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/25 to-transparent" />
+          {/* Icon top-right */}
+          <div
+            className="absolute top-3 right-3 w-8 h-8 rounded-lg flex items-center justify-center text-white/90 text-sm font-medium border border-white/20 backdrop-blur-sm"
+            style={{ background: `${cat.color}55` }}
+          >
+            {cat.icon}
+          </div>
+          {/* Text bottom */}
+          <div className="absolute bottom-0 left-0 right-0 p-4">
+            <div className="text-[13px] font-600 text-white leading-tight tracking-tight">{cat.label}</div>
+            <div
+              className="text-[11px] mt-0.5 font-mono"
+              style={{ color: 'rgba(255,255,255,0.65)' }}
+            >
+              {count} Datensätze
+            </div>
+          </div>
+        </div>
+      </Link>
+    </motion.div>
+  )
+}
+
+// ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function DashboardPage() {
   const [flows, setFlows] = useState<Dataflow[]>([])
@@ -228,168 +377,173 @@ export default function DashboardPage() {
   }
 
   return (
-    <div style={{ maxWidth: 1100, margin: '0 auto', padding: '28px 20px' }}>
-      {/* Hero */}
-      <div style={{
-        position: 'relative',
-        borderRadius: 16,
-        padding: '48px 56px',
-        color: '#fff',
-        marginBottom: 32,
-        overflow: 'hidden',
-        boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)',
-      }}>
-        {/* Background Image with Overlay */}
-        <div style={{
-          position: 'absolute', inset: 0, zIndex: 0,
-          backgroundImage: `url(${heroBg})`,
-          backgroundSize: 'cover', backgroundPosition: 'center',
-        }} />
-        <div style={{
-          position: 'absolute', inset: 0, zIndex: 0,
-          background: 'linear-gradient(to right, rgba(15, 23, 42, 0.85) 0%, rgba(30, 58, 95, 0.5) 50%, rgba(15, 76, 129, 0.1) 100%)',
-        }} />
-        
-        {/* Content */}
-        <div style={{ position: 'relative', zIndex: 1 }}>
-          <div style={{ fontSize: 48, marginBottom: 16 }}>🧭</div>
-          <h1 style={{ fontSize: 32, fontWeight: 800, margin: '0 0 12px', letterSpacing: '-0.5px' }}>
-            Dein Kompass für die Umwelt in Deutschland
-          </h1>
-          <h2 style={{ fontSize: 18, fontWeight: 600, color: '#93c5fd', margin: '0 0 20px' }}>
-            Offizielle Daten. Klar verständlich. Auf den Punkt gebracht.
-          </h2>
-          <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.9)', margin: '0 0 28px',
-            maxWidth: 680, lineHeight: 1.6 }}>
-            Wie steht es um die Luftqualität in unseren Städten? Wie entwickeln sich die Treibhausgas-Emissionen, und welche Auswirkungen hat extreme Trockenheit auf unsere Wälder? 
-            <br /><br />
-            Der UBA-Datacube ist der zentrale Ort für fundierte Antworten. Wir bündeln offizielle Umwelt-Indikatoren und machen sie für jeden greifbar – von der interessierten Öffentlichkeit bis hin zu politischen Entscheidungsträgern.
-          </p>
-          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-            <Link to="/catalog" style={{
-              display: 'inline-block', background: '#fff', color: '#1e3a5f',
-              padding: '12px 24px', borderRadius: 8, fontWeight: 700, fontSize: 14, textDecoration: 'none',
-              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-            }}>
-              Datenkatalog öffnen ({loadingFlows ? '…' : flows.length} Themen) →
-            </Link>
-            <Link to="/analysen" style={{
-              display: 'inline-block', background: 'rgba(255,255,255,0.15)', color: '#fff',
-              padding: '12px 24px', borderRadius: 8, fontWeight: 700, fontSize: 14, textDecoration: 'none',
-              border: '1.5px solid rgba(255,255,255,0.3)', backdropFilter: 'blur(4px)',
-            }}>
-              Analysen entdecken →
-            </Link>
-          </div>
+    <div className="max-w-[1200px] mx-auto px-5 py-10">
+
+      {/* ── Hero ─────────────────────────────────────────────────────────── */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ type: 'spring', stiffness: 100, damping: 20 }}
+        className="relative rounded-[2rem] overflow-hidden mb-10"
+        style={{ minHeight: 360 }}
+      >
+        {/* Background image */}
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: `url(${heroBg})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        />
+        {/* Asymmetric gradient — stronger left fade */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background: 'linear-gradient(105deg, rgba(2,9,23,0.92) 0%, rgba(2,9,23,0.72) 45%, rgba(2,9,23,0.15) 100%)',
+          }}
+        />
+
+        {/* Content — left-aligned, asymmetric */}
+        <div className="relative z-10 p-10 md:p-14 max-w-[640px]">
+          <motion.p
+            initial={{ opacity: 0, x: -12 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.1, type: 'spring', stiffness: 120, damping: 24 }}
+            className="text-xs font-semibold tracking-widest uppercase text-emerald-400 mb-4"
+          >
+            Umweltbundesamt · Datenkatalog
+          </motion.p>
+          <motion.h1
+            initial={{ opacity: 0, x: -12 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.18, type: 'spring', stiffness: 120, damping: 24 }}
+            className="text-4xl md:text-5xl font-extrabold tracking-tight leading-[1.08] text-white mb-4"
+          >
+            Umwelt in Zahlen — <br />
+            <span className="text-emerald-400">klar verständlich.</span>
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.28 }}
+            className="text-[15px] leading-relaxed text-white/75 max-w-[55ch] mb-8"
+          >
+            Offizielle Klimadaten, Emissionstrends und Umweltindikatoren — direkt aus dem Datacube des Umweltbundesamts, aufbereitet für Öffentlichkeit und Entscheidungsträger.
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.36, type: 'spring', stiffness: 120, damping: 24 }}
+            className="flex flex-wrap gap-3"
+          >
+            <MagneticButton
+              href={undefined}
+              className="inline-flex items-center gap-2 bg-white text-slate-900 px-5 py-3 rounded-xl text-sm font-semibold shadow-[0_2px_8px_rgba(0,0,0,0.18)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.22)] transition-shadow duration-200 no-underline cursor-pointer"
+              onClick={() => window.location.href = '/catalog'}
+            >
+              Datenkatalog öffnen
+              <span className="text-slate-400 font-normal text-xs">
+                {loadingFlows ? '…' : `${flows.length} Themen`}
+              </span>
+              <ArrowRight size={14} weight="bold" />
+            </MagneticButton>
+            <MagneticButton
+              href={undefined}
+              className="inline-flex items-center gap-2 border border-white/25 text-white/90 px-5 py-3 rounded-xl text-sm font-medium backdrop-blur-sm hover:border-white/40 hover:text-white transition-all duration-200 no-underline cursor-pointer"
+              style={{ background: 'rgba(255,255,255,0.08)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1)' }}
+              onClick={() => window.location.href = '/analysen'}
+            >
+              Analysen entdecken
+            </MagneticButton>
+          </motion.div>
         </div>
+      </motion.div>
+
+      {/* ── Feature row ──────────────────────────────────────────────────── */}
+      <motion.div
+        variants={stagger}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, margin: '-60px' }}
+        className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-12"
+      >
+        {FEATURES.map(({ Icon, title, body }) => (
+          <motion.div
+            key={title}
+            variants={fadeUp}
+            className="p-6 rounded-2xl border border-slate-200/70 bg-white shadow-[0_2px_12px_-4px_rgba(0,0,0,0.04)]"
+          >
+            <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center mb-4">
+              <Icon size={18} weight="duotone" className="text-slate-600" />
+            </div>
+            <h3 className="text-[13px] font-semibold text-slate-800 mb-2 leading-snug tracking-tight">{title}</h3>
+            <p className="text-[12px] text-slate-500 leading-relaxed">{body}</p>
+          </motion.div>
+        ))}
+      </motion.div>
+
+      {/* ── Highlights ───────────────────────────────────────────────────── */}
+      <div className="mb-3 flex items-baseline justify-between">
+        <h2 className="text-base font-semibold text-slate-800 tracking-tight">Highlights</h2>
+        <Link to="/catalog" className="text-xs text-slate-400 hover:text-slate-600 transition-colors">
+          Alle Datensätze →
+        </Link>
       </div>
 
-      {/* Feature Section */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20, marginBottom: 40 }}>
-        <div style={{ background: '#f8fafc', padding: '24px', borderRadius: 12, border: '1px solid #e2e8f0' }}>
-           <div style={{ fontSize: 28, marginBottom: 12 }}>📖</div>
-           <h3 style={{ fontSize: 15, fontWeight: 700, margin: '0 0 8px', color: '#1e293b' }}>Die Geschichte hinter den Zahlen</h3>
-           <p style={{ fontSize: 13, color: '#475569', margin: 0, lineHeight: 1.5 }}>Wir lassen dich mit nackten Daten nicht allein. Jeder Datensatz startet mit den wichtigsten Erkenntnissen auf einen Blick ("Story First").</p>
-        </div>
-        <div style={{ background: '#f8fafc', padding: '24px', borderRadius: 12, border: '1px solid #e2e8f0' }}>
-           <div style={{ fontSize: 28, marginBottom: 12 }}>💡</div>
-           <h3 style={{ fontSize: 15, fontWeight: 700, margin: '0 0 8px', color: '#1e293b' }}>Integrierter Daten-Dolmetscher</h3>
-           <p style={{ fontSize: 13, color: '#475569', margin: 0, lineHeight: 1.5 }}>Komplexe Einheiten und Grenzwerte übersetzen wir direkt in den interaktiven Diagrammen durch intuitive Tooltips in verständliche Fakten.</p>
-        </div>
-        <div style={{ background: '#f8fafc', padding: '24px', borderRadius: 12, border: '1px solid #e2e8f0' }}>
-           <div style={{ fontSize: 28, marginBottom: 12 }}>📊</div>
-           <h3 style={{ fontSize: 15, fontWeight: 700, margin: '0 0 8px', color: '#1e293b' }}>Maßgeschneiderte Analysen</h3>
-           <p style={{ fontSize: 13, color: '#475569', margin: 0, lineHeight: 1.5 }}>Vergleiche Jahre, filtere nach Ursachen, erkenne Trends selbstständig und lade die aktuellen Diagrammansichten und Daten direkt herunter.</p>
-        </div>
+      <AnimatePresence mode="wait">
+        {loadingFlows ? (
+          <motion.div
+            key="skeleton-grid"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12"
+          >
+            {HIGHLIGHTS.map((h) => <SkeletonCard key={h.flowId} />)}
+          </motion.div>
+        ) : (
+          <motion.div
+            key="highlight-grid"
+            variants={stagger}
+            initial="hidden"
+            animate="show"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12"
+          >
+            {HIGHLIGHTS.map((h) => (
+              <HighlightCard key={h.flowId} config={h} flows={flows} />
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Category tiles ───────────────────────────────────────────────── */}
+      <div className="mb-3 flex items-baseline justify-between">
+        <h2 className="text-base font-semibold text-slate-800 tracking-tight">Themenbereiche</h2>
       </div>
 
-      {/* Highlight charts */}
-      <h2 style={{ fontSize: 18, fontWeight: 700, color: '#1e293b', marginBottom: 16 }}>
-        Highlights
-      </h2>
-      {loadingFlows ? (
-        <div style={{ textAlign: 'center', padding: 40, color: '#94a3b8' }}>Lade Datensätze…</div>
-      ) : (
-        <div style={{
-          display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
-          gap: 16, marginBottom: 36,
-        }}>
-          {HIGHLIGHTS.map((h) => (
-            <HighlightCard key={h.flowId} config={h} flows={flows} />
-          ))}
-        </div>
-      )}
+      <motion.div
+        variants={stagger}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, margin: '-40px' }}
+        className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3"
+      >
+        {CATEGORIES.map((cat) => (
+          <CategoryTile key={cat.id} cat={cat} count={byCategory[cat.id] ?? 0} />
+        ))}
+      </motion.div>
 
-      {/* Category tiles */}
-      <h2 style={{ fontSize: 18, fontWeight: 700, color: '#1e293b', marginBottom: 16 }}>
-        Themenbereiche
-      </h2>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 16 }}>
-        {CATEGORIES.map((cat) => {
-          const count = byCategory[cat.id] ?? 0
-          return (
-            <Link key={cat.id} to={`/catalog?category=${cat.id}`} style={{ textDecoration: 'none' }}>
-              <div
-                style={{
-                  position: 'relative',
-                  borderRadius: 12,
-                  overflow: 'hidden',
-                  cursor: 'pointer',
-                  height: 150,
-                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                }}
-                onMouseEnter={(e) => { 
-                  const bg = e.currentTarget.querySelector('.cat-bg') as HTMLElement;
-                  if(bg) bg.style.transform = 'scale(1.08)';
-                }}
-                onMouseLeave={(e) => { 
-                  const bg = e.currentTarget.querySelector('.cat-bg') as HTMLElement;
-                  if(bg) bg.style.transform = 'scale(1)';
-                }}
-              >
-                {/* Background Image */}
-                <div 
-                  className="cat-bg"
-                  style={{
-                    position: 'absolute', inset: 0,
-                    backgroundImage: cat.image ? `url("${cat.image}")` : 'none',
-                    backgroundColor: cat.bg,
-                    backgroundSize: 'cover', backgroundPosition: 'center',
-                    transition: 'transform 0.4s ease-out',
-                  }}
-                />
-                {/* Dark Gradient Overlay */}
-                <div style={{
-                  position: 'absolute', inset: 0,
-                  background: `linear-gradient(to top, rgba(15, 23, 42, 0.85) 0%, rgba(15, 23, 42, 0.3) 60%, rgba(15, 23, 42, 0.1) 100%)`,
-                }} />
-                
-                {/* Content */}
-                <div style={{
-                  position: 'absolute', inset: 0, padding: '16px',
-                  display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
-                }}>
-                  <div style={{ fontSize: 24, position: 'absolute', top: 12, right: 16, opacity: 0.9 }}>
-                    {cat.icon}
-                  </div>
-                  <div style={{ fontSize: 16, fontWeight: 700, color: '#fff', textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>
-                    {cat.label}
-                  </div>
-                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', marginTop: 2 }}>
-                    {count} Datensätze
-                  </div>
-                </div>
-              </div>
-            </Link>
-          )
-        })}
-      </div>
-
-      <div style={{ marginTop: 36, padding: '16px 0', borderTop: '1px solid #e2e8f0',
-        fontSize: 12, color: '#94a3b8', textAlign: 'center' }}>
+      {/* ── Footer ───────────────────────────────────────────────────────── */}
+      <div className="mt-12 pt-5 border-t border-slate-200/80 text-[11px] text-slate-400 text-center">
         Datenquelle:{' '}
-        <a href="https://datacube.uba.de" target="_blank" rel="noopener noreferrer"
-          style={{ color: '#1e3a5f' }}>
+        <a
+          href="https://datacube.uba.de"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-slate-500 hover:text-slate-700 transition-colors"
+        >
           Umweltbundesamt Datacube
         </a>
         {' · '}SDMX REST API: daten.uba.de

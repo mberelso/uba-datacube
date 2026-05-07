@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { fetchDataflows, type Dataflow } from '../api/sdmx'
 import { CATEGORIES, getCategoryMeta } from '../utils/categories'
 import { GuidedTip } from '../components/GuidedTip'
@@ -9,7 +9,17 @@ export default function CatalogPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [search, setSearch] = useState('')
-  const [activeCategory, setActiveCategory] = useState<string | null>(null)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [activeCategory, setActiveCategory] = useState<string | null>(searchParams.get('category'))
+
+  const handleCategoryClick = (catId: string | null) => {
+    setActiveCategory(catId)
+    if (catId) {
+      setSearchParams({ category: catId })
+    } else {
+      setSearchParams({})
+    }
+  }
 
   useEffect(() => {
     fetchDataflows()
@@ -59,7 +69,7 @@ export default function CatalogPage() {
 
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 28 }}>
         <button
-          onClick={() => setActiveCategory(null)}
+          onClick={() => handleCategoryClick(null)}
           style={{
             padding: '5px 14px', borderRadius: 20, border: '1.5px solid',
             borderColor: activeCategory === null ? '#1e3a5f' : '#e2e8f0',
@@ -77,7 +87,7 @@ export default function CatalogPage() {
           return (
             <button
               key={cat.id}
-              onClick={() => setActiveCategory(active ? null : cat.id)}
+              onClick={() => handleCategoryClick(active ? null : cat.id)}
               style={{
                 padding: '5px 14px', borderRadius: 20, border: '1.5px solid',
                 borderColor: active ? cat.color : '#e2e8f0',

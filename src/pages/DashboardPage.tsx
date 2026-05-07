@@ -328,7 +328,7 @@ export default function DashboardPage() {
         {CATEGORIES.map((cat) => {
           const count = byCategory[cat.id] ?? 0
           return (
-            <Link key={cat.id} to="/catalog" style={{ textDecoration: 'none' }}>
+            <Link key={cat.id} to={`/catalog?category=${cat.id}`} style={{ textDecoration: 'none' }}>
               <div
                 style={{
                   position: 'relative',

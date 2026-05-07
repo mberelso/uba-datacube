@@ -10,6 +10,13 @@ Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/).
 
 ---
 
+## [0.7.1] – 2026-05-07
+
+### Fixed
+- **Dashboard Routing**: Klick auf eine Themen-Kachel auf der Startseite navigiert nun korrekt zum Datenkatalog und setzt den aktiven Kategorie-Filter (via URL-Parameter `?category=XYZ`).
+
+---
+
 ## [0.7.0] – 2026-05-07
 
 ### Added

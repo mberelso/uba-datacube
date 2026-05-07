@@ -21,11 +21,12 @@
 import Anthropic from '@anthropic-ai/sdk'
 import * as fs from 'fs'
 import * as path from 'path'
+import * as https from 'https'
 import { fileURLToPath } from 'url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const CONTENT_FILE = path.join(__dirname, '../src/data/datasetContent.ts')
-const SDMX_BASE = 'https://daten.uba.de/sdmx'
+const SDMX_BASE = 'https://daten.uba.de/release/rest'
 
 // ─── CLI args ────────────────────────────────────────────────────────────────
 
@@ -45,33 +46,35 @@ interface RawFlow {
   category: string
 }
 
-async function fetchFlows(): Promise<RawFlow[]> {
-  const url = `${SDMX_BASE}/dataflow/all/all/latest`
-  const res = await fetch(url, { headers: { Accept: 'application/json' } })
-  if (!res.ok) throw new Error(`SDMX API error: ${res.status}`)
-  const json: any = await res.json()
+function httpGet(url: string, headers: Record<string, string> = {}): Promise<any> {
+  return new Promise((resolve, reject) => {
+    https.get(url, { headers: { 'Accept': 'application/json', ...headers } }, (res) => {
+      if (res.statusCode !== 200) { reject(new Error(`HTTP ${res.statusCode}`)); return }
+      let data = ''
+      res.on('data', (chunk) => { data += chunk })
+      res.on('end', () => { try { resolve(JSON.parse(data)) } catch (e) { reject(e) } })
+    }).on('error', reject)
+  })
+}
 
-  const refs: any[] = json.references ?? []
+async function fetchFlows(): Promise<RawFlow[]> {
+  const url = `${SDMX_BASE}/dataflow/UBA/all/latest`
+  const json: any = await httpGet(url)
+
+  // references is a plain object keyed by some id string, values are dataflow objects
+  const refs: Record<string, any> = json.references ?? {}
   const flows: RawFlow[] = []
 
-  for (const ref of refs) {
-    const type = ref?.meta?.class ?? ref?.class
-    const obj = ref?.object ?? ref
-    if (type !== 'Dataflow' && obj?.class !== 'Dataflow') continue
+  for (const df of Object.values(refs)) {
+    const id: string = df?.id ?? ''
+    if (!id.startsWith('DF_')) continue
 
-    const id: string = obj?.id ?? obj?.agencyID
-    if (!id?.startsWith('DF_')) continue
-
-    const nameObj = obj?.names ?? obj?.name ?? {}
-    const name: string = nameObj?.en ?? nameObj?.de ?? Object.values(nameObj)[0] ?? id
-    const descObj = obj?.descriptions ?? obj?.description ?? {}
-    const rawDesc: string = descObj?.en ?? descObj?.de ?? Object.values(descObj)[0] ?? ''
+    const name: string = df.name ?? id
+    const rawDesc: string = df.description ?? ''
     const description = rawDesc.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
-    const agencyID: string = obj?.agencyID ?? 'UBA'
-    const version: string = obj?.version ?? '1.0'
-
-    const parts = id.replace(/^DF_/, '').split('_')
-    const category = parts[0] ?? 'UNKNOWN'
+    const agencyID: string = df.agencyID ?? 'UBA'
+    const version: string = df.version ?? '1.0'
+    const category = id.replace(/^DF_/, '').split('_')[0] ?? 'UNKNOWN'
 
     flows.push({ id, name, description, agencyID, version, category })
   }
@@ -136,7 +139,9 @@ async function generateContent(client: Anthropic, flow: RawFlow): Promise<string
     messages: [{ role: 'user', content: buildPrompt(flow) }],
   })
 
-  const text = message.content[0].type === 'text' ? message.content[0].text : ''
+  const raw = message.content[0].type === 'text' ? message.content[0].text : ''
+  // Strip markdown code fences if present
+  const text = raw.replace(/^```(?:json)?\s*/m, '').replace(/\s*```\s*$/m, '').trim()
   const parsed = JSON.parse(text)
 
   // Validate all required fields exist

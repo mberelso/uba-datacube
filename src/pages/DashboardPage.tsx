@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion'
+import { motion, AnimatePresence, useMotionValue, useTransform, type Variants } from 'framer-motion'
 import {
-  LineChart, Line, AreaChart, Area, BarChart, Bar,
+  AreaChart, Area, BarChart, Bar,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts'
 import {
@@ -129,11 +129,11 @@ function useHighlightData(config: HighlightConfig, flows: Dataflow[]) {
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
-const stagger = {
+const stagger: Variants = {
   hidden: {},
   show: { transition: { staggerChildren: 0.08 } },
 }
-const fadeUp = {
+const fadeUp: Variants = {
   hidden: { opacity: 0, y: 16 },
   show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 120, damping: 22 } },
 }

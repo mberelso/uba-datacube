@@ -8,6 +8,8 @@ import { DatasetPresets } from '../components/DatasetPresets'
 import RelatedPublications from '../components/RelatedPublications'
 import { ChartRenderer } from '../components/charts/ChartRenderer'
 import { GuidedTip } from '../components/GuidedTip'
+import { DatasetStory } from '../components/DatasetStory'
+import { getDatasetContent } from '../data/datasetContent'
 
 const CHART_COLORS = [
   '#1e3a5f', '#dc2626', '#16a34a', '#d97706', '#7c3aed',
@@ -172,9 +174,17 @@ export default function DatasetPage() {
         <div style={{ fontSize: 11, fontFamily: 'monospace', color: '#94a3b8', marginBottom: 10 }}>
           {flow.agencyID}:{flow.id} · Version {flow.version}
         </div>
-        {flow.description && (
-          <p style={{ fontSize: 13, color: '#64748b', lineHeight: 1.6 }}>{flow.description}</p>
-        )}
+
+        {/* Editorial story — shown if available; falls back to raw API description */}
+        {(() => {
+          const story = getDatasetContent(flow.id)
+          return story
+            ? <DatasetStory content={story} color={meta.color} />
+            : flow.description && (
+                <p style={{ fontSize: 13, color: '#64748b', lineHeight: 1.6 }}>{flow.description}</p>
+              )
+        })()}
+
         <GuidedTip
           id="dataset-tip"
           text="Nutze die Filter links, um Serien einzugrenzen. Über den Share-Button kannst du die aktuelle Ansicht als Link teilen."

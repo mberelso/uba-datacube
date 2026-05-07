@@ -167,11 +167,12 @@ export default function DatasetPage() {
 
       {/* Header */}
       <div style={{
-        background: '#fff', borderRadius: 12, border: '1.5px solid #e2e8f0',
-        padding: '20px 24px', marginBottom: 20, borderTop: `4px solid ${meta.color}`,
+        background: '#fff', borderRadius: 12, border: '1px solid #e2e8f0',
+        padding: '24px 28px', marginBottom: 20,
+        borderLeft: `4px solid ${meta.color}`,
       }}>
-        <h1 style={{ fontSize: 22, fontWeight: 700, color: '#1e293b', margin: '0 0 6px' }}>{flow.name}</h1>
-        <div style={{ fontSize: 11, fontFamily: 'monospace', color: '#94a3b8', marginBottom: 10 }}>
+        <h1 style={{ fontSize: 24, fontWeight: 800, color: '#0f172a', margin: '0 0 4px', letterSpacing: '-0.4px', lineHeight: 1.2 }}>{flow.name}</h1>
+        <div style={{ fontSize: 11, fontFamily: 'monospace', color: '#94a3b8', marginBottom: 18, letterSpacing: '0.03em' }}>
           {flow.agencyID}:{flow.id} · Version {flow.version}
         </div>
 

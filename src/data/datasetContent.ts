@@ -2,7 +2,7 @@
  * Redaktionell gepflegte Inhalte für Datensätze.
  *
  * Workflow:
- *   1. `npm run generate-descriptions` erzeugt KI-Entwürfe und fügt sie hier ein (Status: "draft")
+ *   1.  erzeugt KI-Entwürfe und fügt sie hier ein (Status: "draft")
  *   2. Redakteur prüft, korrigiert, setzt Status auf "reviewed"
  *   3. Nur "reviewed"-Einträge werden im UI prominent angezeigt; "draft" erscheint als Hinweis-Banner
  *
@@ -26,7 +26,7 @@ export interface DatasetContent {
 
 export const DATASET_CONTENT: Record<string, DatasetContent> = {
 
-  DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
+DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
     headline: 'Deutschland wird wärmer – und der Trend beschleunigt sich.',
     lead: 'Die mittlere Lufttemperatur in 2 Metern Höhe ist der wichtigste Einzelindikator für den Klimawandel in Deutschland. Der Deutsche Wetterdienst erhebt diese Werte seit über 140 Jahren flächendeckend – die längste konsistente Messreihe, die wir haben.',
     trend: 'Im Vergleich zum vorindustriellen Referenzzeitraum (1881–1910) ist Deutschland bereits um rund 1,7 °C wärmer geworden. Die wärmsten zehn Jahre seit Messbeginn liegen alle nach 2000.',
@@ -53,11 +53,6 @@ export const DATASET_CONTENT: Record<string, DatasetContent> = {
     status: 'draft',
   },
 
-}
-
-/** Gibt den redaktionellen Inhalt für einen Flow zurück, oder null wenn keiner existiert. */
-export function getDatasetContent(flowId: string): DatasetContent | null {
-  return DATASET_CONTENT[flowId] ?? null
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_AGRICULTURE_FORESTRY_DAMAGED_WOOD: {
     headline: 'Deutschlands Wälder fallen in Rekordzahlen – Schäden treiben die Ernte.',
@@ -837,5 +832,9 @@ export function getDatasetContent(flowId: string): DatasetContent | null {
     methodology: 'Das Statistische Bundesamt erhebt die Daten alle drei Jahre bei öffentlichen Wasserversorgungsunternehmen – private Brunnen oder industrielle Eigenentnahmen bleiben außen vor. Weil die Erhebung nur im Dreijahresrhythmus stattfindet, lassen sich kurzfristige Schwankungen, etwa durch einzelne Dürrejahre, nicht direkt ablesen.',
     status: 'draft',
   },
+}
 
+/** Gibt den redaktionellen Inhalt für einen Flow zurück, oder null wenn keiner existiert. */
+export function getDatasetContent(flowId: string): DatasetContent | null {
+  return DATASET_CONTENT[flowId] ?? null
 }

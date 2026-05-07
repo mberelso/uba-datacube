@@ -174,9 +174,11 @@ function formatEntry(flowId: string, content: any): string {
 
 function appendToFile(entry: string) {
   let src = fs.readFileSync(CONTENT_FILE, 'utf-8')
-  // Insert before the closing `}` of DATASET_CONTENT
-  const insertPoint = src.lastIndexOf('\n}')
-  src = src.slice(0, insertPoint) + entry + src.slice(insertPoint)
+  // Insert before the closing `}` of DATASET_CONTENT (marked by the blank line + } + \n\n/** pattern)
+  const marker = '\n}\n\n/**'
+  const insertPoint = src.indexOf(marker)
+  if (insertPoint === -1) throw new Error('Could not find DATASET_CONTENT closing brace in file')
+  src = src.slice(0, insertPoint) + '\n' + entry + src.slice(insertPoint)
   fs.writeFileSync(CONTENT_FILE, src, 'utf-8')
 }
 

@@ -7,7 +7,7 @@ import {
 } from 'recharts'
 import {
   Thermometer, Factory, Lightning, Fire,
-  BookOpen, Translate, ChartBar, ArrowRight,
+  BookOpen, Translate, ChartBar, ArrowRight, Warning,
 } from '@phosphor-icons/react'
 import { fetchData, fetchDataflows, type Dataflow } from '../api/sdmx'
 import { CATEGORIES } from '../utils/categories'
@@ -459,6 +459,23 @@ export default function DashboardPage() {
             </MagneticButton>
           </motion.div>
         </div>
+      </motion.div>
+
+      {/* ── Disclaimer ───────────────────────────────────────────────────── */}
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4, type: 'spring', stiffness: 120, damping: 24 }}
+        className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-5 py-4 mb-8 text-sm"
+      >
+        <Warning size={16} weight="duotone" className="text-amber-500 shrink-0 mt-0.5" />
+        <p className="text-amber-800 leading-relaxed m-0">
+          <strong className="font-semibold">Kein UBA-Angebot.</strong>{' '}
+          Dieses Projekt ist ein privates Vorhaben ohne Verbindung zum Umweltbundesamt. Es stellt lediglich öffentliche Daten aus der UBA-API nutzerfreundlich dar.{' '}
+          <Link to="/about" className="underline font-medium hover:text-amber-900">
+            Mehr erfahren →
+          </Link>
+        </p>
       </motion.div>
 
       {/* ── Feature row ──────────────────────────────────────────────────── */}

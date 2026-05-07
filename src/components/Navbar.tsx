@@ -7,6 +7,7 @@ export default function Navbar() {
     { to: '/', label: 'Dashboard' },
     { to: '/analysen', label: 'Analysen' },
     { to: '/catalog', label: 'Datenkatalog' },
+    { to: '/about', label: 'Über das Projekt' },
   ]
 
   return (

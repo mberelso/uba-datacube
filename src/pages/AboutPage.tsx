@@ -140,6 +140,41 @@ export default function AboutPage() {
         </Link>
       </div>
 
+      {/* Impressum */}
+      <div className="mt-16 pt-8 border-t border-slate-100">
+        <h2 className="text-xs font-semibold tracking-widest uppercase text-slate-400 mb-6">Impressum</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 text-xs text-slate-500 leading-relaxed">
+
+          <div>
+            <div className="font-semibold text-slate-600 mb-1">Angaben gemäß § 5 TMG</div>
+            Martin Berelson<br />
+            Emilienstraße 14<br />
+            04107 Leipzig<br />
+            <br />
+            <span className="font-semibold text-slate-600">E-Mail:</span>{' '}
+            <a href="mailto:berelsonm@googlemail.com" className="hover:text-slate-700 transition-colors">
+              berelsonm@googlemail.com
+            </a>
+          </div>
+
+          <div>
+            <div className="font-semibold text-slate-600 mb-1">Haftungsausschluss</div>
+            Als Diensteanbieter bin ich gemäß § 7 Abs. 1 TMG für eigene Inhalte nach den allgemeinen Gesetzen verantwortlich. Dieses Angebot stellt keine Rechts- oder Fachberatung dar und übernimmt keine Gewähr für die Richtigkeit, Vollständigkeit oder Aktualität der dargestellten Daten. Alle Inhalte dienen der unverbindlichen Information.
+          </div>
+
+          <div>
+            <div className="font-semibold text-slate-600 mb-1">Datenschutz</div>
+            Diese Seite verarbeitet keine personenbezogenen Daten. Alle Datenabrufe erfolgen direkt im Browser des Nutzers gegen die öffentliche API des Umweltbundesamts. Es werden keine Nutzerdaten gespeichert, übertragen oder an Dritte weitergegeben.
+          </div>
+
+          <div>
+            <div className="font-semibold text-slate-600 mb-1">Datenquelle</div>
+            Alle angezeigten Umweltdaten stammen aus dem öffentlichen Datenkatalog des Umweltbundesamts (SDMX REST API, daten.uba.de) und unterliegen den dort angegebenen Lizenzbedingungen (Datenlizenz Deutschland – Namensnennung).
+          </div>
+
+        </div>
+      </div>
+
     </div>
   )
 }

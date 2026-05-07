@@ -564,6 +564,14 @@ export default function DashboardPage() {
           Umweltbundesamt Datacube
         </a>
         {' · '}SDMX REST API: daten.uba.de
+        {' · '}
+        <Link to="/about#impressum" className="text-slate-400 hover:text-slate-600 transition-colors">
+          Impressum
+        </Link>
+        {' · '}
+        <Link to="/about" className="text-slate-400 hover:text-slate-600 transition-colors">
+          Kein UBA-Angebot
+        </Link>
       </div>
     </div>
   )

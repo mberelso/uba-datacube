@@ -100,6 +100,7 @@ const FEATURES = [
 function useHighlightData(config: HighlightConfig, flows: Dataflow[]) {
   const [data, setData] = useState<ChartPoint[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
 
   useEffect(() => {
     const flow = flows.find((f) => f.id === config.flowId)
@@ -122,11 +123,11 @@ function useHighlightData(config: HighlightConfig, flows: Dataflow[]) {
         }
         setData(timeValues.map((y) => ({ year: y, value: observations[y] ?? null })).filter((d) => d.value != null))
       })
-      .catch(() => {})
+      .catch(() => setError(true))
       .finally(() => setLoading(false))
   }, [config.flowId, flows])
 
-  return { data, loading }
+  return { data, loading, error }
 }
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -152,7 +153,7 @@ function SkeletonCard() {
 
 
 function HighlightCard({ config, flows }: { config: HighlightConfig; flows: Dataflow[] }) {
-  const { data, loading } = useHighlightData(config, flows)
+  const { data, loading, error } = useHighlightData(config, flows)
   const latest = data[data.length - 1]
   const previous = data[data.length - 2]
   const trend =
@@ -221,6 +222,15 @@ function HighlightCard({ config, flows }: { config: HighlightConfig; flows: Data
                 exit={{ opacity: 0 }}
                 className="h-full rounded-lg bg-slate-100 animate-pulse"
               />
+            ) : error ? (
+              <motion.div
+                key="error"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="h-full flex items-center justify-center text-xs text-slate-400"
+              >
+                Daten konnten nicht geladen werden
+              </motion.div>
             ) : data.length === 0 ? (
               <motion.div
                 key="empty"
@@ -400,7 +410,7 @@ export default function DashboardPage() {
             transition={{ delay: 0.1, type: 'spring', stiffness: 120, damping: 24 }}
             style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.12em', color: '#4A6741', marginBottom: 16, textTransform: 'uppercase' }}
           >
-            Basierend auf Daten des UBA-Datacubes
+            Basierend auf Daten des Umweltbundesamts
           </motion.p>
           <motion.h1
             initial={{ opacity: 0, x: -12 }}

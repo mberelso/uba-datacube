@@ -4,8 +4,8 @@ export interface TimePoint { year: string; value: number }
 
 async function fetchSdmxJson(flowRef: string, key = 'all'): Promise<{ series: Record<string, any>; timeValues: string[] }> {
   const url = `${BASE}/data/${flowRef}/${key}?format=jsondata`
-  console.log(`[SDMX] Fetching: ${url}`)
   const r = await fetch(url, { headers: { Accept: 'application/vnd.sdmx.data+json;version=2.0,application/json' } })
+  if (!r.ok) throw new Error(`API-Fehler ${r.status} für ${flowRef}`)
   const json = await r.json()
   const env = json.data ?? json
   const structs: any[] = env.structures ?? (json.structure ? [json.structure] : [])
@@ -126,6 +126,7 @@ export async function fetchDataflows(): Promise<Dataflow[]> {
   const r = await fetch(`${BASE}/dataflow/all/all/latest`, {
     headers: { Accept: 'application/json' },
   })
+  if (!r.ok) throw new Error(`Datenkatalog konnte nicht geladen werden (${r.status})`)
   const json = await r.json()
   const refs: Record<string, any> = json.references ?? {}
   return Object.values(refs).map((df: any) => ({
@@ -193,6 +194,7 @@ export async function fetchData(flow: Dataflow): Promise<{
   const r = await fetch(url, {
     headers: { Accept: 'application/vnd.sdmx.data+json;version=2.0,application/json' },
   })
+  if (!r.ok) throw new Error(`API-Fehler ${r.status} für ${flow.id}`)
   const json = await r.json()
 
   // Support both SDMX-JSON v1 and v2 envelopes

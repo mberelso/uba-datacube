@@ -494,7 +494,7 @@ export default function DatasetPage() {
                       Nur {chartData.length === 1 ? 'ein Datenpunkt' : 'wenige Datenpunkte'} verfügbar
                     </h3>
                     <p className="text-[13px] text-slate-400 max-w-[400px] leading-relaxed m-0">
-                      Die Datenquelle (UBA-Datacube API) liefert für diesen Datensatz aktuell nur {chartData.length === 1 ? 'einen einzigen Zeitpunkt' : `${chartData.length} Zeitpunkte`}. Eine Zeitreihe kann daher nicht dargestellt werden.
+                      Die Datenquelle (UBA API) liefert für diesen Datensatz aktuell nur {chartData.length === 1 ? 'einen einzigen Zeitpunkt' : `${chartData.length} Zeitpunkte`}. Eine Zeitreihe kann daher nicht dargestellt werden.
                     </p>
                     {chartData.length > 0 && (
                       <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50 px-5 py-3 text-left w-full max-w-sm">

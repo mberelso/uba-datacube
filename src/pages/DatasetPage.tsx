@@ -219,7 +219,7 @@ export default function DatasetPage() {
         </div>
       </motion.div>
 
-      <RelatedPublications flowId={flow.id} flowName={flow.name} color={meta.color} />
+      <RelatedPublications flowId={flow.id} flowName={flow.name} color={meta.color} categoryId={flow.category} />
       <DatasetPresets flowId={flow.id} onApplyPreset={applyPreset} />
 
       {/* ── Main grid ────────────────────────────────────────────────────── */}

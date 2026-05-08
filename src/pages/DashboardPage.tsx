@@ -11,6 +11,7 @@ import {
 } from '@phosphor-icons/react'
 import { fetchData, fetchDataflows, type Dataflow } from '../api/sdmx'
 import { CubeMark } from '../components/CubeMark'
+import { SEO } from '../components/SEO'
 import { CATEGORIES } from '../utils/categories'
 import heroBg from '../assets/hero_background.png'
 
@@ -379,6 +380,7 @@ export default function DashboardPage() {
 
   return (
     <div className="max-w-[1200px] mx-auto px-5 py-10">
+      <SEO path="/" />
 
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
       <motion.div

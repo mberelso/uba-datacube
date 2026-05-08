@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Info, Database, Warning, ArrowSquareOut, GithubLogo } from '@phosphor-icons/react'
+import { SEO } from '../components/SEO'
 
 const FAQ = [
   {
@@ -35,6 +36,11 @@ const FAQ = [
 export default function AboutPage() {
   return (
     <div className="max-w-[800px] mx-auto px-5 py-12">
+      <SEO
+        title="Über das Projekt"
+        description="Hintergründe, FAQ und Impressum zum UBA-Datacube — einem privaten, nicht-kommerziellen Aufbereitungsprojekt für Umweltdaten des Umweltbundesamts."
+        path="/about"
+      />
 
       {/* Header */}
       <div className="mb-10">

@@ -15,6 +15,7 @@ import { ChartRenderer } from '../components/charts/ChartRenderer'
 import { GuidedTip } from '../components/GuidedTip'
 import { DatasetStory } from '../components/DatasetStory'
 import { getDatasetContent } from '../data/datasetContent'
+import { SEO } from '../components/SEO'
 
 const CHART_COLORS = [
   '#1B2B3A', '#dc2626', '#4A6741', '#d97706', '#7c3aed',
@@ -160,6 +161,11 @@ export default function DatasetPage() {
       transition={{ type: 'spring', stiffness: 100, damping: 22 }}
       className="max-w-[1100px] mx-auto px-5 py-6"
     >
+      <SEO
+        title={flow.name}
+        description={`${flow.name} — Umweltdatensatz des Umweltbundesamts. Interaktive Zeitreihen, Trends und Rohdaten.`}
+        path={`/dataset/${encodeURIComponent(flow.id)}`}
+      />
       {/* ── Breadcrumb ───────────────────────────────────────────────────── */}
       <div className="flex items-center gap-2 text-[12px] text-slate-400 mb-5">
         <Link

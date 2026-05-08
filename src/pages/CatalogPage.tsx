@@ -4,6 +4,7 @@ import { motion, AnimatePresence, type Variants } from 'framer-motion'
 import { fetchDataflows, type Dataflow } from '../api/sdmx'
 import { CATEGORIES, getCategoryMeta } from '../utils/categories'
 import { GuidedTip } from '../components/GuidedTip'
+import { SEO } from '../components/SEO'
 
 const NORDIC = {
   navy:  '#1B2B3A',
@@ -69,6 +70,11 @@ export default function CatalogPage() {
 
   return (
     <div className="max-w-[1200px] mx-auto px-5 py-8">
+      <SEO
+        title="Datenkatalog"
+        description="Alle Umweltdatensätze des Umweltbundesamts auf einen Blick — durchsuchen, filtern und interaktiv erkunden."
+        path="/catalog"
+      />
 
       {/* ── Page header ─────────────────────────────────────────────────── */}
       <motion.div

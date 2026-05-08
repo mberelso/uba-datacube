@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
+import { SEO } from '../components/SEO'
 import {
   AreaChart, Area, BarChart, Bar, LineChart, Line,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -775,6 +776,11 @@ function EnvTaxRevenueChart() {
 export default function AnalysePage() {
   return (
     <div style={{ maxWidth: 1100, margin: '0 auto', padding: '28px 20px' }}>
+      <SEO
+        title="Analysen"
+        description="Ausgewählte Umwelttrends aus dem UBA-Datacube — Temperaturentwicklung, Treibhausgase, Erneuerbare Energien und mehr."
+        path="/analysen"
+      />
       <h1 style={{ fontSize: 26, fontWeight: 800, color: '#1e293b', marginBottom: 4 }}>Analysen</h1>
       <p style={{ color: '#64748b', marginBottom: 36, fontSize: 14 }}>
         Ausgewählte Umwelttrends aus dem UBA Datacube – direkt aus der SDMX REST API.

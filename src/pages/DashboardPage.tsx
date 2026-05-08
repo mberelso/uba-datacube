@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { motion, AnimatePresence, useMotionValue, useTransform, type Variants } from 'framer-motion'
+import { motion, AnimatePresence, type Variants } from 'framer-motion'
 import {
   AreaChart, Area, BarChart, Bar,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -150,38 +150,6 @@ function SkeletonCard() {
   )
 }
 
-function MagneticButton({ children, className, ...props }: React.AnchorHTMLAttributes<HTMLAnchorElement> & { to?: string; children: React.ReactNode; className?: string }) {
-  const ref = useRef<HTMLAnchorElement>(null)
-  const x = useMotionValue(0)
-  const y = useMotionValue(0)
-  const tx = useTransform(x, (v) => `${v}px`)
-  const ty = useTransform(y, (v) => `${v}px`)
-
-  function onMove(e: React.MouseEvent) {
-    const el = ref.current
-    if (!el) return
-    const rect = el.getBoundingClientRect()
-    const cx = rect.left + rect.width / 2
-    const cy = rect.top + rect.height / 2
-    x.set((e.clientX - cx) * 0.2)
-    y.set((e.clientY - cy) * 0.2)
-  }
-  function onLeave() { x.set(0); y.set(0) }
-
-  return (
-    <motion.a
-      ref={ref}
-      onMouseMove={onMove}
-      onMouseLeave={onLeave}
-      style={{ x: tx, y: ty }}
-      whileTap={{ scale: 0.97 }}
-      className={className}
-      {...(props as any)}
-    >
-      {children}
-    </motion.a>
-  )
-}
 
 function HighlightCard({ config, flows }: { config: HighlightConfig; flows: Dataflow[] }) {
   const { data, loading } = useHighlightData(config, flows)
@@ -458,25 +426,23 @@ export default function DashboardPage() {
             transition={{ delay: 0.36, type: 'spring', stiffness: 120, damping: 24 }}
             className="flex flex-wrap gap-3"
           >
-            <MagneticButton
-              href={undefined}
+            <Link
+              to="/catalog"
               className="inline-flex items-center gap-2 bg-white text-slate-900 px-5 py-3 rounded-xl text-sm font-semibold shadow-[0_2px_8px_rgba(0,0,0,0.18)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.22)] transition-shadow duration-200 no-underline cursor-pointer"
-              onClick={() => window.location.href = '/catalog'}
             >
               Datenkatalog öffnen
               <span className="text-slate-400 font-normal text-xs">
                 {loadingFlows ? '…' : `${flows.length} Themen`}
               </span>
               <ArrowRight size={14} weight="bold" />
-            </MagneticButton>
-            <MagneticButton
-              href={undefined}
+            </Link>
+            <Link
+              to="/analysen"
               className="inline-flex items-center gap-2 border border-white/25 text-white/90 px-5 py-3 rounded-xl text-sm font-medium backdrop-blur-sm hover:border-white/40 hover:text-white transition-all duration-200 no-underline cursor-pointer"
               style={{ background: 'rgba(255,255,255,0.08)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1)' }}
-              onClick={() => window.location.href = '/analysen'}
             >
               Analysen entdecken
-            </MagneticButton>
+            </Link>
           </motion.div>
         </div>
       </motion.div>

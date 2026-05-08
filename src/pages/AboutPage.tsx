@@ -38,7 +38,7 @@ export default function AboutPage() {
     <div className="max-w-[800px] mx-auto px-5 py-12">
       <SEO
         title="Über das Projekt"
-        description="Hintergründe, FAQ und Impressum zum UBA-Datacube — einem privaten, nicht-kommerziellen Aufbereitungsprojekt für Umweltdaten des Umweltbundesamts."
+        description="Hintergründe, FAQ und Impressum zu Umweltpuls — einem privaten, nicht-kommerziellen Aufbereitungsprojekt für Umweltdaten des Umweltbundesamts."
         path="/about"
       />
 
@@ -52,7 +52,7 @@ export default function AboutPage() {
           Kein UBA-Produkt.<br />Ein Bürger-Werkzeug.
         </h1>
         <p className="text-base text-slate-600 leading-relaxed max-w-[60ch]">
-          Der UBA-Datacube ist ein privates Projekt ohne Verbindung zum Umweltbundesamt. Ziel ist es, öffentliche Umweltdaten — die bereits existieren und frei zugänglich sind — besser lesbar zu machen.
+          Umweltpuls ist ein privates Projekt ohne Verbindung zum Umweltbundesamt. Ziel ist es, öffentliche Umweltdaten — die bereits existieren und frei zugänglich sind — besser lesbar zu machen.
         </p>
       </div>
 

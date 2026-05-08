@@ -778,12 +778,12 @@ export default function AnalysePage() {
     <div style={{ maxWidth: 1100, margin: '0 auto', padding: '28px 20px' }}>
       <SEO
         title="Analysen"
-        description="Ausgewählte Umwelttrends aus dem UBA-Datacube — Temperaturentwicklung, Treibhausgase, Erneuerbare Energien und mehr."
+        description="Ausgewählte Umwelttrends auf Umweltpuls — Temperaturentwicklung, Treibhausgase, Erneuerbare Energien und mehr, basierend auf Daten des UBA-Datacubes."
         path="/analysen"
       />
       <h1 style={{ fontSize: 26, fontWeight: 800, color: '#1e293b', marginBottom: 4 }}>Analysen</h1>
       <p style={{ color: '#64748b', marginBottom: 36, fontSize: 14 }}>
-        Ausgewählte Umwelttrends aus dem UBA Datacube – direkt aus der SDMX REST API.
+        Ausgewählte Umwelttrends auf Basis des UBA-Datacubes – direkt aus der SDMX REST API.
       </p>
 
       <Section title="Klima" icon="🌡️" color="#dc2626">

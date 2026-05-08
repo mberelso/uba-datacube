@@ -422,7 +422,7 @@ export default function DashboardPage() {
               fontSize: 15, fontWeight: 700, color: 'rgba(255,255,255,0.90)',
               letterSpacing: '-0.2px',
             }}>
-              UBA-Datacube
+              Umweltpuls
             </span>
           </motion.div>
 
@@ -432,7 +432,7 @@ export default function DashboardPage() {
             transition={{ delay: 0.1, type: 'spring', stiffness: 120, damping: 24 }}
             style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.12em', color: '#4A6741', marginBottom: 16, textTransform: 'uppercase' }}
           >
-            Umweltbundesamt · Datenkatalog
+            Basierend auf Daten des UBA-Datacubes
           </motion.p>
           <motion.h1
             initial={{ opacity: 0, x: -12 }}

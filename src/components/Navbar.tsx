@@ -16,7 +16,7 @@ export default function Navbar() {
       <Link to="/" className="flex items-center gap-2 no-underline">
         <CubeMark size={20} color="rgba(255,255,255,0.95)" accent="#4A6741" />
         <span style={{ fontWeight: 700, fontSize: 16, color: '#fff', letterSpacing: '-0.3px' }}>
-          UBA-Datacube
+          Umweltpuls
         </span>
       </Link>
       <div className="flex gap-1 ml-2">

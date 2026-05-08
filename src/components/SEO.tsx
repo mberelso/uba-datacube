@@ -1,8 +1,8 @@
 import { Helmet } from 'react-helmet-async'
 
-const SITE_NAME = 'UBA-Datacube'
+const SITE_NAME = 'Umweltpuls'
 const SITE_URL = 'https://mberelso.github.io/uba-datacube'
-const DEFAULT_DESCRIPTION = 'Offizielle Umweltdaten des Umweltbundesamts — interaktiv aufbereitet. Klimadaten, Emissionstrends und Umweltindikatoren für Deutschland.'
+const DEFAULT_DESCRIPTION = 'Aktuelle Umweltdaten für Deutschland — interaktiv aufbereitet auf Basis des UBA-Datacubes. Klimadaten, Emissionstrends und Umweltindikatoren.'
 const DEFAULT_IMAGE = `${SITE_URL}/og-image.png`
 
 interface SEOProps {
@@ -13,7 +13,7 @@ interface SEOProps {
 }
 
 export function SEO({ title, description = DEFAULT_DESCRIPTION, path = '', image = DEFAULT_IMAGE }: SEOProps) {
-  const fullTitle = title ? `${title} | ${SITE_NAME}` : `${SITE_NAME} – Umweltdaten Deutschland`
+  const fullTitle = title ? `${title} | ${SITE_NAME}` : `${SITE_NAME} – Aktuelle Umweltdaten Deutschland`
   const url = `${SITE_URL}${path}`
 
   return (

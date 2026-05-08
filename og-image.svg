@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" fill="none">
+  <!-- Background -->
+  <rect width="1200" height="630" fill="#1B2B3A"/>
+  <!-- Subtle gradient overlay right side -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#1B2B3A"/>
+      <stop offset="100%" stop-color="#3D5A6E" stop-opacity="0.4"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- Left accent bar -->
+  <rect x="80" y="180" width="4" height="270" rx="2" fill="#4A6741"/>
+
+  <!-- Isometric cube, size=90 → h=51.9 -->
+  <polygon points="660,160 750,211.9 660,263.8 570,211.9"
+    fill="white" fill-opacity="0.10" stroke="white" stroke-width="2" stroke-linejoin="round"/>
+  <polygon points="570,211.9 660,263.8 660,353.8 570,303.8"
+    fill="white" fill-opacity="0.18" stroke="white" stroke-width="2" stroke-linejoin="round"/>
+  <polygon points="750,211.9 660,263.8 660,353.8 750,303.8"
+    fill="white" fill-opacity="0.07" stroke="white" stroke-width="2" stroke-linejoin="round"/>
+  <circle cx="660" cy="269" r="14" fill="#4A6741"/>
+
+  <!-- Wordmark -->
+  <text x="108" y="272" font-family="system-ui, -apple-system, sans-serif"
+    font-size="88" font-weight="800" fill="white" letter-spacing="-2">
+    Umwelt<tspan fill="#6B9A5E">puls</tspan>
+  </text>
+
+  <!-- Claim -->
+  <text x="110" y="336" font-family="system-ui, -apple-system, sans-serif"
+    font-size="28" font-weight="400" fill="rgba(255,255,255,0.6)" letter-spacing="0.5">
+    Aktuelle Umweltdaten · Basierend auf Daten des UBA-Datacubes
+  </text>
+
+  <!-- Bottom domain -->
+  <text x="110" y="520" font-family="system-ui, -apple-system, sans-serif"
+    font-size="22" font-weight="600" fill="rgba(255,255,255,0.35)" letter-spacing="2">
+    WWW.UMWELTPULS.DE
+  </text>
+</svg>

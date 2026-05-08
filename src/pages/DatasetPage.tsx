@@ -61,6 +61,7 @@ export default function DatasetPage() {
   const [dims, setDims] = useState<Dimension[]>([])
   const [selectedSeries, setSelectedSeries] = useState<Set<string>>(new Set())
   const [filters, setFilters] = useState<Record<string, string>>({})
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   useEffect(() => {
     if (!id) return
@@ -222,7 +223,7 @@ export default function DatasetPage() {
       <DatasetPresets flowId={flow.id} onApplyPreset={applyPreset} />
 
       {/* ── Main grid ────────────────────────────────────────────────────── */}
-      <div className="grid gap-5" style={{ gridTemplateColumns: '240px 1fr' }}>
+      <div className="grid gap-5 grid-cols-1 md:grid-cols-[240px_1fr]">
 
         {/* ── Sidebar ──────────────────────────────────────────────────── */}
         <motion.aside
@@ -231,8 +232,11 @@ export default function DatasetPage() {
           transition={{ delay: 0.1, type: 'spring', stiffness: 110, damping: 22 }}
           className="bg-white rounded-2xl border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.05)] h-fit"
         >
-          {/* Sidebar header */}
-          <div className="px-4 pt-4 pb-3 border-b border-slate-100">
+          {/* Sidebar header — collapsible on mobile */}
+          <button
+            className="w-full px-4 pt-4 pb-3 border-b border-slate-100 cursor-pointer bg-transparent border-0 text-left"
+            onClick={() => setSidebarOpen(v => !v)}
+          >
             <div className="flex items-center gap-2">
               <Funnel size={13} weight="duotone" className="text-slate-400" />
               <span className="text-[11px] font-bold text-[#1B2B3A] tracking-wide uppercase">
@@ -241,10 +245,15 @@ export default function DatasetPage() {
               <span className="ml-auto text-[11px] font-mono text-slate-400">
                 {filteredSeries.length}
               </span>
+              <CaretDown
+                size={11}
+                className="text-slate-400 transition-transform md:hidden"
+                style={{ transform: sidebarOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
+              />
             </div>
-          </div>
+          </button>
 
-          <div className="px-3 py-3">
+          <div className={`px-3 py-3 md:block ${sidebarOpen ? 'block' : 'hidden'}`}>
             {/* Dimension filters */}
             {dims.length > 0 && (
               <div className="flex flex-col gap-3 mb-3">

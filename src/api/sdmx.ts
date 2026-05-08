@@ -201,6 +201,7 @@ export async function fetchData(flow: Dataflow): Promise<{
   const structures: any[] = envelope.structures ?? (json.structure ? [json.structure] : [])
 
   const struct = structures[0]
+
   const dims: Dimension[] = []
   let timeValues: string[] = []
 
@@ -225,17 +226,53 @@ export async function fetchData(flow: Dataflow): Promise<{
   const ds = datasets[0] ?? {}
   const rawSeries: Record<string, any> = ds.series ?? {}
 
+  // If timeValues came back empty, reconstruct from observation keys (fallback for non-standard SDMX responses)
+  if (timeValues.length === 0 && Object.keys(rawSeries).length > 0) {
+    const firstSeries = Object.values(rawSeries)[0] as any
+    const obsKeys = Object.keys(firstSeries?.observations ?? {}).map(Number).sort((a, b) => a - b)
+    // Check if the keys look like years (1990–2100) or indices
+    if (obsKeys.every(k => k >= 1900 && k <= 2200)) {
+      timeValues = obsKeys.map(String)
+    }
+  }
+
   const seriesMap: Record<string, { dimValues: string[]; observations: Record<string, number | null> }> = {}
   for (const [key, s] of Object.entries(rawSeries)) {
     const indices = key.split(':').map(Number)
     const dimValues = indices.map((idx, i) => dims[i]?.values[idx]?.name ?? String(idx))
     const obs: Record<string, number | null> = {}
-    for (const [tIdx, val] of Object.entries((s as any).observations ?? {})) {
-      const year = timeValues[Number(tIdx)] ?? tIdx
-      obs[year] = Array.isArray(val) ? (val[0] as number | null) : (typeof val === 'number' ? val : null)
+    const rawObs = (s as any).observations ?? {}
+
+    if (Array.isArray(rawObs)) {
+      // SDMX-JSON 2.0: observations is an array of [timeIndex, value, ...attributes]
+      for (const entry of rawObs) {
+        const tIdx = entry[0]
+        const val = entry[1]
+        const year = timeValues[Number(tIdx)] ?? String(tIdx)
+        obs[year] = typeof val === 'number' ? val : null
+      }
+    } else {
+      // SDMX-JSON 1.0: observations is an object { "timeIndex": [value, ...] }
+      for (const [tIdx, val] of Object.entries(rawObs)) {
+        const numIdx = Number(tIdx)
+        const year = timeValues.length > 0 ? (timeValues[numIdx] ?? tIdx) : tIdx
+        obs[year] = Array.isArray(val) ? (val[0] as number | null) : (typeof val === 'number' ? val : null)
+      }
     }
+
     seriesMap[key] = { dimValues, observations: obs }
   }
+
+  // If timeValues still empty, derive sorted list from what we collected in observations
+  if (timeValues.length === 0 && Object.keys(seriesMap).length > 0) {
+    const allYears = new Set<string>()
+    for (const s of Object.values(seriesMap)) {
+      for (const y of Object.keys(s.observations)) allYears.add(y)
+    }
+    timeValues = Array.from(allYears).sort()
+  }
+
+  console.log(`[fetchData] ${flow.id}: ${timeValues.length} time points, ${Object.keys(seriesMap).length} series`)
 
   return { structure: null, seriesMap, timeValues, seriesDimensions: dims }
 }

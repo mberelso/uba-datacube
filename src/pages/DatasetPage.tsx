@@ -92,6 +92,17 @@ export default function DatasetPage() {
       .finally(() => setLoading(false))
   }, [id])
 
+  // Find which dimension positions actually vary across series (to shorten labels)
+  const varyingDimIndices = useMemo(() => {
+    const allDimValues = Object.values(seriesMap).map(s => s.dimValues)
+    if (allDimValues.length === 0) return []
+    const numDims = allDimValues[0].length
+    return Array.from({ length: numDims }, (_, i) => i).filter(i => {
+      const unique = new Set(allDimValues.map(v => v[i]))
+      return unique.size > 1
+    })
+  }, [seriesMap])
+
   const chartData = useMemo(() => {
     if (!timeValues.length) return []
     return timeValues.map((year) => {
@@ -100,7 +111,10 @@ export default function DatasetPage() {
       for (const key of selectedSeries) {
         const s = seriesMap[key]
         if (s) {
-          const label = s.dimValues.join(' · ') || key
+          const shortVals = varyingDimIndices.length > 0
+            ? varyingDimIndices.map(i => s.dimValues[i]).filter(Boolean)
+            : s.dimValues
+          const label = shortVals.join(' · ') || s.dimValues.join(' · ') || key
           const val = s.observations[year] ?? null
           point[label] = val
           if (val !== null) hasData = true
@@ -108,7 +122,7 @@ export default function DatasetPage() {
       }
       return { point, hasData }
     }).filter(d => d.hasData).map(d => d.point)
-  }, [timeValues, selectedSeries, seriesMap])
+  }, [timeValues, selectedSeries, seriesMap, varyingDimIndices])
 
   const filteredSeries = useMemo(() => {
     return Object.entries(seriesMap).filter(([_, s]) =>
@@ -117,8 +131,14 @@ export default function DatasetPage() {
         const dimIdx = dims.findIndex(d => d.name === dimName)
         return dimIdx === -1 || s.dimValues[dimIdx] === targetVal
       })
-    ).map(([key, s]) => ({ key, label: s.dimValues.join(' · ') || key, dimValues: s.dimValues }))
-  }, [seriesMap, filters, dims])
+    ).map(([key, s]) => {
+      const shortVals = varyingDimIndices.length > 0
+        ? varyingDimIndices.map(i => s.dimValues[i]).filter(Boolean)
+        : s.dimValues
+      const label = shortVals.join(' · ') || s.dimValues.join(' · ') || key
+      return { key, label, dimValues: s.dimValues }
+    })
+  }, [seriesMap, filters, dims, varyingDimIndices])
 
   const applyPreset = useCallback((presetFilters: Record<string, string>) => {
     setFilters(presetFilters)
@@ -461,6 +481,36 @@ export default function DatasetPage() {
                     <p className="text-[13px] text-slate-400 max-w-[360px] leading-relaxed m-0">
                       Setze links Filter oder wähle mindestens eine Serie aus, um das Diagramm anzuzeigen.
                     </p>
+                  </div>
+                ) : chartData.length <= 2 ? (
+                  <div className="flex flex-col items-center justify-center py-16 px-8 text-center">
+                    <div
+                      className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4"
+                      style={{ background: `${meta.color}12` }}
+                    >
+                      <ChartLine size={22} weight="duotone" style={{ color: meta.color }} />
+                    </div>
+                    <h3 className="text-[15px] font-bold text-[#1B2B3A] mb-2 tracking-tight">
+                      Nur {chartData.length === 1 ? 'ein Datenpunkt' : 'wenige Datenpunkte'} verfügbar
+                    </h3>
+                    <p className="text-[13px] text-slate-400 max-w-[400px] leading-relaxed m-0">
+                      Die Datenquelle (UBA-Datacube API) liefert für diesen Datensatz aktuell nur {chartData.length === 1 ? 'einen einzigen Zeitpunkt' : `${chartData.length} Zeitpunkte`}. Eine Zeitreihe kann daher nicht dargestellt werden.
+                    </p>
+                    {chartData.length > 0 && (
+                      <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50 px-5 py-3 text-left w-full max-w-sm">
+                        <div className="text-[10px] font-bold text-slate-400 tracking-widest uppercase mb-2">Verfügbare Daten</div>
+                        {activeSeriesList.map(({ label }, i) => {
+                          const val = chartData[chartData.length - 1]?.[label]
+                          if (val == null) return null
+                          return (
+                            <div key={i} className="flex items-center justify-between gap-3 py-1 border-b border-slate-100 last:border-0">
+                              <span className="text-[11px] text-slate-600">{label}</span>
+                              <span className="text-[12px] font-semibold text-[#1B2B3A] tabular-nums">{Number(val).toLocaleString('de-DE', { maximumFractionDigits: 1 })} <span className="text-[10px] font-normal text-slate-400">({chartData[chartData.length - 1]?.year})</span></span>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className="p-2">

@@ -30,10 +30,10 @@ function Section({ title, icon, color, children }: { title: string; icon: string
     <div style={{ marginBottom: 52 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20,
         borderBottom: `3px solid ${color}`, paddingBottom: 10 }}>
-        <span style={{ fontSize: 28 }}>{icon}</span>
-        <h2 style={{ fontSize: 22, fontWeight: 800, color: '#1e293b', margin: 0 }}>{title}</h2>
+        <span style={{ fontSize: 24 }}>{icon}</span>
+        <h2 style={{ fontSize: 20, fontWeight: 800, color: '#1e293b', margin: 0 }}>{title}</h2>
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(480px, 1fr))', gap: 16 }}>
+      <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
         {children}
       </div>
     </div>
@@ -48,14 +48,14 @@ function ChartCard({ title, subtitle, kpi, kpiUnit, kpiYear, trend, color, loadi
   return (
     <div style={{ background: '#fff', borderRadius: 12, border: '1.5px solid #e2e8f0',
       overflow: 'hidden', borderTop: `4px solid ${color}` }}>
-      <div style={{ padding: '16px 20px 8px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        <div style={{ flex: 1, marginRight: 12 }}>
-          <div style={{ fontSize: 15, fontWeight: 700, color: '#1e293b' }}>{title}</div>
+      <div className="flex justify-between items-start px-4 pt-4 pb-2">
+        <div className="flex-1 mr-3 min-w-0">
+          <div style={{ fontSize: 14, fontWeight: 700, color: '#1e293b' }} className="leading-tight">{title}</div>
           <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2, lineHeight: 1.4 }}>{subtitle}</div>
         </div>
         {kpi != null && (
-          <div style={{ textAlign: 'right', flexShrink: 0 }}>
-            <div style={{ fontSize: 24, fontWeight: 800, color, lineHeight: 1 }}>{fmt(kpi, 1)}</div>
+          <div className="text-right shrink-0">
+            <div style={{ fontSize: 22, fontWeight: 800, color, lineHeight: 1 }}>{fmt(kpi, 1)}</div>
             <div style={{ fontSize: 10, color: '#94a3b8', marginTop: 2 }}>{kpiUnit}{kpiYear ? ` (${kpiYear})` : ''}</div>
             {trend != null && (
               <div style={{ fontSize: 11, marginTop: 2, color: trend < 0 ? '#16a34a' : '#dc2626' }}>
@@ -71,7 +71,7 @@ function ChartCard({ title, subtitle, kpi, kpiUnit, kpiYear, trend, color, loadi
           : (children ? children : <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#94a3b8', fontSize: 12 }}>Keine Daten verfügbar.</div>)}
       </div>
       {flowId && (
-        <div style={{ padding: '6px 20px 10px', textAlign: 'right' }}>
+        <div className="px-4 pb-3 text-right">
           <Link
             to={`/dataset/${encodeURIComponent(flowId)}`}
             style={{ fontSize: 11, color: '#1e3a5f', textDecoration: 'none', fontWeight: 500, opacity: 0.8 }}
@@ -775,7 +775,7 @@ function EnvTaxRevenueChart() {
 
 export default function AnalysePage() {
   return (
-    <div style={{ maxWidth: 1100, margin: '0 auto', padding: '28px 20px' }}>
+    <div className="max-w-[1100px] mx-auto px-4 py-6 md:px-5 md:py-7">
       <SEO
         title="Analysen"
         description="Ausgewählte Umwelttrends auf Umweltpuls — Temperaturentwicklung, Treibhausgase, Erneuerbare Energien und mehr, basierend auf Daten des UBA-Datacubes."

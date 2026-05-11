@@ -671,6 +671,30 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
     context: 'Die Bundesregierung hat sich verpflichtet, bis 2030 mehr Güterverkehr von der Straße auf die Schiene zu verlagern – der sogenannte Masterplan Schienenverkehr setzt dafür konkrete Zielmarken. Diese Daten zeigen, wie weit Deutschland von dieser Verlagerung entfernt ist und ob Milliarden-Investitionen in die Bahninfrastruktur messbare Wirkung zeigen.',
     methodology: 'Gemessen wird die Transportleistung in Tonnenkilometern: Transportmenge multipliziert mit zurückgelegter Strecke – nicht die bloße Anzahl der Fahrten oder Fahrzeuge. Die Daten erfassen den deutschen Verkehrsmarkt, bilden aber grenzüberschreitende Transporte nur teilweise ab, was den Lkw-Anteil im internationalen Vergleich verzerren kann.',
     status: 'draft',
+    labelOverrides: {
+      'Straßenverkehr': 'Lkw (Straße)',
+      'Road transport': 'Lkw (Straße)',
+      'Schienenverkehr': 'Güterbahn',
+      'Rail transport': 'Güterbahn',
+      'Binnenschifffahrt': 'Binnenschiff',
+      'Inland waterway transport': 'Binnenschiff',
+      'Rohrfernleitungen': 'Pipeline',
+      'Pipelines': 'Pipeline',
+      'Luftverkehr': 'Luftfracht',
+      'Air transport': 'Luftfracht',
+      'Verkehr gesamt': 'Gesamt',
+      'Total transport': 'Gesamt',
+    },
+    defaultChartConfig: {
+      type: 'stacked',
+      defaultFilters: { 'D_UNIT': 'Milliarden Tonnenkilometer', 'D_TRANSPORT_GOOD': 'Gütertransport' },
+      stackedSeries: [
+        { label: 'Lkw (Straße)',  color: '#6b7280' },
+        { label: 'Güterbahn',    color: '#16a34a' },
+        { label: 'Binnenschiff', color: '#3b82f6' },
+        { label: 'Pipeline',     color: '#d1d5db' },
+      ],
+    },
   },
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
@@ -691,6 +715,28 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
     context: 'Deutschland hat sich verpflichtet, die Treibhausgasemissionen im Verkehrssektor bis 2030 gegenüber 1990 um 48 Prozent zu senken – ein Ziel, das der Sektor bislang verfehlt. Die Bundesregierung und die EU-Kommission stützen Entscheidungen über Infrastrukturinvestitionen, Ticketpreise und Zulassungsregeln direkt auf solche Mobilitätsdaten.',
     methodology: 'Gemessen wird die Verkehrsleistung in Personenkilometern: Anzahl der Reisenden multipliziert mit der jeweils zurückgelegten Strecke, aufgeschlüsselt nach Verkehrsmittel und Jahr. Fahrten im Ausland oder grenzüberschreitende Wege werden nur teilweise erfasst, was vor allem beim Luftverkehr zu Unschärfen führt.',
     status: 'draft',
+    labelOverrides: {
+      'Motorisierter Individualverkehr': 'Auto & Motorrad (MIV)',
+      'Motorized individual transport': 'Auto & Motorrad (MIV)',
+      'Schienenverkehr': 'Bahn',
+      'Rail transport': 'Bahn',
+      'Öffentlicher Straßenpersonenverkehr': 'Bus & Tram (ÖPNV)',
+      'Public road passenger transport': 'Bus & Tram (ÖPNV)',
+      'Luftverkehr': 'Flugzeug',
+      'Air transport': 'Flugzeug',
+      'Verkehr gesamt': 'Gesamt',
+      'Total transport': 'Gesamt',
+    },
+    defaultChartConfig: {
+      type: 'stacked',
+      defaultFilters: { 'D_UNIT': 'Milliarden Personenkilometer', 'D_TRANSPORT_GOOD': 'Personentransport' },
+      stackedSeries: [
+        { label: 'Auto & Motorrad (MIV)', color: '#6b7280' },
+        { label: 'Bus & Tram (ÖPNV)',     color: '#3b82f6' },
+        { label: 'Bahn',                  color: '#16a34a' },
+        { label: 'Flugzeug',              color: '#f59e0b' },
+      ],
+    },
   },
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'

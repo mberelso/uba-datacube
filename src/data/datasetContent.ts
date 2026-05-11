@@ -760,6 +760,16 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
     methodology: 'Gezählt wird der Fahrzeugbestand jeweils zum 1. Januar auf Basis der Zulassungsdaten des Kraftfahrt-Bundesamts. Erfasst sind zugelassene Fahrzeuge – ein stillgelegtes Elektroauto erscheint genauso wie ein Vielfahrer. Die Einheit ist Anzahl (Stück), nicht Millionen.',
     status: 'reviewed',
     labelOverrides: {
+      // German API names → display labels
+      'vollelektrische Antriebe (Strommix?)': 'Elektro (BEV)',
+      'Plug-in-Hybrid  (PHEV)': 'Plug-in-Hybrid',
+      'Hybride': 'Hybrid (ohne Stecker)',
+      'Dieselkraftstoff': 'Diesel',
+      'Alle Kraftstoffe (inkl. Strom)': 'Alle Antriebe',
+      'Flüssige Kraftstoffe': 'Flüssigkraftstoffe',
+      'reine Elektro- und Elektro-Hybrid-Antriebe': 'Elektro & Hybrid (gesamt)',
+      'Gase (gasförmig/flüssig)': 'Gase (gesamt)',
+      // English API names fallback (in case locale differs)
       'all-electric propulsion systems (electricity mix?)': 'Elektro (BEV)',
       'Plug-in-Hybrid (PHEV)': 'Plug-in-Hybrid',
       'Hybrids': 'Hybrid (ohne Stecker)',
@@ -781,14 +791,14 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
     },
     defaultChartConfig: {
       type: 'stacked',
-      defaultFilters: { 'D_VEHICLE_TYPE': 'Passenger car' },
+      defaultFilters: { 'D_VEHICLE_TYPE': 'PKW' },
       stackedSeries: [
-        { label: 'Diesel',           color: '#6b7280' },
-        { label: 'Ottokraftstoff',   color: '#9ca3af' },
-        { label: 'Sonstige',         color: '#d1d5db' },
+        { label: 'Diesel',                color: '#6b7280' },
+        { label: 'Ottokraftstoff',        color: '#9ca3af' },
+        { label: 'Sonstige',              color: '#d1d5db' },
         { label: 'Hybrid (ohne Stecker)', color: '#93c5fd' },
-        { label: 'Plug-in-Hybrid',   color: '#3b82f6' },
-        { label: 'Elektro (BEV)',    color: '#16a34a' },
+        { label: 'Plug-in-Hybrid',        color: '#3b82f6' },
+        { label: 'Elektro (BEV)',         color: '#16a34a' },
       ],
     },
   },

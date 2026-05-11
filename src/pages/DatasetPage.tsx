@@ -129,11 +129,6 @@ export default function DatasetPage() {
       const requiredRawVals = new Set(Object.values(defaultChartConfig!.defaultFilters ?? {}))
       // Build label → seriesKey map: series must contain all required raw vals AND exactly one stacked label
       const labelToKey: Record<string, string> = {}
-      const firstKey = Object.keys(seriesMap)[0]
-      console.log('[stacked debug] seriesMap size:', Object.keys(seriesMap).length)
-      console.log('[stacked debug] first dimValues:', firstKey ? seriesMap[firstKey].dimValues : 'none')
-      console.log('[stacked debug] requiredRawVals:', [...requiredRawVals])
-      console.log('[stacked debug] stackedLabels:', [...stackedLabels])
       for (const [key, s] of Object.entries(seriesMap)) {
         const hasRequiredVals = requiredRawVals.size === 0 || [...requiredRawVals].every(v => s.dimValues.includes(v))
         if (!hasRequiredVals) continue
@@ -141,7 +136,6 @@ export default function DatasetPage() {
         const matchingLabel = translatedVals.find(v => stackedLabels.has(v))
         if (matchingLabel && !labelToKey[matchingLabel]) labelToKey[matchingLabel] = key
       }
-      console.log('[stacked debug] labelToKey:', labelToKey)
       return timeValues.map(year => {
         const point: Record<string, any> = { year }
         let hasData = false

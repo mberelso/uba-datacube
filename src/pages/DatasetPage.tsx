@@ -102,7 +102,6 @@ export default function DatasetPage() {
   const labelOverrides = content?.labelOverrides ?? {}
   const defaultChartConfig = content?.defaultChartConfig ?? null
   const isStacked = defaultChartConfig?.type === 'stacked'
-  const defaultFilters = defaultChartConfig?.defaultFilters ?? {}
 
   const applyLabelOverride = useCallback((val: string) => labelOverrides[val] ?? val, [labelOverrides])
 
@@ -117,32 +116,43 @@ export default function DatasetPage() {
     })
   }, [seriesMap])
 
+  const stackedLabels = useMemo(
+    () => new Set(defaultChartConfig?.stackedSeries.map(s => s.label) ?? []),
+    [defaultChartConfig]
+  )
+
   const chartData = useMemo(() => {
     if (!timeValues.length) return []
-    // In stacked mode use all filtered series; otherwise only selected ones
-    const activeKeys = isStacked
-      ? Object.keys(seriesMap).filter(key =>
-          Object.entries(filters).every(([dimKey, targetVal]) => {
-            if (!targetVal) return true
-            const dimIdx = dims.findIndex(d => d.name === dimKey || d.id === dimKey)
-            return dimIdx === -1 || seriesMap[key].dimValues[dimIdx] === targetVal
-          })
-        )
-      : Array.from(selectedSeries)
 
-    const filteredDimValues = new Set(Object.values(defaultFilters))
+    if (isStacked) {
+      // Build one entry per stackedSeries label — find matching series by translated label
+      const labelToKey: Record<string, string> = {}
+      for (const [key, s] of Object.entries(seriesMap)) {
+        const translatedLabel = s.dimValues.map(applyLabelOverride).find(v => stackedLabels.has(v))
+        if (translatedLabel) labelToKey[translatedLabel] = key
+      }
+      return timeValues.map(year => {
+        const point: Record<string, any> = { year }
+        let hasData = false
+        for (const { label } of defaultChartConfig!.stackedSeries) {
+          const key = labelToKey[label]
+          const val = key ? (seriesMap[key].observations[year] ?? null) : null
+          point[label] = val
+          if (val !== null) hasData = true
+        }
+        return { point, hasData }
+      }).filter(d => d.hasData).map(d => d.point)
+    }
 
     return timeValues.map((year) => {
       const point: Record<string, any> = { year }
       let hasData = false
-      for (const key of activeKeys) {
+      for (const key of selectedSeries) {
         const s = seriesMap[key]
         if (s) {
-          const shortVals = isStacked
-            ? s.dimValues.filter(v => !filteredDimValues.has(v))
-            : varyingDimIndices.length > 0
-              ? varyingDimIndices.map(i => s.dimValues[i]).filter(Boolean)
-              : s.dimValues
+          const shortVals = varyingDimIndices.length > 0
+            ? varyingDimIndices.map(i => s.dimValues[i]).filter(Boolean)
+            : s.dimValues
           const label = shortVals.map(applyLabelOverride).join(' · ') || s.dimValues.map(applyLabelOverride).join(' · ') || key
           const val = s.observations[year] ?? null
           point[label] = val
@@ -151,7 +161,7 @@ export default function DatasetPage() {
       }
       return { point, hasData }
     }).filter(d => d.hasData).map(d => d.point)
-  }, [timeValues, selectedSeries, seriesMap, varyingDimIndices, applyLabelOverride, isStacked, filters, dims, defaultFilters])
+  }, [timeValues, selectedSeries, seriesMap, varyingDimIndices, applyLabelOverride, isStacked, defaultChartConfig, stackedLabels])
 
   const filteredSeries = useMemo(() => {
     return Object.entries(seriesMap).filter(([_, s]) =>

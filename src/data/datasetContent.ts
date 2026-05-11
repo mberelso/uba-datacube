@@ -645,7 +645,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_TRANSPORT_ENERGY_FUEL_CONSUMPTION: {
-    headline: 'Deutsche Autos verbrauchen auf der Straße mehr Sprit als je gedacht.',
+    headline: 'Mehr Fahrzeuge, mehr Kilometer – der Kraftstoffverbrauch sank erst mit dem E-Auto-Boom.',
     lead: 'Dieser Datensatz erfasst, wie viel Kraftstoff alle Pkw, Lkw und Motorräder in Deutschland zusammen verbrauchen – und wie viel davon jedes Fahrzeug im Schnitt schluckt. Wer wissen will, ob die Energiewende im Verkehr ankommt, findet hier eine der härtesten Kennzahlen: nicht Versprechen, sondern gemessener Verbrauch.',
     trend: 'Der Gesamtkraftstoffverbrauch im Straßenverkehr ist über Jahrzehnte gestiegen, trotz technisch effizienterer Motoren – weil gleichzeitig mehr Fahrzeuge mehr Kilometer zurücklegten. Erst in jüngerer Zeit zeigen sich erste Rückgänge, angetrieben durch den wachsenden Anteil von Elektrofahrzeugen und veränderte Mobilitätsmuster nach der Corona-Pandemie.',
     context: 'Deutschland hat sich verpflichtet, die Treibhausgasemissionen im Verkehrssektor bis 2030 auf 85 Millionen Tonnen CO₂-Äquivalente zu senken – ein Ziel, das der Sektor bislang verfehlt. Politische Entscheidungen über Tempolimits, Lkw-Maut, Kaufprämien für Elektroautos oder den Ausbau des Schienennetzes stützen sich direkt auf diese Verbrauchsdaten.',
@@ -685,7 +685,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_TRANSPORT_PASSENGER_PERFORMANCE_MEAN: {
-    headline: 'Das Auto dominiert den deutschen Personenverkehr – trotz Klimazielen.',
+    headline: 'Deutsche legen jährlich über 1 Billion Personenkilometer zurück – fast alles mit dem Auto.',
     lead: 'Dieser Datensatz zeigt, wie viele Kilometer alle Menschen in Deutschland jedes Jahr zusammen mit Auto, Bus, Bahn oder Flugzeug zurücklegen. Wer wissen will, ob die Verkehrswende tatsächlich stattfindet oder nur auf dem Papier existiert, findet hier die Antwort.',
     trend: 'Der motorisierte Individualverkehr – also private Pkw und Motorräder – macht nach wie vor den größten Teil der zurückgelegten Personenkilometer aus und hat sich nach dem pandemiebedingten Einbruch 2020 weitgehend erholt. Der Anteil der Bahn wächst langsam, bleibt aber deutlich hinter dem Straßenverkehr zurück. Der Luftverkehr nähert sich ebenfalls wieder dem Vorkrisenniveau.',
     context: 'Deutschland hat sich verpflichtet, die Treibhausgasemissionen im Verkehrssektor bis 2030 gegenüber 1990 um 48 Prozent zu senken – ein Ziel, das der Sektor bislang verfehlt. Die Bundesregierung und die EU-Kommission stützen Entscheidungen über Infrastrukturinvestitionen, Ticketpreise und Zulassungsregeln direkt auf solche Mobilitätsdaten.',
@@ -695,7 +695,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_TRANSPORT_PASSENGER_PERFORMANCE_SHARE: {
-    headline: 'Umweltfreundliche Verkehrsmittel verlieren trotz Klimazielen weiter Marktanteile.',
+    headline: 'Das 49-Euro-Ticket kam – doch der Autoanteil blieb fast unverändert.',
     lead: 'Dieser Datensatz misst, wie viele Kilometer Deutsche zu Fuß, mit dem Fahrrad, der Bahn oder dem Bus zurücklegen – im Verhältnis zum gesamten Personenverkehr. Wer wissen will, ob die Verkehrswende tatsächlich stattfindet oder nur auf dem Papier existiert, findet hier eine der direktesten Antworten.',
     trend: 'Seit 2003 schwankt der Anteil umweltfreundlicher Verkehrsmittel am deutschen Personenverkehr, ohne einen klaren Aufwärtstrend zu zeigen – das Auto dominiert die zurückgelegten Kilometer nach wie vor. Die Pandemiejahre 2020 und 2021 verzerrten das Bild kurzfristig, weil der öffentliche Verkehr einbrach, während der Radverkehr zulegte.',
     context: 'Die Bundesregierung hat sich im Koalitionsvertrag und im Rahmen des Klimaschutzgesetzes verpflichtet, den Verkehrssektor bis 2045 nahezu klimaneutral zu gestalten – ohne eine deutliche Verlagerung hin zu Bahn, Bus und Fahrrad ist dieses Ziel rechnerisch nicht erreichbar. Städte, Länder und der Bund nutzen solche Anteilsdaten, um Investitionen in Infrastruktur zu rechtfertigen oder Förderprogramme zu evaluieren.',
@@ -705,8 +705,8 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_TRANSPORT_PASSENGER_PERF_VEHICLE_TYPE_MEANS: {
-    headline: 'Das Auto dominiert den deutschen Personenverkehr mit weitem Abstand.',
-    lead: 'Dieser Datensatz misst, wie viele Kilometer Menschen in Deutschland insgesamt mit verschiedenen Verkehrsmitteln zurücklegen – aufgeteilt nach Auto, Bahn, Bus, Flugzeug und weiteren Transportarten. Wer verstehen will, ob Deutschland seinen Verkehr tatsächlich umweltfreundlicher gestaltet, findet hier die Grundlage.',
+    headline: 'SUV oder Zug? Welches Fahrzeug die meisten Personenkilometer erzeugt.',
+    lead: 'Dieser Datensatz schlüsselt auf, wie viele Kilometer Menschen in Deutschland mit welchem konkreten Fahrzeugtyp zurücklegen — von Pkw-Klassen bis zu Fern- und Nahverkehrszügen. Wer verstehen will, welche Fahrzeuge die Klimabilanz des Verkehrs wirklich treiben, findet hier die Grundlage.',
     trend: 'Das private Auto erbringt nach wie vor den mit Abstand größten Anteil der gesamten Personenverkehrsleistung in Deutschland – mehr als 80 Prozent der Personenkilometer entfallen auf den motorisierten Individualverkehr. Bahn und öffentlicher Nahverkehr gewinnen zwar langsam Anteile, doch das Gesamtbild verschiebt sich nur träge.',
     context: 'Die Bundesregierung hat sich verpflichtet, die Treibhausgasemissionen im Verkehrssektor bis 2030 deutlich zu senken – der Sektor verfehlt dieses Ziel bislang als einziger großer Bereich wiederholt. Diese Daten zeigen, ob politische Maßnahmen wie das 49-Euro-Ticket oder der Ausbau der Bahninfrastruktur das tatsächliche Mobilitätsverhalten der Bevölkerung verändern.',
     methodology: 'Gemessen wird die Personenverkehrsleistung in Personenkilometern, also die Summe aller zurückgelegten Kilometer multipliziert mit der jeweiligen Personenzahl – berechnet vom Deutschen Zentrum für Luft- und Raumfahrt (DLR) und dem DIW Berlin. Die Zahlen beruhen auf Hochrechnungen und Erhebungen, die Alltagswege im Nahbereich sowie bestimmte informelle Mobilitätsformen möglicherweise unvollständig erfassen.',
@@ -745,7 +745,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_TRANSPORT_TOTAL_PERFORMANCE_VEHICLE_TYPE: {
-    headline: 'Autos dominieren Deutschlands Straßen – trotz Klimazielen ungebrochen.',
+    headline: 'Über 700 Milliarden Fahrzeugkilometer pro Jahr – Pkw stellen drei Viertel davon.',
     lead: 'Dieser Datensatz zeigt, wie viele Kilometer alle Kraftfahrzeuge in Deutschland pro Jahr zurücklegen – aufgeschlüsselt nach Fahrzeugtyp, von Motorrädern bis zum Sattelzug. Wer verstehen will, ob der Verkehr wirklich klimafreundlicher wird, muss wissen, ob die Gesamtfahrleistung sinkt oder steigt – denn selbst sauberere Autos nützen wenig, wenn immer mehr gefahren wird.',
     trend: 'Die Gesamtfahrleistung auf deutschen Straßen ist über Jahrzehnte nahezu kontinuierlich gewachsen und liegt aktuell bei über 700 Milliarden Fahrzeugkilometern pro Jahr. Nach einem deutlichen Einbruch während der COVID-19-Pandemie 2020 erholten sich die Werte rasch und nähern sich wieder dem Vorkrisenniveau. PKW stellen dabei konstant den größten Anteil – rund drei Viertel aller gefahrenen Kilometer entfallen auf sie.',
     context: 'Deutschland hat sich verpflichtet, die Treibhausgasemissionen im Verkehrssektor bis 2030 auf 85 Millionen Tonnen CO₂-Äquivalente zu senken – ein Ziel, das der Sektor bislang verfehlt. Ob Elektromobilität, Tempolimit oder Ausbau des Schienenverkehrs tatsächlich wirken, lässt sich nur beurteilen, wenn die Gesamtfahrleistung als Bezugsgröße bekannt ist. Verkehrspolitische Entscheidungen auf Bundes- und Landesebene stützen sich direkt auf diese Zahlen.',
@@ -755,7 +755,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_TRANSPORT_TRAFFIC_AREA_BUNDESLAND: {
-    headline: 'Deutschlands Verkehrsflächen wachsen – auf Kosten von Natur und Ackerland.',
+    headline: 'Bundesland für Bundesland: Wo Deutschland am meisten Boden für Verkehr verbraucht.',
     lead: 'Dieser Datensatz erfasst, wie viel Fläche in jedem Bundesland tatsächlich für Straßen, Wege, Parkplätze und sonstige Verkehrsinfrastruktur genutzt wird. Wer wissen will, wo Deutschland seinen Boden versiegelt und wie sich das von Bundesland zu Bundesland unterscheidet, findet hier die Grundlage.',
     trend: 'Die Verkehrsflächen in Deutschland nehmen seit Jahrzehnten kontinuierlich zu – jedes neue Gewerbegebiet, jede Ortsumgehung, jeder Großparkplatz schlägt sich in diesen Zahlen nieder. Zwar verlangsamt sich das Wachstum leicht, doch eine Trendwende hin zur Flächenreduktion ist in keinem Bundesland erkennbar.',
     context: 'Die Bundesregierung hat sich verpflichtet, den täglichen Flächenverbrauch bis 2030 auf unter 30 Hektar zu senken – derzeit liegt er noch deutlich darüber. Verkehrsflächen sind dabei ein zentraler Treiber der Bodenversiegelung, die Grundwasserneubildung verhindert, Überschwemmungen verstärkt und Artenvielfalt zerstört. Raumordnung und Klimaanpassungspläne der Länder greifen direkt auf solche Daten zurück.',
@@ -785,9 +785,9 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_TRANSPORT_VEHICLE_STOCK_TREND: {
-    headline: 'Deutschlands Elektroauto-Bestand hat sich seit 2021 verfünffacht.',
+    headline: '49 Millionen Autos – und davon sind nur 3 % elektrisch.',
     lead: 'Dieser Datensatz zeigt, wie sich der Fahrzeugbestand in Deutschland über die Jahre verändert — aufgeschlüsselt nach Antriebsart, von Benzinern bis zu Elektroautos. Wer wissen will, ob die Verkehrswende auf der Straße ankommt, findet hier die Antwort.',
-    trend: 'Zwischen 2021 und 2025 stieg die Zahl der Elektrofahrzeuge auf über 1,65 Millionen — mehr als eine Verfünffachung. Plug-in-Hybride legten ebenfalls stark zu: Ihre Zahl verdreifachte sich auf knapp 967.000 Fahrzeuge. Der Gesamtbestand alternativer Antriebe wächst damit deutlich schneller als noch vor wenigen Jahren erwartet.',
+    trend: 'Der Gesamtbestand hat sich auf rund 49 Millionen Pkw eingependelt. Elektroautos wuchsen rasant auf über 1,65 Millionen — aber gemessen an der Gesamtflotte machen sie gerade einmal 3 % aus. Diesel und Benziner dominieren weiterhin mit über 90 % des Bestands, was zeigt: Die Flottenwende ist gestartet, aber noch weit von einer Trendwende entfernt.',
     context: 'Die Bundesregierung hatte ursprünglich 15 Millionen Elektroautos bis 2030 als Ziel ausgegeben — gemessen daran bleibt der aktuelle Bestand weit hinter dem Kurs. Die Daten fließen direkt in klimapolitische Debatten ein: Förderprogramme, Ladesäulenausbau und CO₂-Flottengrenzwerte der EU hängen davon ab, wie schnell die Flotte tatsächlich umgebaut wird.',
     methodology: 'Gezählt werden alle zum 1. Januar des jeweiligen Jahres zugelassenen Kraftfahrzeuge in Deutschland, erhoben vom Kraftfahrt-Bundesamt auf Basis der nationalen Fahrzeugregister. Der Bestand erfasst zugelassene, nicht notwendigerweise aktiv genutzte Fahrzeuge — Fahrzeuge, die still gelegt oder kaum bewegt werden, gehen trotzdem in die Zahl ein.',
     status: 'draft',

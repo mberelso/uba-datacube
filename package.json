@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "og-image": "node scripts/generate-og-image.cjs",
-    "build": "node scripts/generate-og-image.cjs && tsc -b && vite build",
+    "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "generate-descriptions": "npx tsx scripts/generate-descriptions.ts"
@@ -23,7 +23,6 @@
   "devDependencies": {
     "@anthropic-ai/sdk": "^0.95.1",
     "@eslint/js": "^10.0.1",
-    "@resvg/resvg-js": "^2.6.2",
     "@tailwindcss/vite": "^4.2.4",
     "@types/node": "^24.12.2",
     "@types/react": "^19.2.14",

@@ -669,10 +669,10 @@ function RiverDischargeChart() {
 
 function WasteRecyclingRateChart() {
   const { data, loading, error } = useData(async () => {
-    const named = await fetchNamedSeries('UBA,DF_WASTE_RECOVERY_RATE,1.0', 'all', {
-      '0:0:0:1:1:0': 'Gesamtabfall (nicht-gef.)',
-      '0:0:0:2:1:1': 'Siedlungsabfall (gesamt)',
-      '0:0:0:4:1:1': 'Haushaltsähnl. Abfall (ges.)',
+    const named = await fetchDataSeries('DF_WASTE_RECOVERY_RATE', '1.0', {
+      'Gesamtabfall (nicht-gef.)':   { D_WASTE_TYPE: 'ABF_BRUTTO',  D_INDICATOR: 'ABF_REC', D_WASTE_HAZARD_CLASS: 'ABF_NGF' },
+      'Siedlungsabfall (gesamt)':     { D_WASTE_TYPE: 'ABF_SON_SIE', D_INDICATOR: 'ABF_REC', D_WASTE_HAZARD_CLASS: 'T' },
+      'Haushaltsähnl. Abfall (ges.)': { D_WASTE_TYPE: 'ABF_HAU_SIE', D_INDICATOR: 'ABF_REC', D_WASTE_HAZARD_CLASS: 'T' },
     })
     const years = new Set<string>()
     for (const pts of Object.values(named)) pts.forEach(p => years.add(p.year))
@@ -711,11 +711,11 @@ function WasteRecyclingRateChart() {
 
 function WasteDisposalChart() {
   const { data, loading, error } = useData(async () => {
-    const named = await fetchNamedSeries('UBA,DF_WASTE_VOLUME,1.0', 'all', {
-      '0:0:0:2:1:2': 'Stoffliche Verwertung',
-      '0:0:0:2:1:1': 'Thermische Behandlung',
-      '0:0:0:2:1:3': 'Deponierung',
-      '0:0:0:2:1:0': 'Behandlung zur Beseitigung',
+    const named = await fetchDataSeries('DF_WASTE_VOLUME', '1.0', {
+      'Stoffliche Verwertung':      { D_WASTE_TYPE: 'ABF_BRUTTO', D_WASTE_HAZARD_CLASS: 'T', D_WASTE_UTILIZATION: 'STV' },
+      'Thermische Behandlung':      { D_WASTE_TYPE: 'ABF_BRUTTO', D_WASTE_HAZARD_CLASS: 'T', D_WASTE_UTILIZATION: 'THERM_BES' },
+      'Deponierung':                { D_WASTE_TYPE: 'ABF_BRUTTO', D_WASTE_HAZARD_CLASS: 'T', D_WASTE_UTILIZATION: 'ABL' },
+      'Behandlung zur Beseitigung': { D_WASTE_TYPE: 'ABF_BRUTTO', D_WASTE_HAZARD_CLASS: 'T', D_WASTE_UTILIZATION: 'BEB' },
     })
     const years = new Set<string>()
     for (const pts of Object.values(named)) pts.forEach(p => years.add(p.year))
@@ -767,10 +767,10 @@ const FOOTPRINT_COLORS: Record<string, string> = {
 
 function ConsumerFootprintChart() {
   const { data, loading, error } = useData(async () => {
-    const named = await fetchNamedSeries('UBA,DF_CONSUMPTION_GLOBAL_ENV_FOOTPRINT,1.0', 'all', {
-      '0:0:0:0': 'CO₂-Emissionen',
-      '0:0:0:1': 'Rohstoffverbrauch',
-      '0:0:0:2': 'Energieverbrauch',
+    const named = await fetchDataSeries('DF_CONSUMPTION_GLOBAL_ENV_FOOTPRINT', '1.0', {
+      'CO₂-Emissionen':   { D_INDICATOR: 'CO2_DI' },
+      'Rohstoffverbrauch': { D_INDICATOR: 'RMC' },
+      'Energieverbrauch':  { D_INDICATOR: 'EN_DI' },
     })
     const years = new Set<string>()
     for (const pts of Object.values(named)) pts.forEach(p => years.add(p.year))
@@ -808,11 +808,11 @@ function ConsumerFootprintChart() {
 
 function EnvTaxRevenueChart() {
   const { data, loading, error } = useData(async () => {
-    const named = await fetchNamedSeries('UBA,DF_ENV_ECON_REVENUE_ENV_TAXES,1.0', 'all', {
-      '0:0:0:4': 'Energiesteuer',
-      '0:0:0:0': 'Kraftfahrzeugsteuer',
-      '0:0:0:2': 'Emissionshandel',
-      '0:0:0:3': 'Luftverkehrsteuer',
+    const named = await fetchDataSeries('DF_ENV_ECON_REVENUE_ENV_TAXES', '1.0', {
+      'Energiesteuer':      { D_REV_ENV_TAXES: 'ENT' },
+      'Kraftfahrzeugsteuer': { D_REV_ENV_TAXES: 'MVT' },
+      'Stromsteuer':        { D_REV_ENV_TAXES: 'ELT' },
+      'Emissionshandel':    { D_REV_ENV_TAXES: 'EAT' },
     })
     const years = new Set<string>()
     for (const pts of Object.values(named)) pts.forEach(p => years.add(p.year))

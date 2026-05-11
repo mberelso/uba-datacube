@@ -105,7 +105,7 @@ function useHighlightData(config: HighlightConfig) {
   useEffect(() => {
     setLoading(true)
     fetchSingleDataflow(config.flowId)
-      .then((flow) => fetchData(flow))
+      .then((flow) => fetchData(flow, config.key ?? 'all'))
       .then(({ seriesMap, timeValues }) => {
         let observations: Record<string, number | null> = {}
         if (config.key && seriesMap[config.key]) {

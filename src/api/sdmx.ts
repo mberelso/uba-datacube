@@ -203,13 +203,13 @@ export async function fetchStructure(flow: Dataflow): Promise<DatasetStructure> 
   }
 }
 
-export async function fetchData(flow: Dataflow): Promise<{
+export async function fetchData(flow: Dataflow, key = 'all'): Promise<{
   structure: DatasetStructure | null
   seriesMap: Record<string, { dimValues: string[]; observations: Record<string, number | null> }>
   timeValues: string[]
   seriesDimensions: Dimension[]
 }> {
-  const url = `${BASE}/data/${flow.agencyID},${flow.id},${flow.version}/all?format=jsondata`
+  const url = `${BASE}/data/${flow.agencyID},${flow.id},${flow.version}/${key}?format=jsondata`
   const r = await fetch(url, {
     headers: { Accept: 'application/vnd.sdmx.data+json;version=2.0,application/json' },
   })

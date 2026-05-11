@@ -22,6 +22,8 @@ export interface DatasetContent {
   context: string
   methodology: string
   status: 'draft' | 'reviewed'
+  /** Maps API dimension value strings to German display labels */
+  labelOverrides?: Record<string, string>
 }
 
 export const DATASET_CONTENT: Record<string, DatasetContent> = {
@@ -733,14 +735,33 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
     status: 'draft',
   },
 
-  // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_TRANSPORT_VEHICLE_STOCK_TREND_FUEL: {
-    headline: 'Elektroautos verfünffacht – doch ihr Anteil bleibt überschaubar.',
-    lead: 'Dieser Datensatz zählt jedes Jahr, wie viele Pkw und Lkw in Deutschland zugelassen sind – aufgeschlüsselt danach, womit sie fahren: Benzin, Diesel, Strom oder Hybrid. Wer wissen will, wie schnell die Flotte auf der Straße wirklich umgebaut wird, findet hier die Antwort.',
-    trend: 'Zwischen 2021 und 2025 stieg die Zahl der Elektroautos auf über 1,65 Millionen – mehr als fünfmal so viele wie zuvor. Plug-in-Hybride verdreifachten sich im gleichen Zeitraum auf knapp 967.000 Fahrzeuge. Gemessen am Gesamtbestand von rund 49 Millionen Pkw machen Elektrofahrzeuge aber weiterhin nur einen kleinen Bruchteil aus.',
-    context: 'Die Bundesregierung hatte ursprünglich 15 Millionen Elektroautos bis 2030 als Ziel ausgegeben – eine Marke, die nach aktuellem Tempo kaum erreichbar scheint. Gleichzeitig entscheidet diese Bestandsentwicklung darüber, ob Deutschland seine Klimaziele im Verkehrssektor einhält, der seit Jahren zu den größten CO₂-Problemfeldern gehört. Förderprogramme, Ladeinfrastruktur und das EU-weite Verbrennerverbot ab 2035 hängen direkt mit diesen Zahlen zusammen.',
-    methodology: 'Gezählt wird der Fahrzeugbestand jeweils zum 1. Januar eines Jahres auf Basis der Zulassungsdaten des Kraftfahrt-Bundesamts. Der Datensatz erfasst zugelassene Fahrzeuge, nicht tatsächlich gefahrene Kilometer – ein Elektroauto, das kaum bewegt wird, erscheint genauso wie ein Vielfahrer.',
-    status: 'draft',
+    headline: 'Von 2.000 auf 1,65 Millionen: Deutschlands E-Auto-Bestand in 20 Jahren.',
+    lead: 'Dieser Datensatz zählt jedes Jahr, wie viele Pkw und Lkw in Deutschland zugelassen sind – aufgeschlüsselt nach Antriebsart: Benzin, Diesel, Elektro, Hybrid und weitere. Er macht sichtbar, wie schnell sich die Flotte auf der Straße tatsächlich verändert.',
+    trend: 'Zwischen 2021 und 2025 verfünffachte sich die Zahl der reinen Elektro-Pkw auf über 1,65 Millionen. Plug-in-Hybride legten im gleichen Zeitraum auf knapp 967.000 zu. Gemessen am Gesamtbestand von rund 49 Millionen Pkw machen Elektrofahrzeuge aber weiterhin nur etwa 3 % aus.',
+    context: 'Die Bundesregierung hatte 15 Millionen Elektroautos bis 2030 als Ziel ausgegeben – bei aktuellem Tempo ist diese Marke kaum erreichbar. Gleichzeitig entscheidet diese Entwicklung darüber, ob Deutschland seine Klimaziele im Verkehrssektor einhält. Das EU-weite Verbrennerverbot ab 2035 erhöht den Druck weiter.',
+    methodology: 'Gezählt wird der Fahrzeugbestand jeweils zum 1. Januar auf Basis der Zulassungsdaten des Kraftfahrt-Bundesamts. Erfasst sind zugelassene Fahrzeuge – ein stillgelegtes Elektroauto erscheint genauso wie ein Vielfahrer. Die Einheit ist Anzahl (Stück), nicht Millionen.',
+    status: 'reviewed',
+    labelOverrides: {
+      'all-electric propulsion systems (electricity mix?)': 'Elektro (BEV)',
+      'Plug-in-Hybrid (PHEV)': 'Plug-in-Hybrid',
+      'Hybrids': 'Hybrid (ohne Stecker)',
+      'Gasoline': 'Benzin',
+      'Diesel fuel': 'Diesel',
+      'All fuel types': 'Alle Antriebe',
+      'Liquified Petroleum Gas (LPG)': 'Autogas (LPG)',
+      'Compressed Natural Gas (CNG)': 'Erdgas (CNG)',
+      'Liquefied Natural Gas (LNG)': 'Flüssigerdgas (LNG)',
+      'Other': 'Sonstige',
+      'Liquid fuels': 'Flüssigkraftstoffe',
+      'all-electric and electric-hybrid propulsion systems': 'Elektro & Hybrid (gesamt)',
+      'Natural Gas': 'Erdgas',
+      'Gases (gaseous, liquid)': 'Gase (gesamt)',
+      'Other gases': 'Sonstige Gase',
+      'Passenger car': 'PKW',
+      'Trucks': 'LKW',
+      'Total': 'Gesamt',
+    },
   },
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'

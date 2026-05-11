@@ -92,6 +92,11 @@ export default function DatasetPage() {
       .finally(() => setLoading(false))
   }, [id])
 
+  const content = id ? getDatasetContent(decodeURIComponent(id)) : null
+  const labelOverrides = content?.labelOverrides ?? {}
+
+  const applyLabelOverride = useCallback((val: string) => labelOverrides[val] ?? val, [labelOverrides])
+
   // Find which dimension positions actually vary across series (to shorten labels)
   const varyingDimIndices = useMemo(() => {
     const allDimValues = Object.values(seriesMap).map(s => s.dimValues)
@@ -114,7 +119,7 @@ export default function DatasetPage() {
           const shortVals = varyingDimIndices.length > 0
             ? varyingDimIndices.map(i => s.dimValues[i]).filter(Boolean)
             : s.dimValues
-          const label = shortVals.join(' · ') || s.dimValues.join(' · ') || key
+          const label = shortVals.map(applyLabelOverride).join(' · ') || s.dimValues.map(applyLabelOverride).join(' · ') || key
           const val = s.observations[year] ?? null
           point[label] = val
           if (val !== null) hasData = true
@@ -122,7 +127,7 @@ export default function DatasetPage() {
       }
       return { point, hasData }
     }).filter(d => d.hasData).map(d => d.point)
-  }, [timeValues, selectedSeries, seriesMap, varyingDimIndices])
+  }, [timeValues, selectedSeries, seriesMap, varyingDimIndices, applyLabelOverride])
 
   const filteredSeries = useMemo(() => {
     return Object.entries(seriesMap).filter(([_, s]) =>
@@ -135,10 +140,10 @@ export default function DatasetPage() {
       const shortVals = varyingDimIndices.length > 0
         ? varyingDimIndices.map(i => s.dimValues[i]).filter(Boolean)
         : s.dimValues
-      const label = shortVals.join(' · ') || s.dimValues.join(' · ') || key
+      const label = shortVals.map(applyLabelOverride).join(' · ') || s.dimValues.map(applyLabelOverride).join(' · ') || key
       return { key, label, dimValues: s.dimValues }
     })
-  }, [seriesMap, filters, dims, varyingDimIndices])
+  }, [seriesMap, filters, dims, varyingDimIndices, applyLabelOverride])
 
   const applyPreset = useCallback((presetFilters: Record<string, string>) => {
     setFilters(presetFilters)
@@ -293,7 +298,7 @@ export default function DatasetPage() {
                           className="w-full text-[11px] py-1.5 pl-2.5 pr-7 rounded-lg border border-slate-200 bg-slate-50 text-slate-600 appearance-none focus:outline-none focus:border-slate-400 focus:bg-white transition-colors cursor-pointer"
                         >
                           <option value="">Alle</option>
-                          {uniqueVals.map(v => <option key={v} value={v}>{v}</option>)}
+                          {uniqueVals.map(v => <option key={v} value={v}>{applyLabelOverride(v)}</option>)}
                         </select>
                         <CaretDown size={9} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                       </div>

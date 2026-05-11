@@ -8,6 +8,82 @@ import {
 } from 'recharts'
 import { fetchAveragedSeries, fetchSingleSeries, fetchNamedSeries, type TimePoint } from '../api/sdmx'
 
+/** Fetch CSV data for a dataset and return raw series keyed by dim-code string.
+ *  Always uses CSV (skips the sparse JSON path entirely for these charts). */
+async function fetchCsvSeries(flowId: string, version: string): Promise<
+  Record<string, { codes: string[]; colIds: string[]; obs: Record<string, number | null> }>
+> {
+  const url = `https://daten.uba.de/release/rest/data/UBA,${flowId},${version}/all?format=csv`
+  const r = await fetch(url, { headers: { Accept: 'text/csv' } })
+  if (!r.ok) throw new Error(`CSV fetch failed ${r.status}`)
+  const text = await r.text()
+  const lines = text.trim().split('\n')
+  const sep = lines[0].includes(';') ? ';' : ','
+  const header = lines[0].split(sep).map(h => h.trim().replace(/\r/g, ''))
+  const timeCol = header.indexOf('TIME_PERIOD')
+  const valCol = header.indexOf('OBS_VALUE')
+  const colIds = header.slice(1, timeCol) // skip DATAFLOW col
+  const result: Record<string, { codes: string[]; colIds: string[]; obs: Record<string, number | null> }> = {}
+  for (const line of lines.slice(1)) {
+    if (!line.trim()) continue
+    const cols = line.split(sep).map(c => c.trim().replace(/\r/g, ''))
+    const codes = colIds.map((_c, i) => cols[i + 1])
+    const key = codes.join(':')
+    const raw = cols[valCol]
+    const val = raw !== '' ? parseFloat(raw) : null
+    if (!result[key]) result[key] = { codes, colIds, obs: {} }
+    result[key].obs[cols[timeCol]] = isNaN(val as number) ? null : val
+  }
+  return result
+}
+
+/** Extract named time series from CSV by matching dim codes.
+ *  filters: { displayLabel: { DIM_ID: 'CODE', ... } } */
+async function fetchDataSeries(
+  flowId: string,
+  version: string,
+  seriesSpec: Record<string, Record<string, string>>,
+): Promise<Record<string, TimePoint[]>> {
+  const csv = await fetchCsvSeries(flowId, version)
+  const result: Record<string, TimePoint[]> = {}
+  for (const [label, filters] of Object.entries(seriesSpec)) {
+    for (const { codes, colIds, obs } of Object.values(csv)) {
+      const matches = Object.entries(filters).every(([dimId, code]) => {
+        const idx = colIds.indexOf(dimId)
+        return idx !== -1 && codes[idx] === code
+      })
+      if (!matches) continue
+      result[label] = Object.entries(obs)
+        .map(([year, val]) => ({ year, value: val as number }))
+        .filter(p => p.value != null)
+        .sort((a, b) => a.year.localeCompare(b.year))
+      break
+    }
+  }
+  return result
+}
+
+/** Extract a single series from CSV matching all given dim code filters. */
+async function fetchDataSingleSeries(
+  flowId: string,
+  version: string,
+  filters: Record<string, string>,
+): Promise<TimePoint[]> {
+  const csv = await fetchCsvSeries(flowId, version)
+  for (const { codes, colIds, obs } of Object.values(csv)) {
+    const matches = Object.entries(filters).every(([dimId, code]) => {
+      const idx = colIds.indexOf(dimId)
+      return idx !== -1 && codes[idx] === code
+    })
+    if (!matches) continue
+    return Object.entries(obs)
+      .map(([year, val]) => ({ year, value: val as number }))
+      .filter(p => p.value != null)
+      .sort((a, b) => a.year.localeCompare(b.year))
+  }
+  return []
+}
+
 // ── tiny helpers ──────────────────────────────────────────────────────────────
 
 function useData<T>(loader: () => Promise<T>) {
@@ -246,8 +322,11 @@ function RenewableShareChart() {
 
 function ElectricCarChart() {
   const { data, loading, error } = useData(async () => {
-    const named = await fetchNamedSeries('UBA,DF_TRANSPORT_VEHICLE_STOCK_TREND_FUEL,1.0', 'DE.A.AZ.PKW.',
-      { '0:0:0:0:1': 'BEV', '0:0:0:0:8': 'PHEV', '0:0:0:0:6': 'Hybrid' })
+    const named = await fetchDataSeries('DF_TRANSPORT_VEHICLE_STOCK_TREND_FUEL', '1.0', {
+      'BEV':    { D_VEHICLE_TYPE: 'PKW', D_FUEL_TYPE: 'FU-HE-EL' },
+      'PHEV':   { D_VEHICLE_TYPE: 'PKW', D_FUEL_TYPE: 'FU-HE-HYS-PH' },
+      'Hybrid': { D_VEHICLE_TYPE: 'PKW', D_FUEL_TYPE: 'FU-HE-HYS' },
+    })
     const years = new Set<string>()
     for (const pts of Object.values(named)) pts.forEach(p => years.add(p.year))
     return Array.from(years).sort().map(year => {
@@ -283,8 +362,8 @@ function ElectricCarChart() {
 
 function FuelConsumptionChart() {
   const { data, loading, error } = useData(() =>
-    // index 1 = L/100km annual mean
-    fetchSingleSeries('UBA,DF_TRANSPORT_ENERGY_FUEL_CONSUMPTION,1.0', 'all', 1))
+    fetchDataSingleSeries('DF_TRANSPORT_ENERGY_FUEL_CONSUMPTION', '1.0',
+      { D_UNIT: 'LHK', D_TYPE: 'JM', D_VEHICLE_TYPE: 'PKW', D_FUEL_TYPE: 'FU' }))
   const pts = data as TimePoint[] | null
   const latest = pts?.[pts.length - 1]
   const first = pts?.[0]
@@ -488,11 +567,11 @@ function ForestFireChart() {
 
 function GreenMobilityChart() {
   const { data, loading, error } = useData(async () => {
-    const named = await fetchNamedSeries('UBA,DF_TRANSPORT_PASSENGER_PERFORMANCE_SHARE,1.0', 'all', {
-      '0:0:0:0:0': 'ÖPNV (Straße)',
-      '0:0:0:4:0': 'Schiene',
-      '0:0:0:3:0': 'Radverkehr',
-      '0:0:0:2:0': 'Fußverkehr',
+    const named = await fetchDataSeries('DF_TRANSPORT_PASSENGER_PERFORMANCE_SHARE', '1.0', {
+      'ÖPNV (Straße)': { D_TRANSPORT_MEAN: 'OPNV', D_TRANSPORT_GOOD: 'PV' },
+      'Schiene':       { D_TRANSPORT_MEAN: 'EB',   D_TRANSPORT_GOOD: 'PV' },
+      'Radverkehr':    { D_TRANSPORT_MEAN: 'FRV',  D_TRANSPORT_GOOD: 'PV' },
+      'Fußverkehr':    { D_TRANSPORT_MEAN: 'FV',   D_TRANSPORT_GOOD: 'PV' },
     })
     const years = new Set<string>()
     for (const pts of Object.values(named)) pts.forEach(p => years.add(p.year))

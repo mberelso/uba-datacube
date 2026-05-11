@@ -339,6 +339,7 @@ function CategoryTile({ cat, count }: { cat: typeof CATEGORIES[0]; count: number
   )
 }
 
+
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function DashboardPage() {
@@ -405,7 +406,7 @@ export default function DashboardPage() {
             transition={{ delay: 0.18, type: 'spring', stiffness: 120, damping: 24 }}
             style={{ fontSize: 'clamp(32px, 4vw, 48px)', fontWeight: 800, letterSpacing: '-0.8px', lineHeight: 1.08, color: 'white', marginBottom: 16 }}
           >
-            Umweltdaten. <br />
+            Umweltdaten.<br />
             <span style={{ color: '#6B9A5E' }}>Klar gemacht.</span>
           </motion.h1>
           <motion.p
@@ -442,6 +443,7 @@ export default function DashboardPage() {
             </Link>
           </motion.div>
         </div>
+
       </motion.div>
 
       {/* ── Disclaimer ───────────────────────────────────────────────────── */}

@@ -274,7 +274,86 @@ export async function fetchData(flow: Dataflow): Promise<{
     timeValues = Array.from(allYears).sort()
   }
 
-  console.log(`[fetchData] ${flow.id}: ${timeValues.length} time points, ${Object.keys(seriesMap).length} series`)
+  // Sparse data fallback: if JSON only returned ≤2 observations per series, try CSV
+  const totalObs = Object.values(seriesMap).reduce((n, s) => n + Object.keys(s.observations).length, 0)
+  const seriesCount = Object.keys(seriesMap).length
+  const isSparse = totalObs <= seriesCount * 2
+
+  if (isSparse && Object.keys(seriesMap).length > 0) {
+    try {
+      const csvUrl = `${BASE}/data/${flow.agencyID},${flow.id},${flow.version}/all?format=csv`
+      const csvR = await fetch(csvUrl, { headers: { Accept: 'text/csv' } })
+      if (csvR.ok) {
+        const text = await csvR.text()
+        const lines = text.trim().split('\n')
+        // SDMX CSV uses semicolons as separator
+        const sep = lines[0].includes(';') ? ';' : ','
+        const header = lines[0].split(sep).map(h => h.trim().replace(/\r/g, ''))
+        const timeCol = header.indexOf('TIME_PERIOD')
+        const valCol = header.indexOf('OBS_VALUE')
+        // Series dim columns = everything between DATAFLOW and TIME_PERIOD (excl. DATAFLOW)
+        const seriesCols = header.slice(1, timeCol)
+
+        // Build dim id→name lookup from existing dims
+        const dimById: Record<string, Record<string, string>> = {}
+        for (const d of dims) {
+          dimById[d.id] = {}
+          for (const v of d.values) dimById[d.id][v.id] = v.name
+        }
+
+        // Parse CSV into { seriesCodeKey → { year → value } }
+        const csvSeries: Record<string, { codes: string[]; obs: Record<string, number | null> }> = {}
+        for (const line of lines.slice(1)) {
+          if (!line.trim()) continue
+          const cols = line.split(sep).map(c => c.trim().replace(/\r/g, ''))
+          const codes = seriesCols.map((_c, i) => cols[i + 1]) // +1 to skip DATAFLOW
+          const codeKey = codes.join(':')
+          const year = cols[timeCol]
+          const raw = cols[valCol]
+          const val = raw !== '' ? parseFloat(raw) : null
+          if (!csvSeries[codeKey]) csvSeries[codeKey] = { codes, obs: {} }
+          csvSeries[codeKey].obs[year] = isNaN(val as number) ? null : val
+        }
+
+        const newSeriesMap: typeof seriesMap = {}
+        const newTimeValues = new Set<string>()
+
+        for (const { codes, obs } of Object.values(csvSeries)) {
+          const dimValues = codes.map((code, i) => dimById[seriesCols[i]]?.[code] ?? code)
+          const stableKey = codes.join(':')
+          newSeriesMap[stableKey] = { dimValues, observations: obs }
+          for (const y of Object.keys(obs)) newTimeValues.add(y)
+        }
+
+        // Rebuild seriesDimensions from CSV columns so labels are correct
+        const csvDims: Dimension[] = seriesCols.map((colId, pos) => {
+          const existingDim = dims.find(d => d.id === colId)
+          const uniqueCodes = [...new Set(Object.values(csvSeries).map(s => s.codes[pos]))]
+          const values = uniqueCodes.map(code => ({
+            id: code,
+            name: dimById[colId]?.[code] ?? code,
+          }))
+          return {
+            id: colId,
+            name: existingDim?.name ?? colId,
+            position: pos,
+            values,
+          }
+        })
+
+        if (Object.keys(newSeriesMap).length > 0) {
+          return {
+            structure: null,
+            seriesMap: newSeriesMap,
+            timeValues: Array.from(newTimeValues).sort(),
+            seriesDimensions: csvDims,
+          }
+        }
+      }
+    } catch {
+      // CSV fallback failed — return what we have from JSON
+    }
+  }
 
   return { structure: null, seriesMap, timeValues, seriesDimensions: dims }
 }

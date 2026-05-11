@@ -347,6 +347,8 @@ export default function DatasetPage() {
               </div>
             )}
 
+            {!isStacked && (
+            <>
             {/* Select all / none */}
             <div className="flex gap-2 mb-3">
               <button
@@ -416,6 +418,8 @@ export default function DatasetPage() {
                 )
               })}
             </div>
+            </>
+            )}
           </div>
         </motion.aside>
 

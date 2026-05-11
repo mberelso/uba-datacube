@@ -491,7 +491,7 @@ export default function DatasetPage() {
                 exit={{ opacity: 0 }}
                 className="bg-white rounded-2xl border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.05)] overflow-hidden"
               >
-                {selectedSeries.size === 0 ? (
+                {!isStacked && selectedSeries.size === 0 ? (
                   <div className="flex flex-col items-center justify-center py-20 px-8 text-center">
                     <div
                       className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4"
@@ -506,7 +506,7 @@ export default function DatasetPage() {
                       Setze links Filter oder wähle mindestens eine Serie aus, um das Diagramm anzuzeigen.
                     </p>
                   </div>
-                ) : chartData.length <= 2 ? (
+                ) : !isStacked && chartData.length <= 2 ? (
                   <div className="flex flex-col items-center justify-center py-16 px-8 text-center">
                     <div
                       className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4"

@@ -15,6 +15,21 @@
  *   status         – "draft" | "reviewed"
  */
 
+export interface StackedSeriesSpec {
+  /** German label (after labelOverrides applied) */
+  label: string
+  color: string
+}
+
+export interface DefaultChartConfig {
+  /** Use stacked area chart instead of line/bar */
+  type: 'stacked'
+  /** Pre-apply these dimension filters on load (key = dim ID from API, value = raw code value) */
+  defaultFilters?: Record<string, string>
+  /** Ordered series with fixed colors — only these are shown in stacked mode */
+  stackedSeries: StackedSeriesSpec[]
+}
+
 export interface DatasetContent {
   headline: string
   lead: string
@@ -24,6 +39,8 @@ export interface DatasetContent {
   status: 'draft' | 'reviewed'
   /** Maps API dimension value strings to German display labels */
   labelOverrides?: Record<string, string>
+  /** Override default chart type and series selection */
+  defaultChartConfig?: DefaultChartConfig
 }
 
 export const DATASET_CONTENT: Record<string, DatasetContent> = {
@@ -746,7 +763,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
       'all-electric propulsion systems (electricity mix?)': 'Elektro (BEV)',
       'Plug-in-Hybrid (PHEV)': 'Plug-in-Hybrid',
       'Hybrids': 'Hybrid (ohne Stecker)',
-      'Gasoline': 'Benzin',
+      'Gasoline': 'Ottokraftstoff',
       'Diesel fuel': 'Diesel',
       'All fuel types': 'Alle Antriebe',
       'Liquified Petroleum Gas (LPG)': 'Autogas (LPG)',
@@ -761,6 +778,18 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
       'Passenger car': 'PKW',
       'Trucks': 'LKW',
       'Total': 'Gesamt',
+    },
+    defaultChartConfig: {
+      type: 'stacked',
+      defaultFilters: { 'D_VEHICLE_TYPE': 'Passenger car' },
+      stackedSeries: [
+        { label: 'Diesel',           color: '#6b7280' },
+        { label: 'Ottokraftstoff',   color: '#9ca3af' },
+        { label: 'Sonstige',         color: '#d1d5db' },
+        { label: 'Hybrid (ohne Stecker)', color: '#93c5fd' },
+        { label: 'Plug-in-Hybrid',   color: '#3b82f6' },
+        { label: 'Elektro (BEV)',    color: '#16a34a' },
+      ],
     },
   },
 

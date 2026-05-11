@@ -78,6 +78,10 @@ export default function DatasetPage() {
         setSeriesMap(seriesMap)
         setTimeValues(timeValues)
         setDims(seriesDimensions)
+        const cfg = id ? getDatasetContent(decodeURIComponent(id))?.defaultChartConfig : null
+        if (cfg?.defaultFilters) {
+          setFilters(cfg.defaultFilters)
+        }
         if (selectedSeries.size === 0) {
           const ranked = Object.entries(seriesMap).map(([key, s]) => {
             const vals = Object.values(s.observations).filter((v) => v !== null) as number[]
@@ -94,6 +98,8 @@ export default function DatasetPage() {
 
   const content = id ? getDatasetContent(decodeURIComponent(id)) : null
   const labelOverrides = content?.labelOverrides ?? {}
+  const defaultChartConfig = content?.defaultChartConfig ?? null
+  const isStacked = defaultChartConfig?.type === 'stacked'
 
   const applyLabelOverride = useCallback((val: string) => labelOverrides[val] ?? val, [labelOverrides])
 
@@ -110,10 +116,21 @@ export default function DatasetPage() {
 
   const chartData = useMemo(() => {
     if (!timeValues.length) return []
+    // In stacked mode use all filtered series; otherwise only selected ones
+    const activeKeys = isStacked
+      ? Object.keys(seriesMap).filter(key =>
+          Object.entries(filters).every(([dimKey, targetVal]) => {
+            if (!targetVal) return true
+            const dimIdx = dims.findIndex(d => d.name === dimKey || d.id === dimKey)
+            return dimIdx === -1 || seriesMap[key].dimValues[dimIdx] === targetVal
+          })
+        )
+      : Array.from(selectedSeries)
+
     return timeValues.map((year) => {
       const point: Record<string, any> = { year }
       let hasData = false
-      for (const key of selectedSeries) {
+      for (const key of activeKeys) {
         const s = seriesMap[key]
         if (s) {
           const shortVals = varyingDimIndices.length > 0
@@ -127,13 +144,13 @@ export default function DatasetPage() {
       }
       return { point, hasData }
     }).filter(d => d.hasData).map(d => d.point)
-  }, [timeValues, selectedSeries, seriesMap, varyingDimIndices, applyLabelOverride])
+  }, [timeValues, selectedSeries, seriesMap, varyingDimIndices, applyLabelOverride, isStacked, filters, dims])
 
   const filteredSeries = useMemo(() => {
     return Object.entries(seriesMap).filter(([_, s]) =>
-      Object.entries(filters).every(([dimName, targetVal]) => {
+      Object.entries(filters).every(([dimKey, targetVal]) => {
         if (!targetVal) return true
-        const dimIdx = dims.findIndex(d => d.name === dimName)
+        const dimIdx = dims.findIndex(d => d.name === dimKey || d.id === dimKey)
         return dimIdx === -1 || s.dimValues[dimIdx] === targetVal
       })
     ).map(([key, s]) => {
@@ -388,27 +405,29 @@ export default function DatasetPage() {
         >
           {/* Toolbar */}
           <div className="bg-white rounded-2xl border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.05)] px-4 py-3 mb-4 flex items-center gap-3">
-            {/* Chart type toggle */}
-            <div className="flex items-center gap-1 bg-slate-100 rounded-xl p-1">
-              {([
-                { type: 'line' as ChartType, Icon: ChartLine, label: 'Linie' },
-                { type: 'bar' as ChartType, Icon: ChartBar, label: 'Balken' },
-              ]).map(({ type, Icon, label }) => (
-                <button
-                  key={type}
-                  onClick={() => setChartType(type)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-medium transition-all cursor-pointer border-0"
-                  style={{
-                    background: chartType === type ? '#fff' : 'transparent',
-                    color: chartType === type ? '#1B2B3A' : '#94a3b8',
-                    boxShadow: chartType === type ? '0 1px 4px rgba(0,0,0,0.08)' : 'none',
-                  }}
-                >
-                  <Icon size={13} weight={chartType === type ? 'duotone' : 'regular'} />
-                  {label}
-                </button>
-              ))}
-            </div>
+            {/* Chart type toggle — hidden in stacked mode */}
+            {!isStacked && (
+              <div className="flex items-center gap-1 bg-slate-100 rounded-xl p-1">
+                {([
+                  { type: 'line' as ChartType, Icon: ChartLine, label: 'Linie' },
+                  { type: 'bar' as ChartType, Icon: ChartBar, label: 'Balken' },
+                ]).map(({ type, Icon, label }) => (
+                  <button
+                    key={type}
+                    onClick={() => setChartType(type)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-medium transition-all cursor-pointer border-0"
+                    style={{
+                      background: chartType === type ? '#fff' : 'transparent',
+                      color: chartType === type ? '#1B2B3A' : '#94a3b8',
+                      boxShadow: chartType === type ? '0 1px 4px rgba(0,0,0,0.08)' : 'none',
+                    }}
+                  >
+                    <Icon size={13} weight={chartType === type ? 'duotone' : 'regular'} />
+                    {label}
+                  </button>
+                ))}
+              </div>
+            )}
 
             {/* Advanced analysis toggle (forest fires only) */}
             {isForestFire && (
@@ -524,6 +543,7 @@ export default function DatasetPage() {
                       chartData={chartData}
                       activeSeriesList={activeSeriesList}
                       chartType={chartType}
+                      stackedSeries={isStacked ? defaultChartConfig!.stackedSeries : undefined}
                     />
                   </div>
                 )}

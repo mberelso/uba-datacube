@@ -170,6 +170,29 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
     context: 'Das Bundes-Klimaschutzgesetz schreibt für jeden Sektor verbindliche Jahresemissionsmengen vor – wer sie überschreitet, muss Maßnahmen nachliefern. Diese Daten entscheiden unmittelbar darüber, welche Ministerien handeln müssen und ob Deutschland sein Ziel der Klimaneutralität bis 2045 noch erreichen kann.',
     methodology: 'Gemessen werden alle vom Menschen verursachten Treibhausgasemissionen in CO₂-Äquivalenten, berechnet nach den aktuellen Klimawirkungsfaktoren des IPCC-Fünften Sachstandsberichts. Die Sektorzuordnung folgt dem Klimaschutzgesetz und spiegelt daher politische Kategorien wider, keine rein physikalischen Grenzen.',
     status: 'draft',
+    labelOverrides: {
+      'Energiewirtschaft': 'Energie',
+      'Industrie': 'Industrie',
+      'Gebäude': 'Gebäude',
+      'Verkehr': 'Verkehr',
+      'Landwirtschaft': 'Landwirtschaft',
+      'Abfallwirtschaft & Sonstiges': 'Abfall & Sonstiges',
+      'Landnutzung, Landnutzungsänderung und Forstwirtschaft': 'LULUCF (Senken)',
+      'Gesamtemissionen': 'Gesamt',
+      'Gesamtemissionen (ohne ohne Landnutzung, Landnutzungsänderung und Forstwirtschaft)': 'Gesamt (ohne Senken)',
+    },
+    defaultChartConfig: {
+      type: 'stacked',
+      defaultFilters: { 'D_SUBSTANCES': 'Treibhausgase', 'D_UNIT': 'Millionen Tonnen CO2-Äquivalente' },
+      stackedSeries: [
+        { label: 'Energie',             color: '#ef4444' },
+        { label: 'Industrie',           color: '#f97316' },
+        { label: 'Gebäude',             color: '#f59e0b' },
+        { label: 'Verkehr',             color: '#6b7280' },
+        { label: 'Landwirtschaft',      color: '#16a34a' },
+        { label: 'Abfall & Sonstiges',  color: '#d1d5db' },
+      ],
+    },
   },
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
@@ -512,6 +535,33 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
     context: 'Deutschland hat sich verpflichtet, die Wärmeversorgung bis 2045 nahezu vollständig zu dekarbonisieren — das Gebäudeenergiegesetz und die EU-Erneuerbare-Energien-Richtlinie setzen dafür konkrete Ausbauziele. Ob Kommunen ihre Wärmepläne realistisch gestalten und ob das Heizungsgesetz greift, lässt sich nur an solchen Zeitreihendaten ablesen.',
     methodology: 'Gemessen wird der tatsächliche Endenergieverbrauch aus erneuerbaren Quellen für Raumwärme, Warmwasser und Kälte in Deutschland, aufgeschlüsselt nach Energieträgern. Die Daten beruhen auf Schätzungen und Hochrechnungen von AGEE-Stat; aktuelle Jahreswerte sind zunächst vorläufig.',
     status: 'draft',
+    labelOverrides: {
+      'biogene Festbrennstoffe': 'Biomasse fest',
+      'solid biofuels': 'Biomasse fest',
+      'Biomasse': 'Biomasse (gesamt)',
+      'Biomass': 'Biomasse (gesamt)',
+      'Solarthermie': 'Solarthermie',
+      'Solar thermal energy': 'Solarthermie',
+      'Umweltwärme inkl. oberflächennaher Geothermie': 'Wärmepumpen',
+      'Ambient heat (incl. near-surface geothermal energy)': 'Wärmepumpen',
+      'tiefe Geothermie': 'Tiefe Geothermie',
+      'Deep geothermal energy': 'Tiefe Geothermie',
+      'biogene gasförmige Brennstoffe / Biogas': 'Biogas',
+      'gaseous biofuels / biogas': 'Biogas',
+      'Erneuerbare Energien (Gesamt)': 'Gesamt',
+      'Renewable energies (total)': 'Gesamt',
+    },
+    defaultChartConfig: {
+      type: 'stacked',
+      defaultFilters: {},
+      stackedSeries: [
+        { label: 'Biomasse fest',   color: '#92400e' },
+        { label: 'Biogas',          color: '#a3e635' },
+        { label: 'Solarthermie',    color: '#f59e0b' },
+        { label: 'Wärmepumpen',     color: '#3b82f6' },
+        { label: 'Tiefe Geothermie', color: '#7c3aed' },
+      ],
+    },
   },
 
   DF_ENERGY_AGEE_HEAT_PUMP_STAT: {

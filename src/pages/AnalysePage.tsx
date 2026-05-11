@@ -6,7 +6,7 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   ReferenceLine, Cell, ComposedChart, Legend,
 } from 'recharts'
-import { fetchAveragedSeries, fetchSingleSeries, fetchNamedSeries, type TimePoint } from '../api/sdmx'
+import { fetchAveragedSeries, fetchSingleSeries, type TimePoint } from '../api/sdmx'
 
 /** Fetch CSV data for a dataset and return raw series keyed by dim-code string.
  *  Always uses CSV (skips the sparse JSON path entirely for these charts). */
@@ -399,8 +399,12 @@ const POLLUTANT_COLORS: Record<string, string> = {
 
 function AirPollutantsChart() {
   const { data, loading, error } = useData(async () => {
-    const named = await fetchNamedSeries('UBA,DF_AIR_EMISSIONS_INDEX,2026.0', 'all', {
-      '0:0:0:0': 'NH₃', '0:1:0:0': 'NMVOC', '0:2:0:0': 'NOₓ', '0:3:0:0': 'PM2,5', '0:4:0:0': 'SO₂',
+    const named = await fetchDataSeries('DF_AIR_EMISSIONS_INDEX', '2026.0', {
+      'NH₃':   { D_SUBSTANCES: 'NH3' },
+      'NMVOC': { D_SUBSTANCES: 'NMVOC' },
+      'NOₓ':   { D_SUBSTANCES: 'NOx_NO2' },
+      'PM2,5': { D_SUBSTANCES: 'PM25' },
+      'SO₂':   { D_SUBSTANCES: 'SO2' },
     })
     const years = new Set<string>()
     for (const pts of Object.values(named)) pts.forEach(p => years.add(p.year))
@@ -438,8 +442,10 @@ function AirPollutantsChart() {
 
 function FuelPricesChart() {
   const { data, loading, error } = useData(async () => {
-    const named = await fetchNamedSeries('UBA,DF_TRANSPORT_ENERGY_FUEL_PRICES,1.0', 'all',
-      { '0:0:0:0:0': 'Benzin', '0:0:0:0:1': 'Diesel' })
+    const named = await fetchDataSeries('DF_TRANSPORT_ENERGY_FUEL_PRICES', '1.0', {
+      'Benzin': { D_FUEL_TYPE: 'FU-LQ-GN' },
+      'Diesel': { D_FUEL_TYPE: 'FU-LQ-DI' },
+    })
     const years = new Set<string>()
     for (const pts of Object.values(named)) pts.forEach(p => years.add(p.year))
     return Array.from(years).sort().map(year => {
@@ -478,10 +484,10 @@ function FuelPricesChart() {
 
 function NitrogenChart() {
   const { data, loading, error } = useData(async () => {
-    const named = await fetchNamedSeries('UBA,DF_AGRICULTURE_FORESTRY_NITROGEN_SURPLUS,1.0', 'all', {
-      '0:0:0:0:0': 'Stickstoff-Input',
-      '0:0:0:0:1': 'Stickstoff-Saldo',
-      '0:0:0:0:2': 'Stickstoff-Abfuhr',
+    const named = await fetchDataSeries('DF_AGRICULTURE_FORESTRY_NITROGEN_SURPLUS', '1.0', {
+      'Stickstoff-Input': { D_NITROGEN_BALANCE: 'N_Z' },
+      'Stickstoff-Saldo': { D_NITROGEN_BALANCE: 'N_SALDO' },
+      'Stickstoff-Abfuhr': { D_NITROGEN_BALANCE: 'N_A' },
     })
     const years = new Set<string>()
     for (const pts of Object.values(named)) pts.forEach(p => years.add(p.year))
@@ -523,10 +529,12 @@ function NitrogenChart() {
 
 function ForestFireChart() {
   const { data, loading, error } = useData(async () => {
-    // Sum fire area (HA=unit idx 1, FA=indicator idx 1) across all causes
-    const named = await fetchNamedSeries('UBA,DF_AGRICULTURE_FORESTRY_FOREST_FIRE_AREA,1.0', 'all', {
-      '0:0:1:0:1': 'Natürlich', '0:0:1:1:1': 'Fahrlässig',
-      '0:0:1:2:1': 'Unbekannt', '0:0:1:3:1': 'Brandstiftung', '0:0:1:4:1': 'Sonstige',
+    const named = await fetchDataSeries('DF_AGRICULTURE_FORESTRY_FOREST_FIRE_AREA', '1.0', {
+      'Natürlich':    { D_FIRE_CAUSE: 'N', D_INDICATOR: 'FA', D_UNIT: 'HA' },
+      'Fahrlässig':   { D_FIRE_CAUSE: 'L', D_INDICATOR: 'FA', D_UNIT: 'HA' },
+      'Unbekannt':    { D_FIRE_CAUSE: 'U', D_INDICATOR: 'FA', D_UNIT: 'HA' },
+      'Brandstiftung':{ D_FIRE_CAUSE: 'A', D_INDICATOR: 'FA', D_UNIT: 'HA' },
+      'Sonstige':     { D_FIRE_CAUSE: 'O', D_INDICATOR: 'FA', D_UNIT: 'HA' },
     })
     const years = new Set<string>()
     for (const pts of Object.values(named)) pts.forEach(p => years.add(p.year))

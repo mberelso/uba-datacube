@@ -515,9 +515,9 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
   },
 
   DF_ENERGY_AGEE_HEAT_PUMP_STAT: {
-    headline: 'Fast 19 Millionen Wärmepumpen in Deutschland – aber das Ziel lag bei 500.000 Neuinstallationen pro Jahr.',
+    headline: 'Über 2 Millionen Wärmepumpen in Deutschland – aber das Ziel von 500.000 Neuinstallationen pro Jahr wurde verfehlt.',
     lead: 'Dieser Datensatz zählt jede Wärmepumpe in Deutschland: wie viele es gibt, wie viel Wärme sie erzeugen und wie viel Energie sie dafür verbrauchen. Wer verstehen will, ob die Wärmewende tatsächlich Fahrt aufnimmt oder ins Stocken gerät, findet hier die härtesten verfügbaren Zahlen dazu.',
-    trend: 'Ende 2025 waren rund 18,9 Millionen Wärmepumpen installiert – Luft-Wasser-Anlagen dominieren als günstigste Variante. Die Neuinstallationen lagen 2025 bei knapp 2.200 Einheiten je 100.000 Einwohner, weit unter dem politischen Ziel von 500.000 Geräten pro Jahr bundesweit. Nach dem Boom 2023 brach der Absatz 2024 deutlich ein.',
+    trend: 'Ende 2025 waren rund 2,2 Millionen Wärmepumpen in Deutschland installiert – fast doppelt so viele wie noch 2019. Luft-Wasser-Anlagen dominieren als günstigste Variante den Markt. Der Bestand wächst kontinuierlich, doch Branchenverbände meldeten nach dem Boom 2023 einen deutlichen Einbruch bei Neuinstallationen 2024.',
     context: 'Das Gebäudeenergiegesetz verpflichtet Haushalte schrittweise zum Umstieg auf erneuerbare Heizungen; die EU-Erneuerbare-Energien-Richtlinie schreibt Deutschland verbindliche Wärmequoten vor. Der Einbruch 2024 zeigt, wie stark politische Unsicherheit rund um das GEG den Markt gebremst hat.',
     methodology: 'Gemessen werden Bestand, thermische Leistung, Endenergieverbrauch und nutzbare erneuerbare Wärme verschiedener Wärmepumpentypen – aufgeteilt nach Wärmequelle (Luft, Erde, Wasser). Die Daten beruhen auf Schätzungen der AGEE-Stat und bilden aggregierte nationale Trends, keine Einzelmeldungen.',
     status: 'draft',

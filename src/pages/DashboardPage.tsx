@@ -9,7 +9,7 @@ import {
   Thermometer, Factory, Lightning, Fire,
   BookOpen, Translate, ChartBar, ArrowRight, Warning,
 } from '@phosphor-icons/react'
-import { fetchData, fetchDataflows, type Dataflow } from '../api/sdmx'
+import { fetchData, fetchSingleDataflow } from '../api/sdmx'
 import { CubeMark } from '../components/CubeMark'
 import { SEO } from '../components/SEO'
 import { CATEGORIES } from '../utils/categories'
@@ -97,16 +97,15 @@ const FEATURES = [
 
 // ─── Hooks ────────────────────────────────────────────────────────────────────
 
-function useHighlightData(config: HighlightConfig, flows: Dataflow[]) {
+function useHighlightData(config: HighlightConfig) {
   const [data, setData] = useState<ChartPoint[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
 
   useEffect(() => {
-    const flow = flows.find((f) => f.id === config.flowId)
-    if (!flow) { setLoading(false); return }
     setLoading(true)
-    fetchData(flow)
+    fetchSingleDataflow(config.flowId)
+      .then((flow) => fetchData(flow))
       .then(({ seriesMap, timeValues }) => {
         let observations: Record<string, number | null> = {}
         if (config.key && seriesMap[config.key]) {
@@ -125,7 +124,7 @@ function useHighlightData(config: HighlightConfig, flows: Dataflow[]) {
       })
       .catch(() => setError(true))
       .finally(() => setLoading(false))
-  }, [config.flowId, flows])
+  }, [config.flowId])
 
   return { data, loading, error }
 }
@@ -141,19 +140,10 @@ const fadeUp: Variants = {
   show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 120, damping: 22 } },
 }
 
-function SkeletonCard() {
-  return (
-    <div className="rounded-[1.5rem] border border-slate-200/60 bg-white p-6 overflow-hidden">
-      <div className="h-3 w-24 rounded-full bg-slate-100 animate-pulse mb-3" />
-      <div className="h-8 w-16 rounded-md bg-slate-100 animate-pulse mb-6" />
-      <div className="h-[90px] rounded-lg bg-slate-100 animate-pulse" />
-    </div>
-  )
-}
 
 
-function HighlightCard({ config, flows }: { config: HighlightConfig; flows: Dataflow[] }) {
-  const { data, loading, error } = useHighlightData(config, flows)
+function HighlightCard({ config }: { config: HighlightConfig }) {
+  const { data, loading, error } = useHighlightData(config)
   const latest = data[data.length - 1]
   const previous = data[data.length - 2]
   const trend =
@@ -344,17 +334,7 @@ function CategoryTile({ cat, count }: { cat: typeof CATEGORIES[0]; count: number
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function DashboardPage() {
-  const [flows, setFlows] = useState<Dataflow[]>([])
-  const [loadingFlows, setLoadingFlows] = useState(true)
-
-  useEffect(() => {
-    fetchDataflows().then(setFlows).finally(() => setLoadingFlows(false))
-  }, [])
-
   const byCategory: Record<string, number> = {}
-  for (const f of flows) {
-    byCategory[f.category] = (byCategory[f.category] ?? 0) + 1
-  }
 
   return (
     <div className="max-w-[1200px] mx-auto px-5 py-10">
@@ -442,7 +422,7 @@ export default function DashboardPage() {
             >
               Datenkatalog öffnen
               <span className="text-slate-400 font-normal text-xs">
-                {loadingFlows ? '…' : `${flows.length} Themen`}
+                80 Datensätze
               </span>
               <ArrowRight size={14} weight="bold" />
             </Link>
@@ -509,17 +489,6 @@ export default function DashboardPage() {
       </div>
 
       <AnimatePresence mode="wait">
-        {loadingFlows ? (
-          <motion.div
-            key="skeleton-grid"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12"
-          >
-            {HIGHLIGHTS.map((h) => <SkeletonCard key={h.flowId} />)}
-          </motion.div>
-        ) : (
           <motion.div
             key="highlight-grid"
             variants={stagger}
@@ -528,10 +497,9 @@ export default function DashboardPage() {
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12"
           >
             {HIGHLIGHTS.map((h) => (
-              <HighlightCard key={h.flowId} config={h} flows={flows} />
+              <HighlightCard key={h.flowId} config={h} />
             ))}
           </motion.div>
-        )}
       </AnimatePresence>
 
       {/* ── Category tiles ───────────────────────────────────────────────── */}

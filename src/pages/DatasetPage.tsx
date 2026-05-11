@@ -183,17 +183,14 @@ export default function DatasetPage() {
   }, [seriesMap, filters, dims, varyingDimIndices, applyLabelOverride])
 
   const applyPreset = useCallback((presetFilters: Record<string, string>) => {
-    setFilters(presetFilters)
+    const targetVals = Object.values(presetFilters).filter(Boolean)
     const matchingKeys = Object.entries(seriesMap).filter(([_, s]) =>
-      Object.entries(presetFilters).every(([dimName, targetVal]) => {
-        if (!targetVal) return true
-        const dimIdx = dims.findIndex(d => d.name === dimName)
-        return dimIdx === -1 || s.dimValues[dimIdx] === targetVal
-      })
+      targetVals.every(val => s.dimValues.includes(val))
     ).map(([key]) => key)
     setSelectedSeries(new Set(matchingKeys))
+    setFilters({})
     window.scrollTo({ top: 300, behavior: 'smooth' })
-  }, [seriesMap, dims])
+  }, [seriesMap])
 
   const meta = flow ? getCategoryMeta(flow.category) : getCategoryMeta('')
   const activeSeriesList = filteredSeries.filter((s) => selectedSeries.has(s.key))

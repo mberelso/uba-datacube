@@ -114,7 +114,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_AIR_EMISSIONS_INDEX: {
-    headline: 'Deutschlands Luftschadstoffe sinken – aber nicht schnell genug.',
+    headline: 'Ammoniak blockiert Deutschlands Luftreinhaltung – ein Schadstoff hält den Index hoch.',
     lead: 'Dieser Datensatz zeigt, wie sich die Emissionen von Schadstoffen in der deutschen Luft seit 2005 verändert haben – von Stickoxiden über Feinstaub bis hin zu Schwefeldioxid. Wer wissen will, ob die Luft tatsächlich sauberer wird, findet hier die Antwort in Zahlen.',
     trend: 'Seit 2005 sind die Luftschadstoffemissionen in Deutschland insgesamt gesunken – der Index zeigt einen rückläufigen Trend über nahezu alle gemessenen Substanzen. Einzelne Schadstoffe wie Ammoniak aus der Landwirtschaft hartnäckig auf erhöhtem Niveau verharren jedoch weiterhin. Der Rückgang verläuft je nach Sektor sehr ungleichmäßig.',
     context: 'Die EU-Richtlinie über nationale Emissionshöchstmengen (NEC-Richtlinie) verpflichtet Deutschland zu konkreten Reduktionszielen bis 2030 – bei Ammoniak, Stickoxiden, Feinstaub und weiteren Stoffen. Ob Deutschland diese Ziele erreicht, hängt direkt von den hier dokumentierten Trends ab. Verkehrs-, Agrar- und Industriepolitik greifen auf genau diese Daten zurück, um Maßnahmen zu begründen oder zu überprüfen.',
@@ -124,7 +124,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_AIR_EMISSIONS_TRENDS: {
-    headline: 'Deutschlands Luftschadstoffe sinken seit 1990 – aber nicht schnell genug.',
+    headline: 'Schwefeldioxid fast verschwunden, Ammoniak kaum gesunken – Deutschlands Luftbilanz seit 1990.',
     lead: 'Dieser Datensatz erfasst, wie viel Schmutz Deutschland jedes Jahr in die Luft bläst – von Stickoxiden aus Auspuffrohren bis zu giftigen Schwermetallen aus Industriekaminen. Wer wissen will, ob die Luft wirklich sauberer wird oder ob das nur auf dem Papier steht, findet hier die Antwort.',
     trend: 'Seit 1990 sind die Gesamtemissionen der meisten Schadstoffe deutlich gesunken – bei Schwefeldioxid etwa um über 90 Prozent. Doch bei bestimmten Stoffen wie Ammoniak aus der Landwirtschaft oder Feinstaub aus Holzheizungen stagniert der Rückgang oder kehrt sich teilweise um.',
     context: 'Die EU-Richtlinie über nationale Emissionshöchstmengen (NEC-Richtlinie) schreibt Deutschland verbindliche Reduktionsziele bis 2030 vor – bei Ammoniak etwa minus 29 Prozent gegenüber 2005. Diese Daten entscheiden, ob Deutschland Vertragsverletzungsverfahren riskiert oder Förderprogramme neu ausrichten muss.',
@@ -294,7 +294,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_CROSS_PROJECTION_REPORT_CORE_INDICATORS_23: {
-    headline: 'Deutschland verfehlt seine Klimaziele – die Projektionsdaten zeigen wo.',
+    headline: 'Projektion 2023: Gebäude und Verkehr werden ihre Sektorziele bis 2030 verfehlen.',
     lead: 'Dieser Datensatz zeigt, wie sich Treibhausgasemissionen in Deutschland bis 2035 voraussichtlich entwickeln werden – aufgeschlüsselt nach Sektoren wie Verkehr, Gebäude, Industrie und Landwirtschaft. Wer verstehen will, ob Deutschland seine Klimaversprechen einhalten kann, findet hier die Zahlen dahinter.',
     trend: 'Die Projektionen des Umweltbundesamtes zeigen, dass Deutschland ohne zusätzliche Maßnahmen die gesetzlich festgelegten Sektorziele des Klimaschutzgesetzes bis 2030 nicht erreichen wird. Besonders der Gebäude- und der Verkehrssektor liegen deutlich hinter den erforderlichen Reduktionspfaden zurück, während der Energiesektor durch den beschleunigten Ausbau erneuerbarer Energien Fortschritte verzeichnet.',
     context: 'Das Klimaschutzgesetz verpflichtet Deutschland, die Treibhausgasemissionen bis 2030 um mindestens 65 Prozent gegenüber 1990 zu senken. Die Bundesregierung, das Parlament und die EU-Kommission nutzen diese Projektionsdaten als Grundlage für Entscheidungen über neue Gesetze, Förderprogramme und Investitionen – etwa im Bereich Wärmedämmung, Elektromobilität oder Industriedekarbonisierung.',
@@ -314,7 +314,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_CROSS_PROJECTION_REPORT_CORE_INDICATORS_26: {
-    headline: 'Deutschland verfehlt seine Klimaziele – die Projektionen zeigen, wie weit.',
+    headline: 'Projektion 2026: Die Lücke zu Deutschlands Klimazielen hat sich kaum geschlossen.',
     lead: 'Dieser Datensatz zeigt, wie sich die deutschen Treibhausgasemissionen bis in die 2040er Jahre entwickeln werden – aufgeteilt nach Sektoren wie Verkehr, Gebäude, Industrie und Landwirtschaft. Wer verstehen will, ob Deutschland seine Klimaversprechen einhalten kann, findet hier die Zahlengrundlage.',
     trend: 'Die Projektionen zeigen, dass Deutschland seinen Emissionsausstoß zwar schrittweise senkt, in mehreren Sektoren – besonders im Gebäude- und Verkehrsbereich – aber langsamer als geplant vorankommt. Ohne zusätzliche Maßnahmen reißt Deutschland die gesetzlich festgelegten Sektorziele für 2030 in mindestens zwei Bereichen. Die Lücke zwischen dem Zielpfad und der Projektion hat sich gegenüber früheren Berechnungen kaum geschlossen.',
     context: 'Das Bundes-Klimaschutzgesetz schreibt für jeden Sektor verbindliche Jahresemissionsmengen vor – wer die Vorgaben überschreitet, muss nachsteuern. Diese Projektionsdaten bilden die gesetzlich vorgeschriebene Grundlage, auf der Bundesministerien ihre Sofortprogramme planen und der Deutsche Bundestag politische Maßnahmen beschließt. Auch auf EU-Ebene fließen die Zahlen in die Berichterstattung unter der europäischen Klimaschutzverordnung ein.',
@@ -504,7 +504,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_ENV_ECON_ENERGY_CONSUMPTION: {
-    headline: 'Deutschlands Industrie verbraucht mehr Energie als jeder andere Sektor.',
+    headline: 'Deutschlands Gesamtenergieverbrauch sinkt – doch der Verkehr bleibt hartnäckig auf dem alten Niveau.',
     lead: 'Dieser Datensatz zeigt, wie viel Energie einzelne Wirtschaftsbereiche in Deutschland tatsächlich verbrauchen – von der Stahlindustrie bis zu privaten Haushalten. Wer verstehen will, wo Deutschland beim Klimaschutz ansetzen muss, findet hier die Grundlage: Nicht der Strom aus der Steckdose zählt, sondern der gesamte Energieeinsatz entlang der Produktion.',
     trend: 'Der Primärenergieverbrauch in Deutschland sinkt langfristig, vor allem seit dem Energiepreisschock 2022 hat die Industrie ihren Verbrauch spürbar gedrosselt. Gleichzeitig bleibt der Verkehrssektor hartnäckig auf hohem Niveau und bremst den Gesamtrückgang. Eine strukturelle Wende hin zu erneuerbaren Energien zeichnet sich in den Zahlen ab, vollzieht sich aber langsamer als politisch angestrebt.',
     context: 'Deutschland hat sich verpflichtet, den Primärenergieverbrauch bis 2030 gegenüber 2008 um 39 Prozent zu senken – ein Ziel, das das Energieeffizienzgesetz von 2023 verbindlich festschreibt. Diese Daten liefern die sektorale Aufschlüsselung, die Politikerinnen und Regulierer brauchen, um Maßnahmen gezielt dort einzusetzen, wo der Verbrauch nicht zurückgeht. Auch EU-Berichtspflichten im Rahmen der Energieeffizienzrichtlinie stützen sich auf solche Berechnungen.',
@@ -514,7 +514,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_ENV_ECON_ENERGY_USAGE: {
-    headline: 'Deutschlands Industrie verbraucht mehr Energie als jeder Klimaplan erlaubt.',
+    headline: 'Chemie und Stahl treiben Deutschlands Industrieenergieverbrauch – Gas bleibt der dominierende Brennstoff.',
     lead: 'Dieser Datensatz erfasst, wie viel Energie deutsche Unternehmen aus Kohle, Gas, Öl und anderen Quellen verbrauchen – aufgeschlüsselt nach Branche und Energieträger. Wer verstehen will, ob Deutschland seine Klimaziele erreicht, muss wissen, wo die Energie tatsächlich hinfließt.',
     trend: 'Der Energieverbrauch der Industrie ist zwar seit dem Krisenjahr 2022 leicht gesunken, doch der Rückgang beruht weniger auf echten Effizienzgewinnen als auf gedrosselter Produktion. Gasabhängige Sektoren wie Chemie und Stahl verbrauchen nach wie vor den Löwenanteil fossiler Brennstoffe.',
     context: 'Die Bundesregierung hat sich verpflichtet, den Primärenergieverbrauch bis 2030 gegenüber 2008 um 39 Prozent zu senken – ein Ziel, das Deutschland laut aktuellen Projektionen verfehlen wird. Industrielle Energiedaten sind die Grundlage für Emissionshandel, Förderprogramme und die Bewertung des Fortschritts unter dem Klimaschutzgesetz.',
@@ -534,7 +534,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_ENV_ECON_PROTECTION_EXPENDITURE: {
-    headline: 'Deutschland gibt jährlich Milliarden für Umweltschutz aus – aber reicht das?',
+    headline: 'Unternehmen tragen den Löwenanteil des deutschen Umweltschutzes – der Staat folgt erst.',
     lead: 'Dieser Datensatz erfasst, wie viel Staat, Unternehmen und Haushalte in Deutschland ausgeben, um die Umwelt zu schützen – von der Abwasserbehandlung bis zum Artenschutz. Wer verstehen will, ob Deutschland seinen ökologischen Herausforderungen finanziell gewachsen ist, findet hier die Grundlage.',
     trend: 'Die Umweltschutzausgaben in Deutschland sind über die vergangenen Jahrzehnte nominell gestiegen, wobei Unternehmen den größten Anteil tragen. Ob dieser Anstieg jedoch mit den wachsenden ökologischen Anforderungen – etwa durch den Klimawandel oder den Biodiversitätsverlust – Schritt hält, lässt sich erst im Verhältnis zur Wirtschaftsleistung und zu konkreten Umweltzielen beurteilen.',
     context: 'Die EU-Taxonomie, das deutsche Klimaschutzgesetz und internationale Abkommen wie das Kunming-Montreal-Abkommen zum Schutz der Biodiversität setzen konkrete Ziele, deren Erreichung erhebliche Investitionen voraussetzt. Politikerinnen und Politiker nutzen diese Daten, um Förderprogramme zu rechtfertigen, Haushaltsentscheidungen zu treffen und gegenüber der EU Rechenschaft abzulegen.',
@@ -544,7 +544,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_ENV_ECON_PROTECTION_EXPENDITURE_AREA: {
-    headline: 'Deutschland gibt jährlich Milliarden für Umweltschutz aus – aber reicht das?',
+    headline: 'Abwasser und Abfall schlucken zwei Drittel aller deutschen Umweltschutzausgaben.',
     lead: 'Dieser Datensatz erfasst, wie viel Staat, Unternehmen und Haushalte in Deutschland für den Schutz von Wasser, Luft, Artenvielfalt und weitere Umweltbereiche ausgeben – sowohl als Investitionen als auch als laufende Kosten. Wer wissen will, ob Klimaversprechen auch mit echtem Geld unterlegt sind, findet hier die Grundlage.',
     trend: 'Die Umweltschutzausgaben in Deutschland sind über die vergangenen Jahrzehnte insgesamt gestiegen, wobei Abwasserentsorgung und Abfallwirtschaft traditionell den größten Anteil beanspruchen. Ob diese Mittel im gleichen Tempo wachsen wie die gesetzlichen Anforderungen und ökologischen Schäden, lässt sich anhand der Zeitreihen direkt ablesen.',
     context: 'Die EU-Taxonomie für nachhaltige Finanzen, das Bundes-Klimaschutzgesetz und internationale Biodiversitätsziele wie das Kunming-Montreal-Abkommen setzen konkrete Ausgabenziele – dieser Datensatz zeigt, wie weit Deutschland davon entfernt ist oder ob es sie erfüllt. Politikerinnen und Politikerinnen nutzen solche Zahlen, um Haushaltsprioritäten zu begründen oder Förderprogramme zu evaluieren.',
@@ -554,7 +554,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_ENV_ECON_REVENUE_ENV_TAXES: {
-    headline: 'Deutschland nimmt jährlich Milliarden durch Umweltsteuern ein — doch reicht das?',
+    headline: 'CO₂-Zertifikate spülen Milliarden in den Staatshaushalt – und der Betrag wächst jedes Jahr.',
     lead: 'Dieser Datensatz erfasst, wie viel Geld der deutsche Staat durch Steuern auf Energie, Kraftstoffe und andere umweltbelastende Produkte einnimmt. Wer Strom verbraucht, tankt oder fliegt, zahlt diese Steuern — oft ohne es zu merken. Die Höhe dieser Einnahmen zeigt, wie stark der Staat Umweltkosten in den Alltag einpreist.',
     trend: 'Die Einnahmen aus umweltbezogenen Steuern sind in Deutschland über die vergangenen Jahrzehnte insgesamt gestiegen, getrieben vor allem durch Energie- und Stromsteuer. Seit der Einführung des EU-Emissionshandels fließen zusätzlich Milliarden aus der Versteigerung von CO₂-Zertifikaten in die Staatskasse — ein Posten, der mit steigendem CO₂-Preis weiter wächst. Kurzfristige Rückgänge, etwa durch gesunkenen Energieverbrauch oder politische Entlastungsmaßnahmen wie die Energiepreisbremsen 2022, können die Kurve jedoch vorübergehend dämpfen.',
     context: 'Die EU-Taxonomie und der europäische Green Deal setzen voraus, dass Mitgliedstaaten Umweltkosten konsequent in Preise einbauen — Umweltsteuern sind dafür ein zentrales Instrument. In Deutschland entscheidet der Bundestag, ob Einnahmen aus dem CO₂-Preis etwa in den Klimafonds fließen oder den Haushalt entlasten. Die Daten des Statistischen Bundesamts bilden die Grundlage für diese Verteilungsdebatte.',
@@ -875,7 +875,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_WATER_PUB_EXTRAC: {
-    headline: 'Deutschland zapft sein Grundwasser an — aber wie nachhaltig?',
+    headline: 'Deutschland entnimmt weniger Grundwasser – doch regionale Engpässe verschärfen sich.',
     lead: 'Dieser Datensatz misst, wie viel Wasser deutsche Wasserversorger aus der Erde und aus Oberflächengewässern holen, wie viele Menschen daran angeschlossen sind und wie viel Liter pro Kopf täglich fließen. Wer verstehen will, ob Deutschlands Trinkwasserversorgung dem Klimawandel standhält, findet hier die Grundlage.',
     trend: 'Seit den 1990er Jahren sinkt die Wasserentnahme in Deutschland trotz wachsender Bevölkerung — ein Zeichen gestiegener Effizienz in Haushalten und Industrie. Allerdings zeigen jüngere Erhebungszyklen ab 2016, dass heiße Trockensommer den Verbrauch kurzfristig nach oben treiben und den langfristigen Rückgang bremsen.',
     context: 'Kommunen, Länder und der Bund stützen ihre Wasserrechtsplanung und Investitionsentscheidungen direkt auf diese Daten. Die EU-Wasserrahmenrichtlinie verpflichtet Deutschland, Grundwasserkörper in einem guten mengenmäßigen Zustand zu erhalten — ob das gelingt, lässt sich ohne diese Erhebung nicht beurteilen.',

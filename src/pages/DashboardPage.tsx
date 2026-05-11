@@ -13,7 +13,15 @@ import { fetchData, fetchSingleDataflow } from '../api/sdmx'
 import { CubeMark } from '../components/CubeMark'
 import { SEO } from '../components/SEO'
 import { CATEGORIES } from '../utils/categories'
+import { DATASET_CONTENT } from '../data/datasetContent'
 import heroBg from '../assets/hero_background.png'
+
+// Count datasets per category from static content (no API call needed)
+const CATEGORY_COUNTS: Record<string, number> = {}
+for (const id of Object.keys(DATASET_CONTENT)) {
+  const cat = id.replace(/^DF_/, '').split('_')[0]
+  CATEGORY_COUNTS[cat] = (CATEGORY_COUNTS[cat] ?? 0) + 1
+}
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -334,7 +342,6 @@ function CategoryTile({ cat, count }: { cat: typeof CATEGORIES[0]; count: number
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function DashboardPage() {
-  const byCategory: Record<string, number> = {}
 
   return (
     <div className="max-w-[1200px] mx-auto px-5 py-10">
@@ -516,7 +523,7 @@ export default function DashboardPage() {
         className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3"
       >
         {CATEGORIES.map((cat) => (
-          <CategoryTile key={cat.id} cat={cat} count={byCategory[cat.id] ?? 0} />
+          <CategoryTile key={cat.id} cat={cat} count={CATEGORY_COUNTS[cat.id] ?? 0} />
         ))}
       </motion.div>
 

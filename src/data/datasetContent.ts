@@ -304,7 +304,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_CROSS_PROJECTION_REPORT_CORE_INDICATORS_25: {
-    headline: 'Deutschlands Klimaziele bis 2045: Projektionen zeigen, wo die Lücken klaffen.',
+    headline: 'Projektion 2025: Selbst mit zusätzlichen Maßnahmen verfehlt Deutschland das 65-Prozent-Ziel.',
     lead: 'Dieser Datensatz berechnet, wie sich die deutschen Treibhausgasemissionen bis 2045 entwickeln werden – aufgeschlüsselt nach Sektoren wie Energie, Verkehr, Gebäude und Landwirtschaft. Wer verstehen will, ob Deutschland seine Klimaversprechen tatsächlich einhalten kann, findet hier die Zahlen dahinter.',
     trend: 'Die Projektionen zeigen, dass Deutschland zwar auf einem Pfad sinkender Emissionen liegt, aber in mehreren Sektoren – insbesondere Verkehr und Gebäude – die gesetzlich festgelegten Jahresbudgets voraussichtlich überschreiten wird. Ohne zusätzliche politische Maßnahmen klafft eine messbare Lücke zwischen dem prognostizierten Verlauf und den Zielen des Klimaschutzgesetzes für 2030 und 2045.',
     context: 'Das Bundes-Klimaschutzgesetz verpflichtet Deutschland zur Klimaneutralität bis 2045 und legt verbindliche Emissionsbudgets für jeden Sektor fest. Diese Projektionsdaten liefern die Grundlage, auf der Bundesministerien Sofortprogramme beschließen oder verwerfen – sie entscheiden also direkt mit, ob strengere Gebäudesanierungspflichten oder ein Tempolimit auf die Tagesordnung kommen.',
@@ -896,7 +896,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_WASTE_VOL_PACKAGING_DISPOSAL: {
-    headline: 'Deutsche Verpackungsmengen steigen wieder – trotz jahrelanger Bemühungen.',
+    headline: 'Onlinehandel und Takeaway treiben Deutschlands Verpackungsmüll in die Höhe.',
     lead: 'Dieser Datensatz erfasst, wie viel Verpackungsmüll in Deutschland jedes Jahr zur Entsorgung anfällt – von Plastikfolien über Glasflaschen bis hin zu Kartons. Wer wissen will, ob Recyclingversprechen der Industrie und Verordnungen des Gesetzgebers tatsächlich etwas bewirken, findet hier die Antwort in Zahlen.',
     trend: 'Die Gesamtmenge der entsorgten Verpackungen ist in den vergangenen Jahren trotz zwischenzeitlicher Rückgänge – etwa während der Corona-Pandemie – langfristig gestiegen. Besonders Onlinehandel und Takeaway-Kultur treiben die Mengen an Kunststoff- und Verbundverpackungen nach oben. Eine nachhaltige Trendwende ist bislang nicht erkennbar.',
     context: 'Die EU-Verpackungsverordnung schreibt konkrete Reduktions- und Recyclingziele vor, die Deutschland bis 2030 erreichen muss. Das Verpackungsgesetz von 2019 verpflichtet Hersteller zur Systembeteiligung und setzt finanzielle Anreize für recyclingfreundliches Design – ob das reicht, lässt sich an diesem Datensatz ablesen. Kommunen, Verbraucherschützer und Industrieverbände streiten darüber, wer die Kosten der wachsenden Verpackungsflut trägt.',

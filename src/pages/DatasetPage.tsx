@@ -60,7 +60,9 @@ export default function DatasetPage() {
   const [timeValues, setTimeValues] = useState<string[]>([])
   const [dims, setDims] = useState<Dimension[]>([])
   const [selectedSeries, setSelectedSeries] = useState<Set<string>>(new Set())
-  const [filters, setFilters] = useState<Record<string, string>>({})
+  const [filters, setFilters] = useState<Record<string, string>>(
+    () => (id ? getDatasetContent(decodeURIComponent(id))?.defaultChartConfig?.defaultFilters ?? {} : {})
+  )
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   useEffect(() => {
@@ -100,6 +102,7 @@ export default function DatasetPage() {
   const labelOverrides = content?.labelOverrides ?? {}
   const defaultChartConfig = content?.defaultChartConfig ?? null
   const isStacked = defaultChartConfig?.type === 'stacked'
+  const defaultFilters = defaultChartConfig?.defaultFilters ?? {}
 
   const applyLabelOverride = useCallback((val: string) => labelOverrides[val] ?? val, [labelOverrides])
 
@@ -127,15 +130,19 @@ export default function DatasetPage() {
         )
       : Array.from(selectedSeries)
 
+    const filteredDimValues = new Set(Object.values(defaultFilters))
+
     return timeValues.map((year) => {
       const point: Record<string, any> = { year }
       let hasData = false
       for (const key of activeKeys) {
         const s = seriesMap[key]
         if (s) {
-          const shortVals = varyingDimIndices.length > 0
-            ? varyingDimIndices.map(i => s.dimValues[i]).filter(Boolean)
-            : s.dimValues
+          const shortVals = isStacked
+            ? s.dimValues.filter(v => !filteredDimValues.has(v))
+            : varyingDimIndices.length > 0
+              ? varyingDimIndices.map(i => s.dimValues[i]).filter(Boolean)
+              : s.dimValues
           const label = shortVals.map(applyLabelOverride).join(' · ') || s.dimValues.map(applyLabelOverride).join(' · ') || key
           const val = s.observations[year] ?? null
           point[label] = val
@@ -144,7 +151,7 @@ export default function DatasetPage() {
       }
       return { point, hasData }
     }).filter(d => d.hasData).map(d => d.point)
-  }, [timeValues, selectedSeries, seriesMap, varyingDimIndices, applyLabelOverride, isStacked, filters, dims])
+  }, [timeValues, selectedSeries, seriesMap, varyingDimIndices, applyLabelOverride, isStacked, filters, dims, defaultFilters])
 
   const filteredSeries = useMemo(() => {
     return Object.entries(seriesMap).filter(([_, s]) =>

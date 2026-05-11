@@ -225,6 +225,17 @@ export default function DatasetPage() {
         title={flow.name}
         description={`${flow.name} — Umweltdatensatz des Umweltbundesamts. Interaktive Zeitreihen, Trends und Rohdaten.`}
         path={`/dataset/${encodeURIComponent(flow.id)}`}
+        jsonLd={{
+          '@context': 'https://schema.org',
+          '@type': 'Dataset',
+          name: flow.name,
+          description: flow.description || `${flow.name} — Umweltdatensatz des Umweltbundesamts.`,
+          url: `https://www.umweltpuls.de/dataset/${encodeURIComponent(flow.id)}`,
+          creator: { '@type': 'Organization', name: 'Umweltbundesamt', url: 'https://www.umweltbundesamt.de' },
+          publisher: { '@type': 'Organization', name: 'Umweltpuls', url: 'https://www.umweltpuls.de' },
+          inLanguage: 'de-DE',
+          license: 'https://www.govdata.de/dl-de/by-2-0',
+        }}
       />
       {/* ── Breadcrumb ───────────────────────────────────────────────────── */}
       <div className="flex items-center gap-2 text-[12px] text-slate-400 mb-5">

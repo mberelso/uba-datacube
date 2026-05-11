@@ -63,6 +63,29 @@ async function fetchDataSeries(
   return result
 }
 
+/** Average all matching CSV series per year (for multi-station datasets). */
+async function fetchCsvAveraged(
+  flowId: string,
+  version: string,
+  filters: Record<string, string> = {},
+): Promise<TimePoint[]> {
+  const csv = await fetchCsvSeries(flowId, version)
+  const acc: Record<string, number[]> = {}
+  for (const { codes, colIds, obs } of Object.values(csv)) {
+    const matches = Object.entries(filters).every(([dimId, code]) => {
+      const idx = colIds.indexOf(dimId)
+      return idx !== -1 && codes[idx] === code
+    })
+    if (Object.keys(filters).length > 0 && !matches) continue
+    for (const [year, val] of Object.entries(obs)) {
+      if (val != null && !isNaN(val)) (acc[year] ??= []).push(val)
+    }
+  }
+  return Object.entries(acc)
+    .map(([year, vs]) => ({ year, value: +(vs.reduce((a, b) => a + b, 0) / vs.length).toFixed(2) }))
+    .sort((a, b) => a.year.localeCompare(b.year))
+}
+
 /** Extract a single series from CSV matching all given dim code filters. */
 async function fetchDataSingleSeries(
   flowId: string,
@@ -623,7 +646,7 @@ function GreenMobilityChart() {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 function WaterTempChart() {
-  const { data, loading, error } = useData(() => fetchAveragedSeries('UBA,DF_DAS_WASSER_WW_I_10,1.0'))
+  const { data, loading, error } = useData(() => fetchCsvAveraged('DF_DAS_WASSER_WW_I_10', '1.0'))
   const pts = data as TimePoint[] | null
   const latest = pts?.[pts.length - 1]
 
@@ -647,7 +670,7 @@ function WaterTempChart() {
 }
 
 function RiverDischargeChart() {
-  const { data, loading, error } = useData(() => fetchAveragedSeries('UBA,DF_DAS_WASSER_WW_I_3,1.0'))
+  const { data, loading, error } = useData(() => fetchCsvAveraged('DF_DAS_WASSER_WW_I_3', '1.0'))
   const pts = data as TimePoint[] | null
   const latest = pts?.[pts.length - 1]
 

@@ -3,6 +3,7 @@ import { FallbackChart, type ChartProps } from './FallbackChart'
 import { ClimateChart } from './ClimateChart'
 import { EconomyChart } from './EconomyChart'
 import { StackedAreaChart, type StackedSeriesConfig } from './StackedAreaChart'
+import { GermanyMap } from './GermanyMap'
 
 export interface ChartRendererProps extends ChartProps {
   flow: Dataflow
@@ -10,12 +11,17 @@ export interface ChartRendererProps extends ChartProps {
 }
 
 const CLIMATE_CATEGORIES = new Set(['CLIMATE', 'CROSS'])
+const MAP_DATASETS = new Set(['DF_AREA_SOIL_LAND_ECOSYSTEMS_AREA'])
 
 export function ChartRenderer(props: ChartRendererProps) {
   const { flow, chartData, activeSeriesList, chartType, stackedSeries } = props
 
   if (stackedSeries) {
     return <StackedAreaChart chartData={chartData} seriesConfig={stackedSeries} />
+  }
+
+  if (MAP_DATASETS.has(flow.id)) {
+    return <GermanyMap />
   }
 
   if (CLIMATE_CATEGORIES.has(flow.category)) {

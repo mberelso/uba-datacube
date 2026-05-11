@@ -139,6 +139,25 @@ export async function fetchDataflows(): Promise<Dataflow[]> {
   }))
 }
 
+export async function fetchSingleDataflow(id: string): Promise<Dataflow> {
+  const r = await fetch(`${BASE}/dataflow/UBA/${id}/latest`, {
+    headers: { Accept: 'application/json' },
+  })
+  if (!r.ok) throw new Error(`Datensatz nicht gefunden (${r.status})`)
+  const json = await r.json()
+  const refs: Record<string, any> = json.references ?? {}
+  const df = Object.values(refs).find((v: any) => v.id === id) ?? Object.values(refs)[0] as any
+  if (!df) throw new Error('Datensatz nicht gefunden')
+  return {
+    id: df.id ?? id,
+    name: df.name ?? id,
+    description: (df.description ?? '').replace(/<[^>]+>/g, ''),
+    agencyID: df.agencyID ?? 'UBA',
+    version: df.version ?? '1.0',
+    category: categoryFromId(df.id ?? id),
+  }
+}
+
 export async function fetchStructure(flow: Dataflow): Promise<DatasetStructure> {
   const r = await fetch(
     `${BASE}/dataflow/${flow.agencyID}/${flow.id}/latest?references=datastructure`,

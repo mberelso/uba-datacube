@@ -6,7 +6,7 @@ import {
   MagnifyingGlass, Funnel, CaretDown, Check,
 } from '@phosphor-icons/react'
 
-import { fetchDataflows, fetchData, type Dataflow, type Dimension } from '../api/sdmx'
+import { fetchSingleDataflow, fetchData, type Dataflow, type Dimension } from '../api/sdmx'
 import { getCategoryMeta } from '../utils/categories'
 import ForestFiresAnalysis from '../components/ForestFiresAnalysis'
 import { DatasetPresets } from '../components/DatasetPresets'
@@ -69,10 +69,8 @@ export default function DatasetPage() {
     if (!id) return
     setLoading(true)
     setError('')
-    fetchDataflows()
-      .then((flows) => {
-        const f = flows.find((fl) => fl.id === decodeURIComponent(id))
-        if (!f) throw new Error('Datensatz nicht gefunden')
+    fetchSingleDataflow(decodeURIComponent(id))
+      .then((f) => {
         setFlow(f)
         return fetchData(f)
       })

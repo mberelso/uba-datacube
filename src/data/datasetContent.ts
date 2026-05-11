@@ -641,6 +641,33 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
     context: 'Deutschland hat sich verpflichtet, die Treibhausgasemissionen im Verkehr bis 2030 gegenüber 1990 um 48 Prozent zu senken – ein Ziel, das nach aktuellem Stand deutlich verfehlt wird. Ob Maßnahmen wie das Hochlaufen der Elektromobilität, das Deutschlandticket oder der Ausbau des Schienennetzes tatsächlich den Energiemix verschieben, lässt sich an diesen Zahlen direkt ablesen.',
     methodology: 'Gemessen wird der Endenergieverbrauch im Verkehr in Deutschland nach Kraftstofftyp, basierend auf Daten des Kraftfahrt-Bundesamts, zusammengestellt vom Bundesministerium für Digitales und Verkehr. Der Datensatz erfasst den inländischen Verbrauch, schließt aber den internationalen Luftverkehr nur teilweise ein, was die Gesamtbilanz des Sektors unterschätzen kann.',
     status: 'draft',
+    labelOverrides: {
+      'Ottokraftstoff': 'Benzin',
+      'Gasoline': 'Benzin',
+      'Dieselkraftstoff': 'Diesel',
+      'Diesel fuel': 'Diesel',
+      'Flugkraftstoffe': 'Kerosin',
+      'Aviation fuels': 'Kerosin',
+      'vollelektrische Antriebe (Strommix?)': 'Strom (BEV)',
+      'all-electric propulsion systems (electricity mix?)': 'Strom (BEV)',
+      'reine Elektro- und Elektro-Hybrid-Antriebe': 'Elektro & Hybrid',
+      'all-electric and electric-hybrid propulsion systems': 'Elektro & Hybrid',
+      'Gase (gasförmig/flüssig)': 'Erdgas/Autogas',
+      'Gases (gaseous, liquid)': 'Erdgas/Autogas',
+      'Alle Kraftstoffe (inkl. Strom)': 'Gesamt',
+      'All fuel types (incl. electricity)': 'Gesamt',
+    },
+    defaultChartConfig: {
+      type: 'stacked',
+      defaultFilters: {},
+      stackedSeries: [
+        { label: 'Diesel',          color: '#6b7280' },
+        { label: 'Benzin',          color: '#9ca3af' },
+        { label: 'Kerosin',         color: '#d1d5db' },
+        { label: 'Erdgas/Autogas',  color: '#a3e635' },
+        { label: 'Strom (BEV)',     color: '#16a34a' },
+      ],
+    },
   },
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
@@ -797,6 +824,25 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
     context: 'Deutschland hat sich verpflichtet, die Treibhausgasemissionen im Verkehrssektor bis 2030 auf 85 Millionen Tonnen CO₂-Äquivalente zu senken – ein Ziel, das der Sektor bislang verfehlt. Ob Elektromobilität, Tempolimit oder Ausbau des Schienenverkehrs tatsächlich wirken, lässt sich nur beurteilen, wenn die Gesamtfahrleistung als Bezugsgröße bekannt ist. Verkehrspolitische Entscheidungen auf Bundes- und Landesebene stützen sich direkt auf diese Zahlen.',
     methodology: 'Gemessen wird die jährliche Fahrleistung in Kilometer je Fahrzeugkategorie, erhoben vom Kraftfahrt-Bundesamt auf Basis von Zulassungsdaten und Hochrechnungen. Die Werte sind Schätzungen mit methodischen Unsicherheiten – insbesondere bei seltener genutzten Fahrzeugklassen können die tatsächlichen Kilometerleistungen abweichen.',
     status: 'draft',
+    labelOverrides: {
+      'PKW': 'Pkw',
+      'LKW': 'Lkw',
+      'BUS': 'Busse',
+      'MZR': 'Motorräder',
+      'Sonstige Kraftfahzeuge': 'Sonstige',
+      'Gesamt': 'Gesamt',
+    },
+    defaultChartConfig: {
+      type: 'stacked',
+      defaultFilters: { 'D_UNIT': 'Milliarden Kilometer' },
+      stackedSeries: [
+        { label: 'Pkw',       color: '#6b7280' },
+        { label: 'Lkw',       color: '#9ca3af' },
+        { label: 'Busse',     color: '#3b82f6' },
+        { label: 'Motorräder', color: '#f59e0b' },
+        { label: 'Sonstige',  color: '#d1d5db' },
+      ],
+    },
   },
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'

@@ -46,7 +46,7 @@ const HIGHLIGHTS: HighlightConfig[] = [
   },
   {
     flowId: 'DF_CLIMATE_EMISSIONS_GHG_TRENDS',
-    key: 'DE.A.MT_CO2EQ.GESAMT.MT_CO2EQ',
+    key: 'DE.A.TOTAL.GHG.MT_CO2_EQ',
     title: 'Treibhausgase',
     subtitle: 'Gesamtemissionen nach UNFCCC',
     Icon: Factory,
@@ -66,7 +66,7 @@ const HIGHLIGHTS: HighlightConfig[] = [
   },
   {
     flowId: 'DF_AGRICULTURE_FORESTRY_FOREST_FIRE_AREA',
-    key: 'DE.A.HA.GESAMT.HA',
+    key: 'DE.A.HA.A.FA',
     title: 'Waldbrandfläche',
     subtitle: 'Jährliche Brandfläche in Deutschland',
     Icon: Fire,

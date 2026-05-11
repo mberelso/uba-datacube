@@ -125,11 +125,16 @@ export default function DatasetPage() {
     if (!timeValues.length) return []
 
     if (isStacked) {
-      // Build one entry per stackedSeries label — find matching series by translated label
+      // Required raw dimValues from defaultFilters (e.g. 'Passenger car' must appear in dimValues)
+      const requiredRawVals = new Set(Object.values(defaultChartConfig!.defaultFilters ?? {}))
+      // Build label → seriesKey map: series must contain all required raw vals AND exactly one stacked label
       const labelToKey: Record<string, string> = {}
       for (const [key, s] of Object.entries(seriesMap)) {
-        const translatedLabel = s.dimValues.map(applyLabelOverride).find(v => stackedLabels.has(v))
-        if (translatedLabel) labelToKey[translatedLabel] = key
+        const hasRequiredVals = requiredRawVals.size === 0 || [...requiredRawVals].every(v => s.dimValues.includes(v))
+        if (!hasRequiredVals) continue
+        const translatedVals = s.dimValues.map(applyLabelOverride)
+        const matchingLabel = translatedVals.find(v => stackedLabels.has(v))
+        if (matchingLabel && !labelToKey[matchingLabel]) labelToKey[matchingLabel] = key
       }
       return timeValues.map(year => {
         const point: Record<string, any> = { year }

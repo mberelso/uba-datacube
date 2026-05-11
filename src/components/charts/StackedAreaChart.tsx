@@ -15,6 +15,8 @@ interface Props {
 }
 
 export function StackedAreaChart({ chartData, seriesConfig }: Props) {
+  console.log('[StackedAreaChart] chartData length:', chartData.length, 'first point:', chartData[0])
+  console.log('[StackedAreaChart] seriesConfig labels:', seriesConfig.map(s => s.label))
   return (
     <ResponsiveContainer width="100%" height={380}>
       <AreaChart data={chartData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>

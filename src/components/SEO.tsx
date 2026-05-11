@@ -3,7 +3,7 @@ import { Helmet } from 'react-helmet-async'
 const SITE_NAME = 'Umweltpuls'
 const SITE_URL = 'https://www.umweltpuls.de'
 const DEFAULT_DESCRIPTION = 'Aktuelle Umweltdaten für Deutschland — Klimadaten, Emissionstrends und Umweltindikatoren des Umweltbundesamts, interaktiv aufbereitet.'
-const DEFAULT_IMAGE = `${SITE_URL}/og-image.svg`
+const DEFAULT_IMAGE = `${SITE_URL}/og-image.png`
 
 interface SEOProps {
   title?: string

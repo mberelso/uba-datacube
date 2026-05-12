@@ -39,16 +39,18 @@ export default defineConfig({
     react(),
     tailwindcss(),
     {
-      name: 'copy-404',
-      closeBundle() {
-        copyFileSync('dist/index.html', 'dist/404.html')
-      },
-    },
-    {
       name: 'generate-sitemap',
       closeBundle() {
         const sitemap = generateSitemap()
         writeFileSync('dist/sitemap.xml', sitemap, 'utf-8')
+      },
+    },
+    {
+      // dist/404.html = copy of homepage for GitHub Pages SPA fallback
+      // (after prerender this still covers any unlisted routes)
+      name: 'copy-404',
+      closeBundle() {
+        copyFileSync('dist/index.html', 'dist/404.html')
       },
     },
   ],

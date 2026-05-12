@@ -21,6 +21,12 @@ jobs:
           node-version: 24
           cache: npm
 
+      - name: Install Chromium for prerender
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y chromium-browser
+          echo "CHROMIUM_PATH=$(which chromium-browser)" >> $GITHUB_ENV
+
       - run: npm ci
       - run: npm run build
 

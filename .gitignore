@@ -22,10 +22,11 @@ dist-ssr
 *.njsproj
 *.sln
 
-# Superpowers
+# Superpowers / Claude local
 artifacts/
 gemini-superpowers-antigravity/
 scratch/
-.agent/.agents/
+.agent/
+.claude/
 .agents/
 skills-lock.json

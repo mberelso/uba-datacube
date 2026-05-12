@@ -11,3 +11,6 @@ createRoot(document.getElementById('root')!).render(
     </HelmetProvider>
   </StrictMode>,
 )
+
+// Signal to the prerenderer that React + Helmet have finished rendering
+document.documentElement.dataset.prerenderReady = 'true'

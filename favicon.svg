@@ -1,28 +1,21 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none">
-  <!-- Background -->
   <rect width="64" height="64" rx="14" fill="#1B2B3A"/>
-  <!-- Isometric cube, centered, size=18 -->
-  <!-- h = 18 * 0.577 = 10.386 -->
-  <!-- total cube height = h*2 + s = 20.77 + 18 = 38.77 -->
-  <!-- center at 32,32 → offset x: 32-18=14, offset y: 32-19.39=12.61 -->
-  <!-- Top face: s,0  s*2,h  s,h*2  0,h  → shifted by (14, 13) -->
+  <!-- Top face — brightest, most visible -->
   <polygon
-    points="32,13 50,23.386 32,33.772 14,23.386"
-    fill="white" fill-opacity="0.13"
-    stroke="white" stroke-width="1.2" stroke-linejoin="round"
+    points="32,11 52,22.386 32,33.772 12,22.386"
+    fill="#7A9BAD" fill-opacity="0.55"
+    stroke="#A8C4D0" stroke-width="1.4" stroke-linejoin="round"
   />
   <!-- Left face -->
   <polygon
-    points="14,23.386 32,33.772 32,51.772 14,41.386"
-    fill="white" fill-opacity="0.22"
-    stroke="white" stroke-width="1.2" stroke-linejoin="round"
+    points="12,22.386 32,33.772 32,53.772 12,42.386"
+    fill="#4A6741" fill-opacity="0.85"
+    stroke="#5E8053" stroke-width="1.4" stroke-linejoin="round"
   />
   <!-- Right face -->
   <polygon
-    points="50,23.386 32,33.772 32,51.772 50,41.386"
-    fill="white" fill-opacity="0.08"
-    stroke="white" stroke-width="1.2" stroke-linejoin="round"
+    points="52,22.386 32,33.772 32,53.772 52,42.386"
+    fill="#3D5A6E" fill-opacity="0.9"
+    stroke="#4E7289" stroke-width="1.4" stroke-linejoin="round"
   />
-  <!-- Accent dot -->
-  <circle cx="32" cy="35.4" r="2.8" fill="#4A6741"/>
 </svg>

@@ -45,7 +45,6 @@ export function ExportModal({
   }
 
   const title = content?.displayName ?? flow.name
-  const unit = content?.methodology ? undefined : undefined // unit field not yet in DatasetContent
 
   return (
     // Backdrop

@@ -134,17 +134,19 @@ function Section({ title, icon, color, children }: { title: string; icon: string
         <span style={{ fontSize: 24 }}>{icon}</span>
         <h2 style={{ fontSize: 20, fontWeight: 800, color: '#1e293b', margin: 0 }}>{title}</h2>
       </div>
-      <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
+      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
         {children}
       </div>
     </div>
   )
 }
 
-function ChartCard({ title, subtitle, kpi, kpiUnit, kpiYear, trend, color, loading, error, height = 200, flowId, children }: {
+function ChartCard({ title, subtitle, kpi, kpiUnit, kpiYear, trend, color, loading, error, height = 220, flowId, source, children }: {
   title: string; subtitle: string
   kpi?: number; kpiUnit?: string; kpiYear?: string; trend?: number
-  color: string; loading: boolean; error?: boolean; height?: number; flowId?: string; children: ReactNode
+  color: string; loading: boolean; error?: boolean; height?: number; flowId?: string
+  source?: string
+  children: ReactNode
 }) {
   return (
     <div style={{ background: '#fff', borderRadius: 12, border: '1.5px solid #e2e8f0',
@@ -173,16 +175,19 @@ function ChartCard({ title, subtitle, kpi, kpiUnit, kpiYear, trend, color, loadi
           ? <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#f87171', fontSize: 12 }}>Daten konnten nicht geladen werden.</div>
           : (children ? children : <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#94a3b8', fontSize: 12 }}>Keine Daten verfügbar.</div>)}
       </div>
-      {flowId && (
-        <div className="px-4 pb-3 text-right">
+      <div className="px-4 pb-3 flex justify-between items-end gap-2">
+        {source
+          ? <span style={{ fontSize: 10, color: '#94a3b8', lineHeight: 1.4 }}>{source}</span>
+          : <span />}
+        {flowId && (
           <Link
             to={`/dataset/${encodeURIComponent(flowId)}`}
-            style={{ fontSize: 11, color: '#1e3a5f', textDecoration: 'none', fontWeight: 500, opacity: 0.8 }}
+            style={{ fontSize: 11, color: '#1e3a5f', textDecoration: 'none', fontWeight: 500, opacity: 0.8, whiteSpace: 'nowrap' }}
           >
             → Rohdaten erkunden
           </Link>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   )
 }
@@ -229,21 +234,36 @@ function TemperatureChart() {
   const anomaly = latest ? latest.value - TEMP_BASELINE : undefined
   const prevAnomaly = pts && pts.length >= 2 ? pts[pts.length - 2].value - TEMP_BASELINE : undefined
   const chartData = pts?.map(p => ({ year: p.year, anomaly: +(p.value - TEMP_BASELINE).toFixed(2) }))
+  const xInterval = chartData ? Math.max(1, Math.floor(chartData.length / 7)) : 19
 
   return (
-    <ChartCard title="Temperaturanomalie Deutschland" subtitle="Abweichung vom Referenzmittel 1961–1990 (8,2 °C) · Ø aller Bundesländer"
+    <ChartCard
+      title="Temperaturanomalie Deutschland"
+      subtitle="Abweichung vom Referenzmittel 1961–1990 (8,2 °C) · Ø aller Bundesländer"
       kpi={anomaly} kpiUnit="°C Anomalie" kpiYear={latest?.year}
       trend={anomaly != null && prevAnomaly != null ? anomaly - prevAnomaly : undefined}
-      color="#dc2626" loading={loading} error={error} flowId="DF_CLIMATE_GERMANY_TEMPERATURE_MEAN">
+      color="#dc2626" loading={loading} error={error}
+      flowId="DF_CLIMATE_GERMANY_TEMPERATURE_MEAN"
+      source="Quelle: Umweltbundesamt / Deutscher Wetterdienst"
+    >
       <ResponsiveContainer width="100%" height="100%">
-        <ComposedChart data={chartData} margin={{ top: 4, right: 10, left: -24, bottom: 0 }}>
+        <ComposedChart data={chartData} margin={{ top: 8, right: 12, left: 8, bottom: 4 }}>
           <Grad id="tGrad" color="#dc2626" />
           <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-          <XAxis dataKey="year" tick={{ fontSize: 9 }} interval={19} />
-          <YAxis tick={{ fontSize: 9 }} unit="°C" domain={[-2.5, 4]} />
+          <XAxis
+            dataKey="year"
+            tick={{ fontSize: 11, fill: '#64748b' }}
+            interval={xInterval}
+          />
+          <YAxis
+            tick={{ fontSize: 11, fill: '#64748b' }}
+            domain={[-2.5, 4]}
+            tickFormatter={v => `${v > 0 ? '+' : ''}${v}`}
+            width={36}
+          />
           <Tooltip content={<TT unit="°C" />} />
           <ReferenceLine y={0} stroke="#94a3b8" strokeDasharray="4 2"
-            label={{ value: 'Referenz 1961–90', position: 'insideTopLeft', fontSize: 9, fill: '#94a3b8' }} />
+            label={{ value: 'Referenz 1961–90', position: 'insideTopLeft', fontSize: 10, fill: '#94a3b8' }} />
           <Area type="monotone" dataKey="anomaly" stroke="#dc2626" strokeWidth={1.5}
             fill="url(#tGrad)" dot={false} connectNulls name="Anomalie" />
         </ComposedChart>
@@ -262,18 +282,20 @@ function HotDaysChart() {
   const color = (v: number) =>
     v >= 20 ? '#7f1d1d' : v >= 15 ? '#dc2626' : v >= 10 ? '#ef4444' : v >= 6 ? '#f97316' : v >= 3 ? '#fb923c' : '#fbbf24'
 
+  const xInterval = pts ? Math.max(1, Math.floor(pts.length / 7)) : 4
   return (
     <ChartCard title="Heißtage pro Jahr" subtitle="Tage mit Tmax > 30 °C · Ø aller Bundesländer · farbkodiert nach Intensität"
       kpi={latest?.value} kpiUnit="Tage" kpiYear={latest?.year}
-      color="#d97706" loading={loading} error={error} flowId="DF_CLIMATE_GERMANY_HOT_DAYS">
+      color="#d97706" loading={loading} error={error}
+      flowId="DF_CLIMATE_GERMANY_HOT_DAYS" source="Quelle: Umweltbundesamt / Deutscher Wetterdienst">
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={pts ?? []} margin={{ top: 4, right: 10, left: -24, bottom: 0 }}>
+        <BarChart data={pts ?? []} margin={{ top: 16, right: 12, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
-          <XAxis dataKey="year" tick={{ fontSize: 9 }} interval={4} />
-          <YAxis tick={{ fontSize: 9 }} unit=" d" />
+          <XAxis dataKey="year" tick={{ fontSize: 11, fill: '#64748b' }} interval={xInterval} />
+          <YAxis tick={{ fontSize: 11, fill: '#64748b' }} unit=" d" width={36} />
           <Tooltip content={<TT unit="Tage" />} />
           {baseline != null && <ReferenceLine y={baseline} stroke="#94a3b8" strokeDasharray="4 2"
-            label={{ value: `Ø 1951–80: ${fmt(baseline, 1)} d`, position: 'insideTopRight', fontSize: 9, fill: '#94a3b8' }} />}
+            label={{ value: `Ø 1951–80: ${fmt(baseline, 1)} d`, position: 'insideTopRight', fontSize: 10, fill: '#94a3b8' }} />}
           <Bar dataKey="value" radius={[2, 2, 0, 0]} name="Heißtage">
             {pts?.map(e => <Cell key={e.year} fill={color(e.value)} />)}
           </Bar>
@@ -291,19 +313,21 @@ function PrecipitationChart() {
   const baseline = pts?.filter(p => +p.year >= 1961 && +p.year <= 1990)
     .reduce((s, p, _, arr) => s + p.value / arr.length, 0)
 
+  const xInterval = pts ? Math.max(1, Math.floor(pts.length / 7)) : 19
   return (
     <ChartCard title="Jahresniederschlag Deutschland" subtitle="Ø aller Bundesländer (mm) · 1881–2025"
       kpi={latest?.value} kpiUnit="mm" kpiYear={latest?.year}
-      color="#0369a1" loading={loading} error={error} flowId="DF_CLIMATE_GERMANY_PRECIPATION">
+      color="#0369a1" loading={loading} error={error}
+      flowId="DF_CLIMATE_GERMANY_PRECIPATION" source="Quelle: Umweltbundesamt / Deutscher Wetterdienst">
       <ResponsiveContainer width="100%" height="100%">
-        <ComposedChart data={pts ?? []} margin={{ top: 4, right: 10, left: -24, bottom: 0 }}>
+        <ComposedChart data={pts ?? []} margin={{ top: 16, right: 12, left: 0, bottom: 0 }}>
           <Grad id="pGrad" color="#0369a1" />
           <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-          <XAxis dataKey="year" tick={{ fontSize: 9 }} interval={19} />
-          <YAxis tick={{ fontSize: 9 }} unit=" mm" domain={[400, 1100]} />
+          <XAxis dataKey="year" tick={{ fontSize: 11, fill: '#64748b' }} interval={xInterval} />
+          <YAxis tick={{ fontSize: 11, fill: '#64748b' }} unit=" mm" domain={[400, 1100]} width={44} />
           <Tooltip content={<TT unit="mm" />} />
           {baseline != null && <ReferenceLine y={baseline} stroke="#94a3b8" strokeDasharray="4 2"
-            label={{ value: `Ø 1961–90: ${fmt(baseline, 0)} mm`, position: 'insideBottomRight', fontSize: 9, fill: '#94a3b8' }} />}
+            label={{ value: `Ø 1961–90: ${fmt(baseline, 0)} mm`, position: 'insideBottomRight', fontSize: 10, fill: '#94a3b8' }} />}
           <Area type="monotone" dataKey="value" stroke="#0369a1" strokeWidth={1.5}
             fill="url(#pGrad)" dot={false} connectNulls name="Niederschlag" />
         </ComposedChart>
@@ -325,16 +349,17 @@ function RenewableShareChart() {
   return (
     <ChartCard title="Anteil Erneuerbarer Energien" subtitle="Am Brutto-Endenergieverbrauch (RED-Methodik)"
       kpi={latest?.value} kpiUnit="%" kpiYear={latest?.year}
-      color="#16a34a" loading={loading} error={error} flowId="DF_ENERGY_AGEE_SHARE">
+      color="#16a34a" loading={loading} error={error}
+      flowId="DF_ENERGY_AGEE_SHARE" source="Quelle: Umweltbundesamt / AGEE-Stat">
       <ResponsiveContainer width="100%" height="100%">
-        <AreaChart data={pts ?? []} margin={{ top: 4, right: 10, left: -24, bottom: 0 }}>
+        <AreaChart data={pts ?? []} margin={{ top: 16, right: 12, left: 0, bottom: 0 }}>
           <Grad id="eeGrad" color="#16a34a" />
           <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-          <XAxis dataKey="year" tick={{ fontSize: 9 }} />
-          <YAxis tick={{ fontSize: 9 }} unit=" %" domain={[0, 50]} />
+          <XAxis dataKey="year" tick={{ fontSize: 11, fill: '#64748b' }} />
+          <YAxis tick={{ fontSize: 11, fill: '#64748b' }} unit=" %" domain={[0, 50]} width={36} />
           <Tooltip content={<TT unit="%" />} />
           <ReferenceLine y={42.5} stroke="#15803d" strokeDasharray="5 3"
-            label={{ value: 'EU-Ziel 2030: 42,5 %', position: 'insideTopLeft', fontSize: 9, fill: '#15803d' }} />
+            label={{ value: 'EU-Ziel 2030: 42,5 %', position: 'insideTopLeft', fontSize: 10, fill: '#15803d' }} />
           <Area type="monotone" dataKey="value" stroke="#16a34a" strokeWidth={2}
             fill="url(#eeGrad)" dot={{ r: 3, fill: '#16a34a' }} connectNulls name="EE-Anteil" />
         </AreaChart>
@@ -366,12 +391,13 @@ function ElectricCarChart() {
   return (
     <ChartCard title="Pkw-Bestand nach Antriebsart" subtitle="Millionen Fahrzeuge (Stichtag 1. Januar)"
       kpi={latestBEV} kpiUnit="Mio. BEV" kpiYear={data?.[data.length - 1]?.year}
-      color="#0284c7" loading={loading} error={error} flowId="DF_TRANSPORT_VEHICLE_STOCK_TREND_FUEL">
+      color="#0284c7" loading={loading} error={error}
+      flowId="DF_TRANSPORT_VEHICLE_STOCK_TREND_FUEL" source="Quelle: Umweltbundesamt / Kraftfahrt-Bundesamt">
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={data ?? []} margin={{ top: 4, right: 10, left: -18, bottom: 0 }}>
+        <LineChart data={data ?? []} margin={{ top: 16, right: 12, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-          <XAxis dataKey="year" tick={{ fontSize: 9 }} />
-          <YAxis tick={{ fontSize: 9 }} unit=" Mio." />
+          <XAxis dataKey="year" tick={{ fontSize: 11, fill: '#64748b' }} />
+          <YAxis tick={{ fontSize: 11, fill: '#64748b' }} unit=" Mio." width={40} />
           <Tooltip content={<TT unit="Mio." />} />
           <Legend wrapperStyle={{ fontSize: 11 }} />
           <Line type="monotone" dataKey="BEV" stroke="#0284c7" strokeWidth={2.5} dot={{ r: 3 }} connectNulls />
@@ -395,13 +421,14 @@ function FuelConsumptionChart() {
     <ChartCard title="Kraftstoffverbrauch Pkw" subtitle="Durchschnittlicher Verbrauch im Straßenverkehr (L/100 km)"
       kpi={latest?.value} kpiUnit="L/100 km" kpiYear={latest?.year}
       trend={first && latest ? latest.value - first.value : undefined}
-      color="#b45309" loading={loading} error={error} flowId="DF_TRANSPORT_ENERGY_FUEL_CONSUMPTION">
+      color="#b45309" loading={loading} error={error}
+      flowId="DF_TRANSPORT_ENERGY_FUEL_CONSUMPTION" source="Quelle: Umweltbundesamt">
       <ResponsiveContainer width="100%" height="100%">
-        <ComposedChart data={pts ?? []} margin={{ top: 4, right: 10, left: -24, bottom: 0 }}>
+        <ComposedChart data={pts ?? []} margin={{ top: 16, right: 12, left: 0, bottom: 0 }}>
           <Grad id="fcGrad" color="#b45309" />
           <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-          <XAxis dataKey="year" tick={{ fontSize: 9 }} />
-          <YAxis tick={{ fontSize: 9 }} unit=" L" domain={[6, 10]} />
+          <XAxis dataKey="year" tick={{ fontSize: 11, fill: '#64748b' }} />
+          <YAxis tick={{ fontSize: 11, fill: '#64748b' }} unit=" L" domain={[6, 10]} width={36} />
           <Tooltip content={<TT unit="L/100km" />} />
           <Area type="monotone" dataKey="value" stroke="#b45309" strokeWidth={2}
             fill="url(#fcGrad)" dot={{ r: 3, fill: '#b45309' }} connectNulls name="Verbrauch" />
@@ -443,16 +470,17 @@ function AirPollutantsChart() {
 
   return (
     <ChartCard title="Luftschadstoff-Emissionsindex" subtitle="Index 2005 = 100 · alle Schadstoffe klar rückläufig"
-      color="#7c3aed" loading={loading} error={error} height={220} flowId="DF_AIR_EMISSIONS_INDEX">
+      color="#7c3aed" loading={loading} error={error}
+      flowId="DF_AIR_EMISSIONS_INDEX" source="Quelle: Umweltbundesamt">
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={data ?? []} margin={{ top: 4, right: 10, left: -24, bottom: 0 }}>
+        <LineChart data={data ?? []} margin={{ top: 16, right: 12, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-          <XAxis dataKey="year" tick={{ fontSize: 9 }} />
-          <YAxis tick={{ fontSize: 9 }} domain={[20, 130]} />
+          <XAxis dataKey="year" tick={{ fontSize: 11, fill: '#64748b' }} />
+          <YAxis tick={{ fontSize: 11, fill: '#64748b' }} domain={[20, 130]} width={36} />
           <Tooltip content={<TT />} />
           <Legend wrapperStyle={{ fontSize: 10 }} />
           <ReferenceLine y={100} stroke="#94a3b8" strokeDasharray="4 2"
-            label={{ value: '2005 = 100', position: 'insideTopRight', fontSize: 9, fill: '#94a3b8' }} />
+            label={{ value: '2005 = 100', position: 'insideTopRight', fontSize: 10, fill: '#94a3b8' }} />
           {Object.keys(POLLUTANT_COLORS).map(k => (
             <Line key={k} type="monotone" dataKey={k} stroke={POLLUTANT_COLORS[k]}
               strokeWidth={2} dot={false} connectNulls />
@@ -485,12 +513,13 @@ function FuelPricesChart() {
   return (
     <ChartCard title="Kraftstoffpreise im Straßenverkehr" subtitle="Jahresdurchschnitt Benzin und Diesel (€/L)"
       kpi={latestBenzin} kpiUnit="€/L (Benzin)" kpiYear={data?.[data.length - 1]?.year}
-      color="#f59e0b" loading={loading} error={error} flowId="DF_TRANSPORT_ENERGY_FUEL_PRICES">
+      color="#f59e0b" loading={loading} error={error}
+      flowId="DF_TRANSPORT_ENERGY_FUEL_PRICES" source="Quelle: Umweltbundesamt / BAFA">
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={data ?? []} margin={{ top: 4, right: 10, left: -24, bottom: 0 }}>
+        <LineChart data={data ?? []} margin={{ top: 16, right: 12, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-          <XAxis dataKey="year" tick={{ fontSize: 9 }} />
-          <YAxis tick={{ fontSize: 9 }} unit=" €" domain={[0.8, 2.2]} />
+          <XAxis dataKey="year" tick={{ fontSize: 11, fill: '#64748b' }} />
+          <YAxis tick={{ fontSize: 11, fill: '#64748b' }} unit=" €" domain={[0.8, 2.2]} width={40} />
           <Tooltip content={<TT unit="€/L" />} />
           <Legend wrapperStyle={{ fontSize: 11 }} />
           <Line type="monotone" dataKey="Benzin" stroke="#f59e0b" strokeWidth={2} dot={{ r: 3 }} connectNulls />
@@ -528,16 +557,17 @@ function NitrogenChart() {
   return (
     <ChartCard title="Stickstoffüberschuss Landwirtschaft" subtitle="Gesamtbilanz (kg N/ha) · Ziel: ≤ 70 kg/ha bis 2030"
       kpi={latestSaldo} kpiUnit="kg N/ha (Saldo)" kpiYear={data?.[data.length - 1]?.year}
-      color="#65a30d" loading={loading} error={error} height={220} flowId="DF_AGRICULTURE_FORESTRY_NITROGEN_SURPLUS">
+      color="#65a30d" loading={loading} error={error}
+      flowId="DF_AGRICULTURE_FORESTRY_NITROGEN_SURPLUS" source="Quelle: Umweltbundesamt / BMEL">
       <ResponsiveContainer width="100%" height="100%">
-        <ComposedChart data={data ?? []} margin={{ top: 4, right: 10, left: -18, bottom: 0 }}>
+        <ComposedChart data={data ?? []} margin={{ top: 16, right: 12, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-          <XAxis dataKey="year" tick={{ fontSize: 9 }} />
-          <YAxis tick={{ fontSize: 9 }} unit=" kg" />
+          <XAxis dataKey="year" tick={{ fontSize: 11, fill: '#64748b' }} />
+          <YAxis tick={{ fontSize: 11, fill: '#64748b' }} unit=" kg" width={40} />
           <Tooltip content={<TT unit="kg N/ha" />} />
           <Legend wrapperStyle={{ fontSize: 10 }} />
           <ReferenceLine y={70} stroke="#16a34a" strokeDasharray="5 3"
-            label={{ value: 'Ziel 2030: 70 kg/ha', position: 'insideTopRight', fontSize: 9, fill: '#16a34a' }} />
+            label={{ value: 'Ziel 2030: 70 kg/ha', position: 'insideTopRight', fontSize: 10, fill: '#16a34a' }} />
           <Area type="monotone" dataKey="Stickstoff-Input" stroke="#94a3b8" fill="#f1f5f9"
             strokeWidth={1} dot={false} connectNulls />
           <Line type="monotone" dataKey="Stickstoff-Saldo" stroke="#dc2626" strokeWidth={2.5}
@@ -577,12 +607,13 @@ function ForestFireChart() {
   return (
     <ChartCard title="Waldbrandfläche nach Ursache" subtitle="Hektar pro Jahr · gestapelt nach Brandursache"
       kpi={latest?.['gesamt']} kpiUnit="ha gesamt" kpiYear={latest?.year}
-      color="#d97706" loading={loading} error={error} height={220} flowId="DF_AGRICULTURE_FORESTRY_FOREST_FIRE_AREA">
+      color="#d97706" loading={loading} error={error}
+      flowId="DF_AGRICULTURE_FORESTRY_FOREST_FIRE_AREA" source="Quelle: Umweltbundesamt / BMEL">
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={data ?? []} margin={{ top: 4, right: 10, left: -18, bottom: 0 }}>
+        <BarChart data={data ?? []} margin={{ top: 16, right: 12, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
-          <XAxis dataKey="year" tick={{ fontSize: 9 }} interval={2} />
-          <YAxis tick={{ fontSize: 9 }} unit=" ha" />
+          <XAxis dataKey="year" tick={{ fontSize: 11, fill: '#64748b' }} interval={2} />
+          <YAxis tick={{ fontSize: 11, fill: '#64748b' }} unit=" ha" width={44} />
           <Tooltip content={<TT unit="ha" />} />
           <Legend wrapperStyle={{ fontSize: 10 }} />
           <Bar dataKey="Fahrlässig" stackId="a" fill="#f97316" />
@@ -623,12 +654,13 @@ function GreenMobilityChart() {
   return (
     <ChartCard title="Umweltfreundliche Mobilität" subtitle="Anteil an der Personenverkehrsleistung (%) · gestapelt nach Verkehrsträger"
       kpi={total} kpiUnit="% gesamt" kpiYear={latest?.year}
-      color="#16a34a" loading={loading} error={error} height={220} flowId="DF_TRANSPORT_PASSENGER_PERFORMANCE_SHARE">
+      color="#16a34a" loading={loading} error={error}
+      flowId="DF_TRANSPORT_PASSENGER_PERFORMANCE_SHARE" source="Quelle: Umweltbundesamt / Destatis">
       <ResponsiveContainer width="100%" height="100%">
-        <AreaChart data={data ?? []} margin={{ top: 4, right: 10, left: -24, bottom: 0 }}>
+        <AreaChart data={data ?? []} margin={{ top: 16, right: 12, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-          <XAxis dataKey="year" tick={{ fontSize: 9 }} />
-          <YAxis tick={{ fontSize: 9 }} unit=" %" />
+          <XAxis dataKey="year" tick={{ fontSize: 11, fill: '#64748b' }} />
+          <YAxis tick={{ fontSize: 11, fill: '#64748b' }} unit=" %" width={36} />
           <Tooltip content={<TT unit="%" />} />
           <Legend wrapperStyle={{ fontSize: 10 }} />
           <Area type="monotone" dataKey="ÖPNV (Straße)" stroke="#0284c7" fill="#bfdbfe" strokeWidth={1.5} stackId="a" connectNulls />
@@ -653,13 +685,14 @@ function WaterTempChart() {
   return (
     <ChartCard title="Wassertemperatur der Fließgewässer" subtitle="DAS WW-I-10 · Ø aller Messstellen (°C)"
       kpi={latest?.value} kpiUnit="°C" kpiYear={latest?.year}
-      color="#0369a1" loading={loading} error={error} flowId="DF_DAS_WASSER_WW_I_10">
+      color="#0369a1" loading={loading} error={error}
+      flowId="DF_DAS_WASSER_WW_I_10" source="Quelle: Umweltbundesamt / DAS">
       <ResponsiveContainer width="100%" height="100%">
-        <AreaChart data={pts ?? []} margin={{ top: 4, right: 10, left: -24, bottom: 0 }}>
+        <AreaChart data={pts ?? []} margin={{ top: 16, right: 12, left: 0, bottom: 0 }}>
           <Grad id="wGrad" color="#0369a1" />
           <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-          <XAxis dataKey="year" tick={{ fontSize: 9 }} />
-          <YAxis tick={{ fontSize: 9 }} unit="°C" />
+          <XAxis dataKey="year" tick={{ fontSize: 11, fill: '#64748b' }} />
+          <YAxis tick={{ fontSize: 11, fill: '#64748b' }} unit="°C" width={36} />
           <Tooltip content={<TT unit="°C" />} />
           <Area type="monotone" dataKey="value" stroke="#0369a1" strokeWidth={2}
             fill="url(#wGrad)" dot={false} connectNulls name="Wassertemperatur" />
@@ -677,12 +710,13 @@ function RiverDischargeChart() {
   return (
     <ChartCard title="Mittlerer Abfluss der Flüsse" subtitle="DAS WW-I-3 · Ø aller Pegel (Abweichung vom Mittel)"
       kpi={latest?.value} kpiUnit="" kpiYear={latest?.year}
-      color="#0891b2" loading={loading} error={error} flowId="DF_DAS_WASSER_WW_I_3">
+      color="#0891b2" loading={loading} error={error}
+      flowId="DF_DAS_WASSER_WW_I_3" source="Quelle: Umweltbundesamt / DAS">
       <ResponsiveContainer width="100%" height="100%">
-        <ComposedChart data={pts ?? []} margin={{ top: 4, right: 10, left: -24, bottom: 0 }}>
+        <ComposedChart data={pts ?? []} margin={{ top: 16, right: 12, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-          <XAxis dataKey="year" tick={{ fontSize: 9 }} />
-          <YAxis tick={{ fontSize: 9 }} />
+          <XAxis dataKey="year" tick={{ fontSize: 11, fill: '#64748b' }} />
+          <YAxis tick={{ fontSize: 11, fill: '#64748b' }} width={36} />
           <Tooltip content={<TT />} />
           <ReferenceLine y={0} stroke="#94a3b8" strokeDasharray="3 2" />
           <Bar dataKey="value" radius={[2, 2, 0, 0]} name="Abweichung">
@@ -721,16 +755,17 @@ function WasteRecyclingRateChart() {
   return (
     <ChartCard title="Abfallrecyclingquoten" subtitle="Recyclingquote (%) nach Abfallkategorie · 2021–2023"
       kpi={latest?.['Gesamtabfall (nicht-gef.)']} kpiUnit="% Gesamtabfall" kpiYear={latest?.year}
-      color="#0891b2" loading={loading} error={error} height={220} flowId="DF_WASTE_RECOVERY_RATE">
+      color="#0891b2" loading={loading} error={error}
+      flowId="DF_WASTE_RECOVERY_RATE" source="Quelle: Umweltbundesamt / Destatis">
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={data ?? []} margin={{ top: 4, right: 10, left: -18, bottom: 0 }}>
+        <BarChart data={data ?? []} margin={{ top: 16, right: 12, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
-          <XAxis dataKey="year" tick={{ fontSize: 9 }} />
-          <YAxis tick={{ fontSize: 9 }} unit=" %" domain={[40, 90]} />
+          <XAxis dataKey="year" tick={{ fontSize: 11, fill: '#64748b' }} />
+          <YAxis tick={{ fontSize: 11, fill: '#64748b' }} unit=" %" domain={[40, 90]} width={36} />
           <Tooltip content={<TT unit="%" />} />
           <Legend wrapperStyle={{ fontSize: 10 }} />
           <ReferenceLine y={65} stroke="#94a3b8" strokeDasharray="4 2"
-            label={{ value: 'EU-Ziel 2035: 65 %', position: 'insideTopLeft', fontSize: 9, fill: '#94a3b8' }} />
+            label={{ value: 'EU-Ziel 2035: 65 %', position: 'insideTopLeft', fontSize: 10, fill: '#94a3b8' }} />
           <Bar dataKey="Gesamtabfall (nicht-gef.)" fill="#0891b2" radius={[2, 2, 0, 0]} />
           <Bar dataKey="Siedlungsabfall (gesamt)" fill="#7c3aed" radius={[2, 2, 0, 0]} />
           <Bar dataKey="Haushaltsähnl. Abfall (ges.)" fill="#16a34a" radius={[2, 2, 0, 0]} />
@@ -768,12 +803,13 @@ function WasteDisposalChart() {
   return (
     <ChartCard title="Brutto-Abfallaufkommen nach Verwertungsweg" subtitle="Mio. Tonnen gesamt · gestapelt nach Entsorgungspfad"
       kpi={total} kpiUnit="Mio. t gesamt" kpiYear={latest?.year}
-      color="#475569" loading={loading} error={error} height={220} flowId="DF_WASTE_VOLUME">
+      color="#475569" loading={loading} error={error}
+      flowId="DF_WASTE_VOLUME" source="Quelle: Umweltbundesamt / Destatis">
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={data ?? []} margin={{ top: 4, right: 10, left: -18, bottom: 0 }}>
+        <BarChart data={data ?? []} margin={{ top: 16, right: 12, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
-          <XAxis dataKey="year" tick={{ fontSize: 9 }} />
-          <YAxis tick={{ fontSize: 9 }} unit=" Mio. t" />
+          <XAxis dataKey="year" tick={{ fontSize: 11, fill: '#64748b' }} />
+          <YAxis tick={{ fontSize: 11, fill: '#64748b' }} unit=" Mio. t" width={52} />
           <Tooltip content={<TT unit="Mio. t" />} />
           <Legend wrapperStyle={{ fontSize: 10 }} />
           <Bar dataKey="Stoffliche Verwertung" stackId="a" fill="#16a34a" />
@@ -817,16 +853,17 @@ function ConsumerFootprintChart() {
 
   return (
     <ChartCard title="Globaler Umwelt-Fußabdruck privater Haushalte" subtitle="Index 2010 = 100 · direkte und indirekte Effekte"
-      color="#dc2626" loading={loading} error={error} height={220} flowId="DF_CONSUMPTION_GLOBAL_ENV_FOOTPRINT">
+      color="#dc2626" loading={loading} error={error}
+      flowId="DF_CONSUMPTION_GLOBAL_ENV_FOOTPRINT" source="Quelle: Umweltbundesamt / Destatis">
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={data ?? []} margin={{ top: 4, right: 10, left: -24, bottom: 0 }}>
+        <LineChart data={data ?? []} margin={{ top: 16, right: 12, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-          <XAxis dataKey="year" tick={{ fontSize: 9 }} />
-          <YAxis tick={{ fontSize: 9 }} domain={[70, 115]} />
+          <XAxis dataKey="year" tick={{ fontSize: 11, fill: '#64748b' }} />
+          <YAxis tick={{ fontSize: 11, fill: '#64748b' }} domain={[70, 115]} width={36} />
           <Tooltip content={<TT />} />
           <Legend wrapperStyle={{ fontSize: 10 }} />
           <ReferenceLine y={100} stroke="#94a3b8" strokeDasharray="4 2"
-            label={{ value: '2010 = 100', position: 'insideTopRight', fontSize: 9, fill: '#94a3b8' }} />
+            label={{ value: '2010 = 100', position: 'insideTopRight', fontSize: 10, fill: '#94a3b8' }} />
           {Object.keys(FOOTPRINT_COLORS).map(k => (
             <Line key={k} type="monotone" dataKey={k} stroke={FOOTPRINT_COLORS[k]}
               strokeWidth={2} dot={{ r: 3 }} connectNulls />
@@ -865,12 +902,13 @@ function EnvTaxRevenueChart() {
   return (
     <ChartCard title="Umweltsteuereinnahmen" subtitle="Mrd. € · gestapelt nach Steuerart"
       kpi={total} kpiUnit="Mrd. € gesamt" kpiYear={latestTotal?.year}
-      color="#475569" loading={loading} error={error} height={220} flowId="DF_ENV_ECON_REVENUE_ENV_TAXES">
+      color="#475569" loading={loading} error={error}
+      flowId="DF_ENV_ECON_REVENUE_ENV_TAXES" source="Quelle: Umweltbundesamt / Destatis">
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={data ?? []} margin={{ top: 4, right: 10, left: -18, bottom: 0 }}>
+        <BarChart data={data ?? []} margin={{ top: 16, right: 12, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
-          <XAxis dataKey="year" tick={{ fontSize: 9 }} interval={3} />
-          <YAxis tick={{ fontSize: 9 }} unit=" Mrd." />
+          <XAxis dataKey="year" tick={{ fontSize: 11, fill: '#64748b' }} interval={3} />
+          <YAxis tick={{ fontSize: 11, fill: '#64748b' }} unit=" Mrd." width={44} />
           <Tooltip content={<TT unit="Mrd. €" />} />
           <Legend wrapperStyle={{ fontSize: 10 }} />
           <Bar dataKey="Energiesteuer" stackId="a" fill="#0284c7" />
@@ -889,7 +927,7 @@ function EnvTaxRevenueChart() {
 
 export default function AnalysePage() {
   return (
-    <div className="max-w-[1100px] mx-auto px-4 py-6 md:px-5 md:py-7">
+    <div className="max-w-[1600px] mx-auto px-4 py-6 md:px-5 md:py-7">
       <SEO
         title="Analysen"
         description="Ausgewählte Umwelttrends auf Umweltpuls — Temperaturentwicklung, Treibhausgase, Erneuerbare Energien und mehr, basierend auf Daten des Umweltbundesamts."

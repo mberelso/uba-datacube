@@ -37,6 +37,8 @@ export interface DatasetContent {
   context: string
   methodology: string
   status: 'draft' | 'reviewed'
+  /** Short German display name, overrides the technical API name in the catalog */
+  displayName?: string
   /** Maps API dimension value strings to German display labels */
   labelOverrides?: Record<string, string>
   /** Override default chart type and series selection */
@@ -357,6 +359,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_DAS_WASSER_WW_I_1: {
+    displayName: 'Terrestrische Wasserspeicherung',
     headline: 'Deutschland verliert seit zwei Jahrzehnten kontinuierlich Wasser im Boden.',
     lead: 'Dieser Datensatz misst, wie viel Wasser in Deutschland im Boden gespeichert ist — in Seen, Flüssen, aber auch tief im Grundwasser. Wer wissen will, ob genug Wasser für Landwirtschaft, Trinkwasserversorgung und Ökosysteme vorhanden ist, findet hier eine der wenigen Quellen, die das vollständige Bild zeigen.',
     trend: 'Über die letzten 20 Jahre sinkt die terrestrisch gespeicherte Wassermenge in Deutschland deutlich. Besonders die Dürrejahre 2018 bis 2020 hinterlassen markante Einbrüche weit unterhalb des langjährigen Mittels — ein Ausmaß, das selbst im Vergleich zu früheren Trockenphasen heraussticht.',
@@ -367,6 +370,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_DAS_WASSER_WW_I_10: {
+    displayName: 'Wassertemperatur der Fließgewässer',
     headline: 'Deutschlands Flüsse werden wärmer – Fische sterben bereits.',
     lead: 'Dieser Datensatz misst die Wassertemperaturen in deutschen Fließgewässern über verschiedene Flussregionen hinweg. Wer wissen will, ob Forellen, Äschen und andere kälteliebende Fischarten in deutschen Flüssen noch eine Zukunft haben, findet hier die entscheidenden Zahlen.',
     trend: 'In nahezu allen untersuchten Flussregionen steigen die Wassertemperaturen seit Jahrzehnten messbar an. Das Extremjahr 2018 führte zu so hohen Temperaturen und so starkem Sauerstoffmangel, dass in vielen Gewässern – darunter Teile des Oberrheingebiets – Fische in großer Zahl verendeten. Lediglich für die Äschenregion lässt sich bislang kein eindeutiger Langzeittrend ablesen, da die Zeitreihe dort noch zu kurz ist.',
@@ -377,6 +381,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_DAS_WASSER_WW_I_3: {
+    displayName: 'Abfluss der Fließgewässer',
     headline: 'Deutschlands Flüsse führen im Sommer messbar weniger Wasser als früher.',
     lead: 'Dieser Datensatz erfasst, wie viel Wasser durch deutsche Flüsse fließt – gemessen als Abflusstiefe an 76 Pegeln über Jahrzehnte hinweg. Wer Trinkwasser trinkt, Landwirtschaft betreibt oder in der Nähe eines Flusses lebt, hängt direkt davon ab, wie viel Wasser diese Flüsse tragen.',
     trend: 'Seit 1961 sinkt die mittlere Abflusstiefe im Sommer-Halbjahr – und dieser Rückgang ist statistisch signifikant. Im Winter-Halbjahr zeigt sich zwar ebenfalls ein leichter Rückgang, dieser lässt sich jedoch nicht statistisch absichern. Das bedeutet: Im Sommer steht in deutschen Flüssen nachweislich weniger Wasser zur Verfügung als noch vor sechs Jahrzehnten.',
@@ -387,6 +392,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_DAS_WASSER_WW_I_4: {
+    displayName: 'Hochwasserereignisse an deutschen Flüssen',
     headline: 'Hochwasser trifft Deutschland unregelmäßig, aber mit räumlichen Schwerpunkten.',
     lead: 'Dieser Datensatz erfasst Hochwasserereignisse an deutschen Flüssen – sowohl im Winter als auch im Sommer. Wer wissen will, wann und wo Flüsse über die Ufer treten, findet hier eine der wenigen systematischen Zeitreihen, die Überschwemmungen über Jahrzehnte hinweg dokumentieren.',
     trend: 'Eindeutige langfristige Trends lassen sich bislang nur in wenigen Fällen nachweisen. Hochwasserereignisse folgen keinem gleichmäßigen Muster, sondern hängen stark von Wetterlagen ab, die bestimmte Flussgebiete wiederholt treffen und andere verschonen. Eine generelle Zunahme oder Abnahme lässt sich aus den vorliegenden Daten nicht pauschal ableiten.',
@@ -397,6 +403,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_DAS_WASSER_WW_I_6: {
+    displayName: 'Niedrigwasserereignisse an deutschen Flüssen',
     headline: 'Drei Dürrejahre in Folge haben Deutschlands Flüsse auf ein historisches Tief gebracht.',
     lead: 'Dieser Datensatz erfasst, wie oft und wie stark die Wasserstände in deutschen Flüssen unter kritische Schwellenwerte fallen – sogenannte Niedrigwasserereignisse. Wenn Flüsse zu wenig Wasser führen, stockt die Binnenschifffahrt, Kraftwerke können nicht mehr ausreichend gekühlt werden, und ganze Ökosysteme geraten unter Stress.',
     trend: 'Über mehrere Jahrzehnte prägten einzelne trockene Ausreißerjahre das Niedrigwassergeschehen in Deutschland. Die Sommer 2018, 2019 und 2020 durchbrachen dieses Muster: Drei aufeinanderfolgende Extremjahre mit außergewöhnlich niedrigen Wasserständen markieren eine neue Qualität, die in den Aufzeichnungen bislang kein Vorbild hat.',
@@ -407,6 +414,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_DAS_WASSER_WW_I_7: {
+    displayName: 'Wasserstand deutscher Seen',
     headline: 'Deutschlands Seen verlieren seit Jahrzehnten stetig an Wasser.',
     lead: 'Dieser Datensatz misst, wie stark die Wasserstände deutscher Seen vom langjährigen Mittel abweichen – seit 2014 jährlich erfasst. Wer wissen will, ob Badeseen, Trinkwasserreservoirs und Feuchtgebiete schrumpfen, findet hier die Grundlage.',
     trend: 'Seit den 1960er Jahren sinken die Pegelstände sowohl in der Norddeutschen Tiefebene als auch in den Alpenvorlandseen kontinuierlich. Die Dürrejahre 2018 bis 2020 beschleunigten diesen Rückgang massiv: In Norddeutschland fielen die Grundwasserspiegel so tief, dass viele Seen deutlich weniger Wasser führten als in jedem vergleichbaren Zeitraum zuvor.',
@@ -417,6 +425,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_DAS_WASSER_WW_I_9: {
+    displayName: 'Frühjahrsalgenblüte in deutschen Seen',
     headline: 'Algenblüten in deutschen Seen starten immer früher im Jahr.',
     lead: 'Dieser Datensatz erfasst, wann im Frühjahr Algen in deutschen Seen zu wachsen beginnen – ein Zeitpunkt, der sich durch den Klimawandel messbar verschiebt. Wer das für ein Randthema hält, irrt: Die Algenblüte ist der Startschuss für die gesamte Nahrungskette im See, von Kleinstlebewesen bis zu Fischen.',
     trend: 'Besonders milde Winter und überdurchschnittlich warme Frühjahre – wie 2019 und 2020 – haben die Algenblüte spürbar nach vorne verschoben. Diese Verschiebung ist kein Ausreißer, sondern Teil eines langfristigen Musters: Wärmere Temperaturen im späten Winter beschleunigen das Algenwachstum systematisch und verändern damit den Rhythmus ganzer Ökosysteme.',
@@ -427,6 +436,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_DAS_WASSER_WW_R_1: {
+    displayName: 'Wassernutzungsindex Deutschland',
     headline: 'Deutschland verbraucht weniger Wasser als je zuvor – doch regional droht Knappheit.',
     lead: 'Dieser Datensatz misst, wie viel Wasser Deutschland im Verhältnis zu seinen nutzbaren Wasserreserven tatsächlich entnimmt. Wer wissen will, ob unser Wasser knapp wird – und wo –, findet hier eine der zentralsten Kennzahlen der deutschen Umweltbeobachtung.',
     trend: 'Seit den 1990er Jahren ist der Wassernutzungsindex in Deutschland kontinuierlich gesunken. Seit 2007 liegt er dauerhaft unter der kritischen Schwelle von 20 Prozent – das heißt, bundesweit werden weniger als ein Fünftel der verfügbaren Wasserreserven genutzt. Regional zeigt sich jedoch ein anderes Bild: In Teilen Ostdeutschlands und im Rheingraben überschreiten einzelne Gebiete diesen Schwellenwert deutlich.',
@@ -437,6 +447,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_DAS_WASSER_WW_R_2: {
+    displayName: 'GAK-Mittel für den Hochwasserschutz',
     headline: 'Seit 2015 fließen deutlich mehr Bundesmittel in den Hochwasserschutz.',
     lead: 'Dieser Datensatz erfasst, wie viel Geld Bund, Länder und EU in Deutschland für Hochwasserschutzmaßnahmen ausgeben — etwa für Deichbau, Deichrückverlegungen und die Renaturierung von Gewässern. Wer verstehen will, ob Deutschland sich ernsthaft gegen Überschwemmungen wappnet, findet hier die Zahlen dahinter.',
     trend: 'Seit Einführung des Sonderrahmenplans \'Maßnahmen des präventiven Hochwasserschutzes\' im Jahr 2015 sind die Ausgaben der Länder im Rahmen der Gemeinschaftsaufgabe Agrarstruktur und Küstenschutz (GAK) spürbar gestiegen. Der Bund kofinanziert diese Maßnahmen, zusätzlich fließen EU-Mittel — insgesamt zeigt die Kurve nach oben.',
@@ -447,6 +458,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_DAS_WASSER_WW_R_3: {
+    displayName: 'Hochwasserschutz-Investitionen Hessen',
     headline: 'Hessen investierte 234 Millionen Euro in den Hochwasserschutz – lokale Kosten fehlen.',
     lead: 'Dieser Datensatz erfasst, wie viel Geld Bund und Land Hessen in den vergangenen zehn Jahren in den Hochwasserschutz gesteckt haben. Wer wissen will, ob Deutschland seine Infrastruktur gegen steigende Flutrisiken wappnet, findet hier einen konkreten Anhaltspunkt.',
     trend: 'Über einen Zeitraum von zehn Jahren flossen rund 234 Millionen Euro in hessische Hochwasserschutzmaßnahmen – allein aus Bundes- und Landesmitteln. Wie sich diese Investitionen von Jahr zu Jahr entwickelt haben und ob das Tempo zuletzt zugenommen hat, lässt der Datensatz offen.',

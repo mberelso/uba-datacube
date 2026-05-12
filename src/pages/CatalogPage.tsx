@@ -333,6 +333,7 @@ function DatasetCard({ flow, color }: { flow: Dataflow; color: string }) {
   const [hovered, setHovered] = useState(false)
   const content = getDatasetContent(flow.id)
   const displayDesc = content?.lead ?? flow.description
+  const displayName = content?.displayName ?? flow.name
 
   return (
     <Link to={`/dataset/${encodeURIComponent(flow.id)}`} style={{ textDecoration: 'none', display: 'block' }}>
@@ -361,7 +362,7 @@ function DatasetCard({ flow, color }: { flow: Dataflow; color: string }) {
           fontSize: 13, fontWeight: 600, color: NORDIC.navy,
           marginBottom: 5, lineHeight: 1.4,
         }}>
-          {flow.name}
+          {displayName}
         </div>
         <div style={{ fontSize: 10, color: NORDIC.fog, fontFamily: 'monospace', letterSpacing: '0.03em', marginBottom: displayDesc ? 6 : 0 }}>
           {flow.id} · v{flow.version}

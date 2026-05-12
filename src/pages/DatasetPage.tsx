@@ -224,8 +224,8 @@ export default function DatasetPage() {
       className="max-w-[1100px] mx-auto px-5 py-6"
     >
       <SEO
-        title={flow.name}
-        description={`${flow.name} — Umweltdatensatz des Umweltbundesamts. Interaktive Zeitreihen, Trends und Rohdaten.`}
+        title={content?.displayName ?? flow.name}
+        description={content?.lead ?? `${flow.name} — Umweltdatensatz des Umweltbundesamts. Interaktive Zeitreihen, Trends und Rohdaten auf umweltpuls.de.`}
         path={`/dataset/${encodeURIComponent(flow.id)}`}
         jsonLd={{
           '@context': 'https://schema.org',

@@ -2,7 +2,7 @@ import { Helmet } from 'react-helmet-async'
 
 const SITE_NAME = 'Umweltpuls'
 const SITE_URL = 'https://www.umweltpuls.de'
-const DEFAULT_DESCRIPTION = 'Aktuelle Umweltdaten für Deutschland — Klimadaten, Emissionstrends und Umweltindikatoren des Umweltbundesamts, interaktiv aufbereitet.'
+const DEFAULT_DESCRIPTION = 'Klimadaten, Emissionstrends und Umweltindikatoren des Umweltbundesamts — interaktiv erkunden, filtern und exportieren. Kostenlos und offen.'
 const DEFAULT_IMAGE = `${SITE_URL}/og-image.png`
 
 const WEBSITE_JSONLD = JSON.stringify({
@@ -28,7 +28,7 @@ interface SEOProps {
 }
 
 export function SEO({ title, description = DEFAULT_DESCRIPTION, path = '', image = DEFAULT_IMAGE, jsonLd }: SEOProps) {
-  const fullTitle = title ? `${title} | ${SITE_NAME}` : `${SITE_NAME} – Aktuelle Umweltdaten Deutschland`
+  const fullTitle = title ? `${title} | ${SITE_NAME}` : `${SITE_NAME} – Umweltdaten Deutschland interaktiv`
   const url = `${SITE_URL}${path}`
   const structuredData = jsonLd ? JSON.stringify(jsonLd) : (path === '' ? WEBSITE_JSONLD : null)
 

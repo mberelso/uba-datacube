@@ -10,6 +10,7 @@ export interface ChartProps {
   chartData: any[]
   activeSeriesList: { label: string }[]
   chartType: 'line' | 'bar'
+  exportMode?: boolean
 }
 
 export function FallbackChart({ chartData, activeSeriesList, chartType }: ChartProps) {

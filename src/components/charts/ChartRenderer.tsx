@@ -8,13 +8,14 @@ import { GermanyMap } from './GermanyMap'
 export interface ChartRendererProps extends ChartProps {
   flow: Dataflow
   stackedSeries?: StackedSeriesConfig[]
+  exportMode?: boolean
 }
 
 const CLIMATE_CATEGORIES = new Set(['CLIMATE', 'CROSS'])
 const MAP_DATASETS = new Set(['DF_AREA_SOIL_LAND_ECOSYSTEMS_AREA'])
 
 export function ChartRenderer(props: ChartRendererProps) {
-  const { flow, chartData, activeSeriesList, chartType, stackedSeries } = props
+  const { flow, chartData, activeSeriesList, chartType, stackedSeries, exportMode } = props
 
   if (stackedSeries) {
     return <StackedAreaChart chartData={chartData} seriesConfig={stackedSeries} />
@@ -29,6 +30,7 @@ export function ChartRenderer(props: ChartRendererProps) {
       <ClimateChart
         chartData={chartData}
         activeSeriesList={activeSeriesList}
+        exportMode={exportMode}
       />
     )
   }
@@ -38,9 +40,10 @@ export function ChartRenderer(props: ChartRendererProps) {
       <EconomyChart
         chartData={chartData}
         activeSeriesList={activeSeriesList}
+        exportMode={exportMode}
       />
     )
   }
 
-  return <FallbackChart chartData={chartData} activeSeriesList={activeSeriesList} chartType={chartType} />
+  return <FallbackChart chartData={chartData} activeSeriesList={activeSeriesList} chartType={chartType} exportMode={exportMode} />
 }

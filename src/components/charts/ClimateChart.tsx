@@ -7,6 +7,7 @@ import { CHART_COLORS, GlassTooltip } from './ChartStyles'
 interface ClimateChartProps {
   chartData: any[]
   activeSeriesList: { label: string }[]
+  exportMode?: boolean
 }
 
 export function ClimateChart({ chartData, activeSeriesList }: ClimateChartProps) {

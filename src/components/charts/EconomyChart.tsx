@@ -7,6 +7,7 @@ import { CHART_COLORS, GlassTooltip } from './ChartStyles'
 interface EconomyChartProps {
   chartData: any[]
   activeSeriesList: { label: string }[]
+  exportMode?: boolean
 }
 
 export function EconomyChart({ chartData, activeSeriesList }: EconomyChartProps) {

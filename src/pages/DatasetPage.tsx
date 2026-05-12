@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   ArrowLeft, ShareNetwork, ChartLine, ChartBar,
-  MagnifyingGlass, Funnel, CaretDown, Check,
+  MagnifyingGlass, Funnel, CaretDown, Check, DownloadSimple,
 } from '@phosphor-icons/react'
 
 import { fetchSingleDataflow, fetchData, type Dataflow, type Dimension } from '../api/sdmx'
@@ -16,6 +16,7 @@ import { GuidedTip } from '../components/GuidedTip'
 import { DatasetStory } from '../components/DatasetStory'
 import { getDatasetContent } from '../data/datasetContent'
 import { SEO } from '../components/SEO'
+import { ExportModal } from '../components/ExportModal'
 
 const CHART_COLORS = [
   '#1B2B3A', '#dc2626', '#4A6741', '#d97706', '#7c3aed',
@@ -55,6 +56,7 @@ export default function DatasetPage() {
   const [chartType, setChartType] = useState<ChartType>('line')
   const [showAdvanced, setShowAdvanced] = useState(true)
   const [shareCopied, setShareCopied] = useState(false)
+  const [exportOpen, setExportOpen] = useState(false)
 
   const [seriesMap, setSeriesMap] = useState<Record<string, { dimValues: string[]; observations: Record<string, number | null> }>>({})
   const [timeValues, setTimeValues] = useState<string[]>([])
@@ -483,6 +485,13 @@ export default function DatasetPage() {
                 {timeValues.length} Zeitpunkte · {selectedSeries.size} aktiv
               </span>
               <button
+                onClick={() => setExportOpen(true)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-medium border transition-all cursor-pointer"
+                style={{ borderColor: '#e2e8f0', background: '#fff', color: '#64748b' }}
+              >
+                <DownloadSimple size={12} weight="duotone" /> Exportieren
+              </button>
+              <button
                 onClick={() => {
                   navigator.clipboard.writeText(window.location.href).then(() => {
                     setShareCopied(true)
@@ -631,6 +640,18 @@ export default function DatasetPage() {
           )}
         </motion.div>
       </div>
+
+      {exportOpen && (
+        <ExportModal
+          flow={flow}
+          content={content}
+          chartData={chartData}
+          activeSeriesList={activeSeriesList}
+          chartType={chartType}
+          stackedSeries={isStacked ? defaultChartConfig!.stackedSeries : undefined}
+          onClose={() => setExportOpen(false)}
+        />
+      )}
     </motion.div>
   )
 }

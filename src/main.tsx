@@ -12,5 +12,8 @@ createRoot(document.getElementById('root')!).render(
   </StrictMode>,
 )
 
-// Signal to the prerenderer that React + Helmet have finished rendering
-document.documentElement.dataset.prerenderReady = 'true'
+// Signal to the prerenderer after React + Helmet have committed to the DOM.
+// Two rAF frames: first = React commit, second = Helmet side-effects flush.
+requestAnimationFrame(() => requestAnimationFrame(() => {
+  document.documentElement.dataset.prerenderReady = 'true'
+}))

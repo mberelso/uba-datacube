@@ -4,7 +4,8 @@
  * 1. Starts `vite preview` on the already-built dist/
  * 2. Visits every route with headless Chromium
  * 3. Waits for React to finish rendering (data-prerender-ready on <html>)
- * 4. Deduplicates <head> tags (Helmet appends; we keep last = page-specific)
+ * 4. Deduplicates <head> tags, then force-patches canonical + og:url to the
+ *    correct route URL (Helmet sometimes resolves these to "/" on first render)
  * 5. Writes dist/<route>/index.html with clean, fully-rendered HTML
  *
  * Run: npx tsx scripts/prerender.ts   (after vite build)
@@ -21,6 +22,7 @@ const __dirname = fileURLToPath(new URL('.', import.meta.url))
 const ROOT = resolve(__dirname, '..')
 const DIST = join(ROOT, 'dist')
 const PORT = 4173
+const SITE_URL = 'https://www.umweltpuls.de'
 
 const STATIC_ROUTES = ['/', '/catalog', '/analysen', '/about']
 const DATASET_ROUTES = Object.keys(DATASET_CONTENT).map(
@@ -44,6 +46,49 @@ function findChromium() {
   return undefined
 }
 
+/**
+ * Patch canonical, og:url, og:title, twitter:title to be route-specific.
+ * We derive og:title from the already-correct <title> tag.
+ * og:description and twitter:description are left as-is (site-level is fine for now).
+ */
+function patchRouteMeta(html: string, route: string): string {
+  const fullUrl = `${SITE_URL}${route}`
+
+  // Extract the page title from the (correct) <title> tag
+  const titleMatch = html.match(/<title[^>]*>(.*?)<\/title>/i)
+  const pageTitle = titleMatch?.[1] ?? ''
+
+  return html
+    .replace(
+      /(<link[^>]*rel="canonical"[^>]*href=")[^"]*(")/gi,
+      `$1${fullUrl}$2`
+    )
+    .replace(
+      /(<meta[^>]*property="og:url"[^>]*content=")[^"]*(")/gi,
+      `$1${fullUrl}$2`
+    )
+    .replace(
+      /(<meta[^>]*property="og:title"[^>]*content=")[^"]*(")/gi,
+      `$1${pageTitle}$2`
+    )
+    .replace(
+      /(<meta[^>]*name="twitter:title"[^>]*content=")[^"]*(")/gi,
+      `$1${pageTitle}$2`
+    )
+}
+
+/** For dataset routes, derive a meaningful title from DATASET_CONTENT if available. */
+function datasetTitle(route: string): string | null {
+  const match = route.match(/^\/dataset\/(.+)$/)
+  if (!match) return null
+  const id = decodeURIComponent(match[1])
+  const content = DATASET_CONTENT[id]
+  if (!content) return null
+  // Prefer displayName, fall back to headline (truncated), then ID
+  const name = content.displayName
+    ?? (content.headline ? content.headline.replace(/[–—].*$/, '').trim().slice(0, 60) : id)
+  return `${name} | Umweltpuls`
+}
 
 async function run() {
   const previewServer = await preview({
@@ -69,15 +114,25 @@ async function run() {
       const page = await browser.newPage()
       await page.goto(`${base}${route}`, { waitUntil: 'domcontentloaded', timeout: 20000 })
 
-      // Wait for React + Helmet to finish (set by main.tsx after initial render)
+      // Wait for React to render and Helmet to flush page-specific meta tags.
+      // We check that og:title has been set to something other than the generic
+      // homepage title — that means the route-specific SEO component has run.
+      const HOMEPAGE_TITLE = 'Umweltpuls'
       await page.waitForFunction(
-        () => document.documentElement.dataset.prerenderReady === 'true',
+        (homepageTitle) => {
+          if (!document.documentElement.dataset.prerenderReady) return false
+          if (window.location.pathname === '/') return true
+          const ogTitle = document.querySelector('meta[property="og:title"]')?.getAttribute('content') ?? ''
+          // Wait until og:title is set and differs from the bare homepage brand name
+          return ogTitle.length > 0 && ogTitle !== homepageTitle
+        },
+        HOMEPAGE_TITLE,
         { timeout: 8000 }
       ).catch(() => {})
 
       // Deduplicate head tags in-browser.
       // react-helmet-async sets data-rh="true" on every tag it manages.
-      // Strategy: for each unique key, prefer the data-rh tag; otherwise keep first.
+      // Strategy: prefer the data-rh tag; otherwise keep first.
       await page.evaluate(() => {
         const head = document.head
 
@@ -96,7 +151,6 @@ async function run() {
           if (!metaSeen.has(key)) {
             metaSeen.set(key, m)
           } else {
-            // Replace with data-rh version if it appears later
             if (m.hasAttribute('data-rh')) {
               metaSeen.get(key)!.remove()
               metaSeen.set(key, m)
@@ -114,10 +168,28 @@ async function run() {
         }
       })
 
-      const rawHtml = await page.content()
+      const snapshotHtml = await page.content()
       await page.close()
 
-      const html = rawHtml
+      // Patch route-specific meta: canonical, og:url, og:title, twitter:title.
+      // For dataset pages, also inject the known title from DATASET_CONTENT
+      // since the API hasn't loaded yet at snapshot time.
+      let html = patchRouteMeta(snapshotHtml, route)
+      const dsTitle = datasetTitle(route)
+      if (dsTitle) {
+        const id = decodeURIComponent((route.match(/^\/dataset\/(.+)$/)?.[1] ?? ''))
+        const lead = DATASET_CONTENT[id]?.lead ?? ''
+        html = html
+          .replace(/(<title[^>]*>)[^<]*(<\/title>)/i, `$1${dsTitle}$2`)
+          .replace(/(<meta[^>]*og:title[^>]*content=")[^"]*(")/gi, `$1${dsTitle}$2`)
+          .replace(/(<meta[^>]*name="twitter:title"[^>]*content=")[^"]*(")/gi, `$1${dsTitle}$2`)
+        if (lead) {
+          html = html
+            .replace(/(<meta[^>]*name="description"[^>]*content=")[^"]*(")/gi, `$1${lead.slice(0, 160)}$2`)
+            .replace(/(<meta[^>]*og:description[^>]*content=")[^"]*(")/gi, `$1${lead.slice(0, 160)}$2`)
+            .replace(/(<meta[^>]*name="twitter:description"[^>]*content=")[^"]*(")/gi, `$1${lead.slice(0, 160)}$2`)
+        }
+      }
 
       const segments = route === '/' ? [] : route.split('/').filter(Boolean)
       const outDir = join(DIST, ...segments)
@@ -137,7 +209,6 @@ async function run() {
   previewServer.httpServer.close()
 
   console.log(`\nPrerender complete: ${ok} OK, ${fail} failed.`)
-  // Only fail CI if nothing rendered at all
   if (ok === 0) process.exit(1)
 }
 

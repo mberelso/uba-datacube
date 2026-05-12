@@ -4,9 +4,10 @@
  * 1. Starts `vite preview` on the already-built dist/
  * 2. Visits every route with headless Chromium
  * 3. Waits for React to finish rendering (data-prerender-ready on <html>)
- * 4. Writes dist/<route>/index.html with fully-rendered HTML
+ * 4. Deduplicates <head> tags (Helmet appends; we keep last = page-specific)
+ * 5. Writes dist/<route>/index.html with clean, fully-rendered HTML
  *
- * Run: node --import tsx/esm scripts/prerender.mjs   (after vite build)
+ * Run: npx tsx scripts/prerender.ts   (after vite build)
  */
 
 import { chromium } from 'playwright-core'
@@ -43,6 +44,7 @@ function findChromium() {
   return undefined
 }
 
+
 async function run() {
   const previewServer = await preview({
     root: ROOT,
@@ -73,8 +75,49 @@ async function run() {
         { timeout: 8000 }
       ).catch(() => {})
 
-      const html = await page.content()
+      // Deduplicate head tags in-browser.
+      // react-helmet-async sets data-rh="true" on every tag it manages.
+      // Strategy: for each unique key, prefer the data-rh tag; otherwise keep first.
+      await page.evaluate(() => {
+        const head = document.head
+
+        // Deduplicate <title>: prefer data-rh, else keep first
+        const titles = Array.from(head.querySelectorAll('title'))
+        if (titles.length > 1) {
+          const keep = titles.find(t => t.hasAttribute('data-rh')) ?? titles[0]
+          titles.forEach(t => { if (t !== keep) t.remove() })
+        }
+
+        // Deduplicate <meta> by name/property/http-equiv: prefer data-rh, else keep first
+        const metaSeen = new Map<string, Element>()
+        Array.from(head.querySelectorAll('meta')).forEach(m => {
+          const key = m.getAttribute('name') || m.getAttribute('property') || m.getAttribute('http-equiv')
+          if (!key) return
+          if (!metaSeen.has(key)) {
+            metaSeen.set(key, m)
+          } else {
+            // Replace with data-rh version if it appears later
+            if (m.hasAttribute('data-rh')) {
+              metaSeen.get(key)!.remove()
+              metaSeen.set(key, m)
+            } else {
+              m.remove()
+            }
+          }
+        })
+
+        // Deduplicate <link rel="canonical">: prefer data-rh, else keep first
+        const canonicals = Array.from(head.querySelectorAll('link[rel="canonical"]'))
+        if (canonicals.length > 1) {
+          const keep = canonicals.find(c => c.hasAttribute('data-rh')) ?? canonicals[0]
+          canonicals.forEach(c => { if (c !== keep) c.remove() })
+        }
+      })
+
+      const rawHtml = await page.content()
       await page.close()
+
+      const html = rawHtml
 
       const segments = route === '/' ? [] : route.split('/').filter(Boolean)
       const outDir = join(DIST, ...segments)
@@ -94,8 +137,7 @@ async function run() {
   previewServer.httpServer.close()
 
   console.log(`\nPrerender complete: ${ok} OK, ${fail} failed.`)
-  // Don't fail CI for individual route timeouts (e.g. slow external API)
-  // Only fail if nothing rendered at all
+  // Only fail CI if nothing rendered at all
   if (ok === 0) process.exit(1)
 }
 

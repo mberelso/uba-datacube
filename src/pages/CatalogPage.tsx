@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { motion, AnimatePresence, type Variants } from 'framer-motion'
 import { fetchDataflows, type Dataflow } from '../api/sdmx'
 import { CATEGORIES, getCategoryMeta } from '../utils/categories'
+import { getDatasetContent } from '../data/datasetContent'
 import { GuidedTip } from '../components/GuidedTip'
 import { SEO } from '../components/SEO'
 
@@ -221,12 +222,21 @@ export default function CatalogPage() {
                 <motion.div key={catId} variants={sectionVariants} className="mb-10">
 
                   {/* Section header */}
-                  <div className="flex items-center gap-3 mb-4" style={{ paddingBottom: 10, borderBottom: `1px solid ${meta.color}18` }}>
+                  <div className="flex items-center gap-3 mb-4" style={{
+                    padding: '10px 14px',
+                    marginLeft: -10,
+                    marginRight: -10,
+                    borderRadius: 10,
+                    background: `linear-gradient(105deg, ${meta.bg} 0%, #ffffff 100%)`,
+                    borderLeft: `3px solid ${meta.color}`,
+                  }}>
                     <div style={{
-                      width: 32, height: 32, borderRadius: 8,
-                      background: meta.bg,
+                      width: 36, height: 36, borderRadius: 9,
+                      background: '#fff',
+                      boxShadow: `0 1px 4px ${meta.color}30`,
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: 16,
+                      fontSize: 18,
+                      flexShrink: 0,
                     }}>
                       {meta.icon}
                     </div>
@@ -238,7 +248,6 @@ export default function CatalogPage() {
                         {catFlows.length} {catFlows.length === 1 ? 'Datensatz' : 'Datensätze'}
                       </span>
                     </div>
-                    <div style={{ flex: 1, height: 1, background: `${meta.color}14`, marginLeft: 8 }} />
                   </div>
 
                   {/* Cards grid */}
@@ -322,6 +331,8 @@ function FilterPill({ label, active, color, bg, onClick }: {
 
 function DatasetCard({ flow, color }: { flow: Dataflow; color: string }) {
   const [hovered, setHovered] = useState(false)
+  const content = getDatasetContent(flow.id)
+  const displayDesc = content?.lead ?? flow.description
 
   return (
     <Link to={`/dataset/${encodeURIComponent(flow.id)}`} style={{ textDecoration: 'none', display: 'block' }}>
@@ -352,16 +363,16 @@ function DatasetCard({ flow, color }: { flow: Dataflow; color: string }) {
         }}>
           {flow.name}
         </div>
-        <div style={{ fontSize: 10, color: NORDIC.fog, fontFamily: 'monospace', letterSpacing: '0.03em', marginBottom: flow.description ? 6 : 0 }}>
+        <div style={{ fontSize: 10, color: NORDIC.fog, fontFamily: 'monospace', letterSpacing: '0.03em', marginBottom: displayDesc ? 6 : 0 }}>
           {flow.id} · v{flow.version}
         </div>
-        {flow.description && (
+        {displayDesc && (
           <div style={{
             fontSize: 12, color: '#64748b', lineHeight: 1.55,
-            display: '-webkit-box', WebkitLineClamp: 2,
+            display: '-webkit-box', WebkitLineClamp: 3,
             WebkitBoxOrient: 'vertical', overflow: 'hidden',
           }}>
-            {flow.description}
+            {displayDesc}
           </div>
         )}
       </motion.div>

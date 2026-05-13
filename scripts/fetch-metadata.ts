@@ -60,6 +60,43 @@ async function fetchAllDataflows(): Promise<FlowInfo[]> {
     .sort((a, b) => a.id.localeCompare(b.id))
 }
 
+async function fetchMetadataFromStructure(flow: FlowInfo, reason: string): Promise<DatasetMeta> {
+  // Fragt nur die DSD-Struktur ab (kein Daten-Download) und schätzt Serien-Anzahl
+  // als Kreuzprodukt der Dimension-Codelisten. Zeitraum bleibt unbekannt.
+  const url = `${BASE}/dataflow/${flow.agencyID}/${flow.id}/${flow.version}?references=datastructure`
+  const r = await fetch(url, {
+    headers: { Accept: 'application/json', 'Accept-Language': 'de' },
+    signal: AbortSignal.timeout(TIMEOUT_MS),
+  })
+  if (!r.ok) throw new Error(`DSD HTTP ${r.status} (nach: ${reason})`)
+
+  const json = await r.json() as any
+  const refs: Record<string, any> = json.references ?? {}
+  const dsd = Object.values(refs).find((v: any) => v.id && !v.id.startsWith('DF_')) as any
+  if (!dsd) throw new Error(`Kein DSD gefunden (nach: ${reason})`)
+
+  const dims: any[] = dsd.dataStructureComponents?.dimensionList?.dimensions ?? []
+  let seriesEstimate = 1
+  for (const d of dims) {
+    const enumRef = d.localRepresentation?.enumeration
+    if (enumRef) {
+      const cl = refs[enumRef] as any
+      const count = cl?.codes ? Object.keys(cl.codes).length : 0
+      if (count > 0) seriesEstimate *= count
+    }
+  }
+
+  console.log(`   ↳ DSD-Fallback: ~${seriesEstimate.toLocaleString('de-DE')} Serien (Kreuzprodukt, Schätzwert)`)
+  return {
+    id: flow.id,
+    seriesCount: seriesEstimate,
+    obsCount: 0,
+    firstYear: '?',
+    lastYear: '?',
+    error: `Datenmenge zu groß für Download (${reason}) — Serienanzahl geschätzt aus DSD`,
+  }
+}
+
 async function fetchMetadataForDataset(flow: FlowInfo): Promise<DatasetMeta> {
   const { id, version, agencyID } = flow
   const ref = `${agencyID},${id},${version}`
@@ -116,14 +153,20 @@ async function fetchMetadataForDataset(flow: FlowInfo): Promise<DatasetMeta> {
 
   // JSON-Fallback (kann Duplicate-Key-Probleme haben)
   const jsonUrl = `${BASE}/data/${ref}/all?format=jsondata`
-  const r = await fetch(jsonUrl, {
-    headers: {
-      Accept: 'application/vnd.sdmx.data+json;version=2.0,application/json',
-      'Accept-Language': 'de',
-    },
-    signal: AbortSignal.timeout(TIMEOUT_MS),
-  })
-  if (!r.ok) throw new Error(`HTTP ${r.status}`)
+  let r: Response
+  try {
+    r = await fetch(jsonUrl, {
+      headers: {
+        Accept: 'application/vnd.sdmx.data+json;version=2.0,application/json',
+        'Accept-Language': 'de',
+      },
+      signal: AbortSignal.timeout(TIMEOUT_MS),
+    })
+    if (!r.ok) throw new Error(`HTTP ${r.status}`)
+  } catch (jsonErr) {
+    // Beide Datenpfade fehlgeschlagen — DSD-Struktur als letzter Ausweg
+    return fetchMetadataFromStructure(flow, jsonErr instanceof Error ? jsonErr.message : String(jsonErr))
+  }
 
   const json = await r.json() as any
   const envelope = json.data ?? json
@@ -172,11 +215,15 @@ async function fetchMetadataForDataset(flow: FlowInfo): Promise<DatasetMeta> {
 // ── Markdown-Patching ────────────────────────────────────────────────────────
 
 function patchHandbook(content: string, meta: DatasetMeta): string {
-  if (meta.error) return content
+  // DSD-Fallback: nur Serien schätzen, Zeitraum/Obs offen lassen
+  const isDsdFallback = meta.error?.includes('Serienanzahl geschätzt')
+  if (meta.error && !isDsdFallback) return content
 
-  const zeitraum = `${meta.firstYear}–${meta.lastYear}`
-  const serien   = meta.seriesCount.toLocaleString('de-DE')
-  const obs      = meta.obsCount.toLocaleString('de-DE')
+  const zeitraum = meta.firstYear !== '?' ? `${meta.firstYear}–${meta.lastYear}` : null
+  const serien   = isDsdFallback
+    ? `~${meta.seriesCount.toLocaleString('de-DE')} (Schätzwert)`
+    : meta.seriesCount.toLocaleString('de-DE')
+  const obs      = meta.obsCount > 0 ? meta.obsCount.toLocaleString('de-DE') : null
 
   // Replace ⏳-Platzhalter innerhalb des jeweiligen Datensatz-Blocks.
   // Muster: Zeilen direkt nach dem ### Heading mit dem passenden ID-Aufruf.
@@ -192,21 +239,22 @@ function patchHandbook(content: string, meta: DatasetMeta): string {
   )
 
   return content.replace(datasetRegex, (block) => {
-    // Zeitraum
-    block = block.replace(
-      /\*\*Zeitraum:\*\* ⏳ API-Daten ausstehend[^\n]*/,
-      `**Zeitraum:** ${zeitraum}`
-    )
-    // Serien — ⏳ ggf. gefolgt von redaktionellem Kommentar in Klammern
+    if (zeitraum) {
+      block = block.replace(
+        /\*\*Zeitraum:\*\* ⏳ API-Daten ausstehend[^\n]*/,
+        `**Zeitraum:** ${zeitraum}`
+      )
+    }
     block = block.replace(
       /\*\*Serien:\*\* ⏳[^\n]*/m,
       `**Serien:** ${serien}`
     )
-    // Beobachtungen
-    block = block.replace(
-      /\*\*Beobachtungen:\*\* ⏳\s*$/m,
-      `**Beobachtungen:** ${obs}`
-    )
+    if (obs) {
+      block = block.replace(
+        /\*\*Beobachtungen:\*\* ⏳\s*$/m,
+        `**Beobachtungen:** ${obs}`
+      )
+    }
     return block
   })
 }

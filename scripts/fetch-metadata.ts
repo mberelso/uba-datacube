@@ -25,6 +25,7 @@ const BASE = 'https://daten.uba.de/release/rest'
 const args = process.argv.slice(2)
 const DRY_RUN = args.includes('--dry-run')
 const SINGLE_ID = args.includes('--id') ? args[args.indexOf('--id') + 1] : null
+const ONLY_MISSING = args.includes('--only-missing')
 const DELAY_MS = 800    // höfliche Pause zwischen API-Calls
 const TIMEOUT_MS = 60000  // 60s Timeout pro Request (große Datensätze wie Grundwasser)
 
@@ -235,10 +236,22 @@ async function main() {
   const flowById = new Map(allFlows.map(f => [f.id, f]))
   console.log(`   ${allFlows.length} Dataflows von API erhalten\n`)
 
+  // IDs mit noch offenen ⏳-Platzhaltern ermitteln (für --only-missing)
+  const missingIds = new Set<string>()
+  for (const match of handbook.matchAll(/### [^\n]+\(`(DF_[A-Z0-9_]+)`\)[\s\S]*?\n\*\*Serien:\*\* ⏳/g)) {
+    missingIds.add(match[1])
+  }
+
   // Bei --id: nur einen bestimmten Datensatz verarbeiten
   const idsToProcess = SINGLE_ID
     ? handbookIds.filter(id => id === SINGLE_ID)
-    : handbookIds
+    : ONLY_MISSING
+      ? handbookIds.filter(id => missingIds.has(id))
+      : handbookIds
+
+  if (ONLY_MISSING) {
+    console.log(`   ${missingIds.size} Datensätze mit offenen Serien-Platzhaltern`)
+  }
 
   if (SINGLE_ID && idsToProcess.length === 0) {
     console.error(`\n❌ ID nicht im Handbuch gefunden: ${SINGLE_ID}`)

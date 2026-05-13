@@ -40,21 +40,30 @@ interface DatasetMeta {
 
 // ── API-Abfragen ─────────────────────────────────────────────────────────────
 
-async function fetchAllDataflowIds(): Promise<string[]> {
+interface FlowInfo { id: string; version: string; agencyID: string }
+
+async function fetchAllDataflows(): Promise<FlowInfo[]> {
   const url = `${BASE}/dataflow/all/all/latest`
   const r = await fetch(url, { headers: { Accept: 'application/json', 'Accept-Language': 'de' } })
   if (!r.ok) throw new Error(`Dataflows: HTTP ${r.status}`)
   const json = await r.json() as any
   const refs: Record<string, any> = json.references ?? {}
   return Object.values(refs)
-    .map((df: any) => df.id as string)
-    .filter(Boolean)
-    .sort()
+    .filter((df: any) => df.id?.startsWith('DF_'))
+    .map((df: any) => ({
+      id:       df.id as string,
+      version:  (df.version ?? '1.0') as string,
+      agencyID: (df.agencyID ?? 'UBA') as string,
+    }))
+    .sort((a, b) => a.id.localeCompare(b.id))
 }
 
-async function fetchMetadataForDataset(id: string): Promise<DatasetMeta> {
+async function fetchMetadataForDataset(flow: FlowInfo): Promise<DatasetMeta> {
+  const { id, version, agencyID } = flow
+  const ref = `${agencyID},${id},${version}`
+
   // Erst CSV versuchen — schnell, vollständig, kein Duplicate-Key-Problem
-  const csvUrl = `${BASE}/data/UBA,${id},latest/all?format=csv`
+  const csvUrl = `${BASE}/data/${ref}/all?format=csv`
   try {
     const r = await fetch(csvUrl, {
       headers: { Accept: 'text/csv', 'Accept-Language': 'de' },
@@ -103,7 +112,7 @@ async function fetchMetadataForDataset(id: string): Promise<DatasetMeta> {
   }
 
   // JSON-Fallback (kann Duplicate-Key-Probleme haben)
-  const jsonUrl = `${BASE}/data/UBA,${id},latest/all?format=jsondata`
+  const jsonUrl = `${BASE}/data/${ref}/all?format=jsondata`
   const r = await fetch(jsonUrl, {
     headers: {
       Accept: 'application/vnd.sdmx.data+json;version=2.0,application/json',
@@ -217,6 +226,12 @@ async function main() {
   const handbookIds = idMatches.map(m => m[1])
   console.log(`   ${handbookIds.length} Datensätze im Handbuch gefunden`)
 
+  // Dataflows laden um echte Versionen zu kennen
+  console.log('🌐 Lade Dataflow-Index (Versionen)…')
+  const allFlows = await fetchAllDataflows()
+  const flowById = new Map(allFlows.map(f => [f.id, f]))
+  console.log(`   ${allFlows.length} Dataflows von API erhalten\n`)
+
   // Bei --id: nur einen bestimmten Datensatz verarbeiten
   const idsToProcess = SINGLE_ID
     ? handbookIds.filter(id => id === SINGLE_ID)
@@ -228,10 +243,10 @@ async function main() {
   }
 
   if (DRY_RUN) {
-    console.log('\n🔍 DRY RUN — keine Dateiänderungen')
+    console.log('🔍 DRY RUN — keine Dateiänderungen\n')
   }
 
-  console.log(`\n🌐 Starte API-Abfragen für ${idsToProcess.length} Datensätze...\n`)
+  console.log(`🌐 Starte API-Abfragen für ${idsToProcess.length} Datensätze...\n`)
 
   const results: DatasetMeta[] = []
   let successCount = 0
@@ -241,8 +256,10 @@ async function main() {
     const id = idsToProcess[i]
     const progress = `[${String(i + 1).padStart(2)}/${idsToProcess.length}]`
 
+    const flow = flowById.get(id) ?? { id, version: '1.0', agencyID: 'UBA' }
+
     try {
-      const meta = await fetchMetadataForDataset(id)
+      const meta = await fetchMetadataForDataset(flow)
       results.push(meta)
       successCount++
       console.log(`✅ ${progress} ${id}`)

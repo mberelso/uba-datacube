@@ -25,7 +25,8 @@ const BASE = 'https://daten.uba.de/release/rest'
 const args = process.argv.slice(2)
 const DRY_RUN = args.includes('--dry-run')
 const SINGLE_ID = args.includes('--id') ? args[args.indexOf('--id') + 1] : null
-const DELAY_MS = 800  // höfliche Pause zwischen API-Calls
+const DELAY_MS = 800    // höfliche Pause zwischen API-Calls
+const TIMEOUT_MS = 25000  // 25s Timeout pro Request
 
 // ── Typen ───────────────────────────────────────────────────────────────────
 
@@ -67,6 +68,7 @@ async function fetchMetadataForDataset(flow: FlowInfo): Promise<DatasetMeta> {
   try {
     const r = await fetch(csvUrl, {
       headers: { Accept: 'text/csv', 'Accept-Language': 'de' },
+      signal: AbortSignal.timeout(TIMEOUT_MS),
     })
     if (r.ok) {
       const text = await r.text()
@@ -118,6 +120,7 @@ async function fetchMetadataForDataset(flow: FlowInfo): Promise<DatasetMeta> {
       Accept: 'application/vnd.sdmx.data+json;version=2.0,application/json',
       'Accept-Language': 'de',
     },
+    signal: AbortSignal.timeout(TIMEOUT_MS),
   })
   if (!r.ok) throw new Error(`HTTP ${r.status}`)
 

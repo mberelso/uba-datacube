@@ -64,36 +64,41 @@ async function fetchMetadataFromStructure(flow: FlowInfo, reason: string): Promi
   // Fragt nur die DSD-Struktur ab (kein Daten-Download) und schätzt Serien-Anzahl
   // als Kreuzprodukt der Dimension-Codelisten. Zeitraum bleibt unbekannt.
   const url = `${BASE}/dataflow/${flow.agencyID}/${flow.id}/${flow.version}?references=datastructure`
-  const r = await fetch(url, {
-    headers: { Accept: 'application/json', 'Accept-Language': 'de' },
-    signal: AbortSignal.timeout(TIMEOUT_MS),
-  })
-  if (!r.ok) throw new Error(`DSD HTTP ${r.status} (nach: ${reason})`)
+  try {
+    const r = await fetch(url, {
+      headers: { Accept: 'application/json', 'Accept-Language': 'de' },
+      signal: AbortSignal.timeout(30000),
+    })
+    if (!r.ok) throw new Error(`DSD HTTP ${r.status}`)
 
-  const json = await r.json() as any
-  const refs: Record<string, any> = json.references ?? {}
-  const dsd = Object.values(refs).find((v: any) => v.id && !v.id.startsWith('DF_')) as any
-  if (!dsd) throw new Error(`Kein DSD gefunden (nach: ${reason})`)
+    const json = await r.json() as any
+    const refs: Record<string, any> = json.references ?? {}
+    const dsd = Object.values(refs).find((v: any) => v.id && !v.id.startsWith('DF_')) as any
+    if (!dsd) throw new Error('Kein DSD gefunden')
 
-  const dims: any[] = dsd.dataStructureComponents?.dimensionList?.dimensions ?? []
-  let seriesEstimate = 1
-  for (const d of dims) {
-    const enumRef = d.localRepresentation?.enumeration
-    if (enumRef) {
-      const cl = refs[enumRef] as any
-      const count = cl?.codes ? Object.keys(cl.codes).length : 0
-      if (count > 0) seriesEstimate *= count
+    const dims: any[] = dsd.dataStructureComponents?.dimensionList?.dimensions ?? []
+    let seriesEstimate = 1
+    for (const d of dims) {
+      const enumRef = d.localRepresentation?.enumeration
+      if (enumRef) {
+        const cl = refs[enumRef] as any
+        const count = cl?.codes ? Object.keys(cl.codes).length : 0
+        if (count > 0) seriesEstimate *= count
+      }
     }
-  }
 
-  console.log(`   ↳ DSD-Fallback: ~${seriesEstimate.toLocaleString('de-DE')} Serien (Kreuzprodukt, Schätzwert)`)
-  return {
-    id: flow.id,
-    seriesCount: seriesEstimate,
-    obsCount: 0,
-    firstYear: '?',
-    lastYear: '?',
-    error: `Datenmenge zu groß für Download (${reason}) — Serienanzahl geschätzt aus DSD`,
+    console.log(`   ↳ DSD-Fallback: ~${seriesEstimate.toLocaleString('de-DE')} Serien (Schätzwert)`)
+    return {
+      id: flow.id,
+      seriesCount: seriesEstimate,
+      obsCount: 0,
+      firstYear: '?',
+      lastYear: '?',
+      error: `Datenmenge zu groß für Download — Serienanzahl geschätzt aus DSD`,
+    }
+  } catch (dsdErr) {
+    // Auch DSD nicht erreichbar — gib leeren Eintrag zurück
+    throw new Error(`Alle Endpunkte fehlgeschlagen. Daten: ${reason}. DSD: ${dsdErr instanceof Error ? dsdErr.message : String(dsdErr)}`)
   }
 }
 

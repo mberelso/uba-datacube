@@ -54,6 +54,7 @@ export default function CatalogPage() {
   }, [])
 
   const filtered = flows.filter((f) => {
+    if (getDatasetContent(f.id)?.excludeFromCatalog) return false
     const matchCat    = activeCategory ? f.category === activeCategory : true
     const matchSearch = search
       ? f.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -61,6 +62,8 @@ export default function CatalogPage() {
       : true
     return matchCat && matchSearch
   })
+
+  const visibleFlows = flows.filter((f) => !getDatasetContent(f.id)?.excludeFromCatalog)
 
   const byCategory: Record<string, Dataflow[]> = {}
   for (const f of filtered) {
@@ -106,7 +109,7 @@ export default function CatalogPage() {
           )}
         </h1>
         <p style={{ fontSize: 14, color: NORDIC.stone, fontWeight: 400 }}>
-          {flows.length} Datensätze des Umweltbundesamts · SDMX REST API
+          {visibleFlows.length} Datensätze des Umweltbundesamts · SDMX REST API
         </p>
 
         {/* Moss accent bar */}
@@ -153,14 +156,14 @@ export default function CatalogPage() {
         className="flex flex-wrap gap-2 mb-8"
       >
         <FilterPill
-          label={`Alle (${flows.length})`}
+          label={`Alle (${visibleFlows.length})`}
           active={activeCategory === null}
           color={NORDIC.navy}
           bg="#E8ECF0"
           onClick={() => handleCategoryClick(null)}
         />
         {CATEGORIES.map((cat) => {
-          const count = flows.filter((f) => f.category === cat.id).length
+          const count = visibleFlows.filter((f) => f.category === cat.id).length
           if (!count) return null
           return (
             <FilterPill

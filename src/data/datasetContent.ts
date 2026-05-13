@@ -43,6 +43,8 @@ export interface DatasetContent {
   labelOverrides?: Record<string, string>
   /** Override default chart type and series selection */
   defaultChartConfig?: DefaultChartConfig
+  /** Exclude this dataset from the catalog and dashboard counts (e.g. survey-only data not suited for time-series explorer) */
+  excludeFromCatalog?: boolean
 }
 
 export const DATASET_CONTENT: Record<string, DatasetContent> = {
@@ -631,6 +633,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_ENV_AWARENESS_STUDIES: {
+    excludeFromCatalog: true,
     displayName: 'Umweltbewusstseinsstudie',
     headline: 'Die Deutschen verknüpfen Umweltschutz zunehmend mit ihrer eigenen Gesundheit.',
     lead: 'Diese Studie erfasst seit 1996 alle zwei Jahre, wie die Bevölkerung in Deutschland über Umweltthemen denkt und handelt. 2024 steht dabei im Mittelpunkt, wie Menschen den Zusammenhang zwischen Umwelt, Gesundheit und Lebensqualität wahrnehmen — eine Verbindung, die politische Entscheidungen über Luftqualität, Lärm oder Klimaschutz direkt beeinflusst.',

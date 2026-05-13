@@ -18,11 +18,11 @@ export const CATEGORIES: CategoryMeta[] = [
   { id: 'TRANSPORT',    label: 'Verkehr',              color: '#8C8880', bg: '#F0EEEB', icon: '🚗', image: 'https://picsum.photos/seed/95/600/400'  },  // aerial highway interchange over coast
   { id: 'WATER',        label: 'Wasser',               color: '#3D5A6E', bg: '#E8F0F5', icon: '💧', image: 'https://picsum.photos/seed/1060/600/400' }, // river winding through valley
   { id: 'DAS',          label: 'Wassermonitoring',     color: '#7A9BAD', bg: '#EDF3F6', icon: '🌊', image: 'https://picsum.photos/seed/700/600/400' },  // pier with ocean waves
-  { id: 'WASTE',        label: 'Abfall',               color: '#4A6741', bg: '#EBF0EA', icon: '♻️', image: 'https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?w=600&q=80' }, // garbage truck / waste collection
+  { id: 'WASTE',        label: 'Abfall',               color: '#4A6741', bg: '#EBF0EA', icon: '♻️', image: 'https://images.unsplash.com/photo-1530587191325-3db32d826c18?w=600&q=80' }, // aerial ocean plastic debris — dark/moody
   { id: 'AGRICULTURE',  label: 'Landwirtschaft',       color: '#4A6741', bg: '#EDF2EB', icon: '🌿', image: 'https://picsum.photos/seed/35/600/400'  },  // plowed fields vs. green crops
   { id: 'AREA',         label: 'Fläche & Boden',       color: '#8C8880', bg: '#F0EEEB', icon: '🗺️', image: 'https://picsum.photos/seed/1000/600/400' }, // frost-covered agricultural field
   { id: 'ENV',          label: 'Umwelt & Wirtschaft',  color: '#1B2B3A', bg: '#E8ECF0', icon: '📊', image: 'https://picsum.photos/seed/280/600/400' },  // city skyline at sunset
-  { id: 'CONSUMPTION',  label: 'Konsum',               color: '#8C8880', bg: '#EEECEA', icon: '🛒', image: 'https://picsum.photos/seed/230/600/400' },  // fresh strawberries at market
+  { id: 'CONSUMPTION',  label: 'Konsum',               color: '#8C8880', bg: '#EEECEA', icon: '🛒', image: 'https://images.unsplash.com/photo-1553413077-190dd305871c?w=600&q=80' }, // dark warehouse corridor — cool gray tones
   { id: 'CROSS',        label: 'GHG-Projektionen',     color: '#3D5A6E', bg: '#EDF2F5', icon: '📈', image: 'https://picsum.photos/seed/340/600/400' },  // highway at sunset with traffic
   { id: 'PRTR',         label: 'Schadstoffregister',   color: '#1B2B3A', bg: '#E8ECF0', icon: '🏭', image: 'https://images.unsplash.com/photo-1611273426858-450d8e3c9fce?w=600&q=80' }, // factory chimneys with smoke
 ]

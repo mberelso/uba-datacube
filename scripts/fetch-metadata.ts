@@ -26,7 +26,7 @@ const args = process.argv.slice(2)
 const DRY_RUN = args.includes('--dry-run')
 const SINGLE_ID = args.includes('--id') ? args[args.indexOf('--id') + 1] : null
 const DELAY_MS = 800    // höfliche Pause zwischen API-Calls
-const TIMEOUT_MS = 25000  // 25s Timeout pro Request
+const TIMEOUT_MS = 60000  // 60s Timeout pro Request (große Datensätze wie Grundwasser)
 
 // ── Typen ───────────────────────────────────────────────────────────────────
 
@@ -196,9 +196,9 @@ function patchHandbook(content: string, meta: DatasetMeta): string {
       /\*\*Zeitraum:\*\* ⏳ API-Daten ausstehend[^\n]*/,
       `**Zeitraum:** ${zeitraum}`
     )
-    // Serien (nur Zeile die exakt "**Serien:** ⏳" enthält, nicht Beobachtungen)
+    // Serien — ⏳ ggf. gefolgt von redaktionellem Kommentar in Klammern
     block = block.replace(
-      /\*\*Serien:\*\* ⏳\s*$/m,
+      /\*\*Serien:\*\* ⏳[^\n]*/m,
       `**Serien:** ${serien}`
     )
     // Beobachtungen

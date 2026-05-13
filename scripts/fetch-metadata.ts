@@ -26,6 +26,7 @@ const args = process.argv.slice(2)
 const DRY_RUN = args.includes('--dry-run')
 const SINGLE_ID = args.includes('--id') ? args[args.indexOf('--id') + 1] : null
 const ONLY_MISSING = args.includes('--only-missing')
+const DSD_ONLY = args.includes('--dsd-only')  // direkt DSD, kein Daten-Download
 const DELAY_MS = 800    // höfliche Pause zwischen API-Calls
 const TIMEOUT_MS = 60000  // 60s Timeout pro Request (große Datensätze wie Grundwasser)
 
@@ -106,6 +107,11 @@ async function fetchMetadataForDataset(flow: FlowInfo): Promise<DatasetMeta> {
   const { id, version, agencyID } = flow
   const ref = `${agencyID},${id},${version}`
 
+  // --dsd-only: direkt Struktur abfragen ohne Daten-Download
+  if (DSD_ONLY) {
+    return await fetchMetadataFromStructure(flow, '--dsd-only flag gesetzt')
+  }
+
   // Erst CSV versuchen — schnell, vollständig, kein Duplicate-Key-Problem
   const csvUrl = `${BASE}/data/${ref}/all?format=csv`
   try {
@@ -170,7 +176,7 @@ async function fetchMetadataForDataset(flow: FlowInfo): Promise<DatasetMeta> {
     if (!r.ok) throw new Error(`HTTP ${r.status}`)
   } catch (jsonErr) {
     // Beide Datenpfade fehlgeschlagen — DSD-Struktur als letzter Ausweg
-    return fetchMetadataFromStructure(flow, jsonErr instanceof Error ? jsonErr.message : String(jsonErr))
+    return await fetchMetadataFromStructure(flow, jsonErr instanceof Error ? jsonErr.message : String(jsonErr))
   }
 
   const json = await r.json() as any

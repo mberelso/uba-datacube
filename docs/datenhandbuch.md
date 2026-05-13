@@ -172,7 +172,7 @@ Jahresniederschläge zeigen keinen einfachen Aufwärtstrend, aber Verteilung än
 ### Saisonale Temperaturen (`DF_CLIMATE_GERMANY_TEMPERATURE_SEASONAL`)
 **Status:** 📝 draft  
 **Zeitraum:** 1881–2025
-**Serien:** ⏳ (4 Jahreszeiten)  
+**Serien:** 136  
 **Beobachtungen:** 19.618
 **Chart:** Linie/Balken
 
@@ -204,7 +204,7 @@ Indexdarstellung relativ zu Basisjahr 2005. Erfasst Mengen, nicht Konzentratione
 ### Luftschadstoff-Emissionstrends seit 1990 (`DF_AIR_EMISSIONS_TRENDS`)
 **Status:** 📝 draft  
 **Zeitraum:** 1990–2024
-**Serien:** ⏳ (mehrere Schadstoffe: SO₂, NOₓ, NH₃, PM, Schwermetalle...)  
+**Serien:** 8.524  
 **Beobachtungen:** 286.740
 **Chart:** Linie/Balken  
 **⚠️ Hinweis:** Hohe Serienzahl erwartet (viele Schadstoffarten). Filter empfohlen.
@@ -237,7 +237,7 @@ Bruttoendenergieverbrauch nach EU-RED-Definition. Strom + Wärme + Verkehr. EU-Z
 ### Installierte Kapazität erneuerbarer Energien (`DF_ENERGY_AGEE_CAPACITY`)
 **Status:** 📝 draft  
 **Zeitraum:** 1990–2025
-**Serien:** ⏳ (Wind Land, Wind See, PV, Biomasse, Wasserkraft...)  
+**Serien:** 16  
 **Beobachtungen:** 576
 **Chart:** Stacked Area (vorkonfiguriert)
 
@@ -267,7 +267,7 @@ Installierte Leistung in GW. PV-Kapazität seit 2020 fast verdoppelt. Achtung: K
 ### Wärmeversorgung aus erneuerbaren Energien (`DF_ENERGY_AGEE_HEAT`)
 **Status:** 📝 draft  
 **Zeitraum:** 1990–2025
-**Serien:** ⏳ (Biomasse fest, Biogas, Solarthermie, Wärmepumpen, Tiefe Geothermie)  
+**Serien:** 17  
 **Beobachtungen:** 539
 **Chart:** Stacked Area (vorkonfiguriert)
 
@@ -330,7 +330,7 @@ Fast ausschließlich Biokraftstoffe. Strom aus Erneuerbaren trotz E-Auto-Boom no
 ### Endenergieverbrauch im Verkehr nach Energieträger (`DF_TRANSPORT_ENERGY_FINAL`)
 **Status:** 📝 draft  
 **Zeitraum:** 1995–2023
-**Serien:** ⏳ (Benzin, Diesel, Kerosin, Strom BEV, Elektro & Hybrid, Erdgas/Autogas)  
+**Serien:** 8  
 **Beobachtungen:** 197
 **Chart:** Stacked Area (vorkonfiguriert)
 
@@ -360,7 +360,7 @@ Nationales Fahrleistungskonzept (zählt auch im Ausland gefahrene km deutscher F
 ### Kraftstoffpreise an deutschen Tankstellen (`DF_TRANSPORT_ENERGY_FUEL_PRICES`)
 **Status:** 📝 draft  
 **Zeitraum:** 2006–2023
-**Serien:** ⏳ (Benzin, Diesel, Steueranteil...)  
+**Serien:** 2  
 **Beobachtungen:** 36
 **Chart:** Linie/Balken
 
@@ -375,7 +375,7 @@ Historische Höchststände 2022 (>2 €/l). Steueranteil konstant >50 %. KBA-Dat
 ### Güterverkehrsleistung nach Verkehrsträger (`DF_TRANSPORT_FREIGHT_PERFORMANCE_MEANS`)
 **Status:** 📝 draft  
 **Zeitraum:** 1991–2023
-**Serien:** ⏳ (Lkw Straße, Güterbahn, Binnenschiff, Pipeline, Luftfracht)  
+**Serien:** 12
 **Beobachtungen:** 396
 **Chart:** Stacked Area (vorkonfiguriert)
 
@@ -406,7 +406,7 @@ Schienenziel Bundesregierung 2030: 25 % Marktanteil. Aktuell weit darunter. Binn
 ### Personenverkehrsleistung nach Verkehrsträger (`DF_TRANSPORT_PASSENGER_PERFORMANCE_MEAN`)
 **Status:** 📝 draft  
 **Zeitraum:** 1991–2023
-**Serien:** ⏳ (Auto & Motorrad MIV, Bus & Tram ÖPNV, Bahn, Flugzeug)  
+**Serien:** 6  
 **Beobachtungen:** 198
 **Chart:** Stacked Area (vorkonfiguriert)
 
@@ -452,7 +452,7 @@ Aufschlüsselung nach konkretem Fahrzeugtyp. DLR + DIW Berlin-Hochrechnungen. >8
 ### Fahrleistung nach Antriebsart (`DF_TRANSPORT_PERFORMANCE_FUEL_VEHICLE_TYPE`)
 **Status:** 📝 draft  
 **Zeitraum:** 2006–2023
-**Serien:** ⏳ (Diesel, Benzin, Elektro, Hybrid...)  
+**Serien:** 5  
 **Beobachtungen:** 90
 **Chart:** Linie/Balken
 
@@ -467,7 +467,7 @@ Diesel höchste Jahresdurchschnittskilometer. E-Autos deutlich weniger (Zweitwag
 ### Gesamtfahrleistung nach Fahrzeugart (`DF_TRANSPORT_TOTAL_PERFORMANCE_VEHICLE_TYPE`)
 **Status:** 📝 draft  
 **Zeitraum:** 1991–2023
-**Serien:** ⏳ (Pkw, Lkw, Busse, Motorräder, Sonstige)  
+**Serien:** 11
 **Beobachtungen:** 363
 **Chart:** Stacked Area (vorkonfiguriert, Einheit: Milliarden km)
 
@@ -513,7 +513,7 @@ KBA-Hochrechnungen. Nach COVID-Einbruch 2020 rasche Erholung. Pkw ~75 % aller Fa
 ### Pkw-Neuzulassungen nach Kraftstoffart (`DF_TRANSPORT_VEHICLE_STOCK_TREND_FUEL`)
 **Status:** ✅ reviewed  
 **Zeitraum:** 2006–2025
-**Serien:** ⏳ (Diesel, Benzin, Sonstige, Hybrid, PHEV, BEV)  
+**Serien:** 18  
 **Beobachtungen:** 321
 **Chart:** Stacked Area (vorkonfiguriert)
 
@@ -543,7 +543,7 @@ KBA M1-Kategorie. Nur Fahrzeuge ab Erstzulassung 1990. SUV-Anteil wächst kontin
 ### Streckenlänge Straße und Schiene (`DF_TRANSPORT_ROUTES`)
 **Status:** 📝 draft  
 **Zeitraum:** 1991–2023
-**Serien:** ⏳ (Straßennetz, Schiene, Binnenwasserstraßen, Pipelines)  
+**Serien:** 13  
 **Beobachtungen:** 322
 **Chart:** Linie/Balken
 
@@ -558,7 +558,7 @@ Schienennetz seit 1990er Jahren geschrumpft. Bildet nur Länge ab, nicht Zustand
 ### Verkehrsfläche nach Bundesland (`DF_TRANSPORT_TRAFFIC_AREA_BUNDESLAND`)
 **Status:** 📝 draft  
 **Zeitraum:** 2016–2022
-**Serien:** ⏳ (16 Bundesländer)  
+**Serien:** 2.004
 **Beobachtungen:** 12.970
 **Chart:** Linie/Balken
 
@@ -590,11 +590,11 @@ Stichtag 31. Dezember. Summe über Jahrzehnte: mehrere hundert km² Zuwachs ≈ 
 
 ### Grundwasserqualität in Deutschland (`DF_WATER_GROUNDWATER`)
 **Status:** 📝 draft  
-**Zeitraum:** ⏳ API-Daten ausstehend  
-**Serien:** ⏳ (Messstellen × Parameter)  
-**Beobachtungen:** ⏳  
+**Zeitraum:** nicht abrufbar  
+**Serien:** nicht abrufbar  
+**Beobachtungen:** nicht abrufbar  
 **Chart:** Linie/Balken  
-**⚠️ Hinweis:** Hohe Serienzahl erwartet (viele Messstellen × Schadstoffparameter). Filter zwingend.
+**⚠️ Hinweis:** Datenmenge zu groß für automatischen Download — CSV und JSON timeoutten, DSD-Endpoint liefert keine Struktur. Manuell via UBA-Portal prüfen.
 
 > Deutschlands Grundwasser zeigt flächendeckend erhöhte Nitrat- und Schadstoffbelastung.
 
@@ -623,7 +623,7 @@ Statistisches Bundesamt. Sinkt seit 1990er trotz Bevölkerungswachstum. Private 
 ### Öffentliche Wasserversorgung nach Wasserart (`DF_WATER_PUB_SUPPLY`)
 **Status:** 📝 draft  
 **Zeitraum:** 2007–2022
-**Serien:** ⏳ (Grundwasser, Quellen, Oberflächenwasser, Uferfiltrat)  
+**Serien:** 68  
 **Beobachtungen:** 321
 **Chart:** Linie/Balken  
 **⚠️ Hinweis:** Dreijahres-Erhebungsrhythmus — weniger Datenpunkte als Jahresdaten.
@@ -656,7 +656,7 @@ GRACE-Satelliten messen Schwerefeldschwankungen → Wassermengen ober- und unter
 ### Abfluss der Fließgewässer (`DF_DAS_WASSER_WW_I_3`)
 **Status:** 📝 draft  
 **Zeitraum:** 1961–2021
-**Serien:** ⏳ (76 Pegel, Sommer/Winter-Halbjahr)  
+**Serien:** 2  
 **Beobachtungen:** 122
 **Chart:** Linie/Balken
 
@@ -671,7 +671,7 @@ Sommer-Halbjahr: statistisch signifikanter Rückgang seit 1961. Winter: kein sig
 ### Hochwasserereignisse an deutschen Flüssen (`DF_DAS_WASSER_WW_I_4`)
 **Status:** 📝 draft  
 **Zeitraum:** 1961–2021
-**Serien:** ⏳ (ausgewählte Pegel nach Flussgebiet)  
+**Serien:** 10
 **Beobachtungen:** 610
 **Chart:** Linie/Balken
 
@@ -717,7 +717,7 @@ Jährliche Abweichung vom Referenzwert. Norddeutsche Tiefebene und Alpenvorlands
 ### Frühjahrsalgenblüte in deutschen Seen (`DF_DAS_WASSER_WW_I_9`)
 **Status:** 📝 draft  
 **Zeitraum:** 2003–2021
-**Serien:** ⏳ (begrenzte Anzahl Seen)  
+**Serien:** 3  
 **Beobachtungen:** 45
 **Chart:** Linie/Balken  
 **⚠️ Hinweis:** Nur begrenzte Anzahl Seen — keine bundesweite Repräsentativität.
@@ -733,7 +733,7 @@ Brockmann Consult + CAU Kiel. Milde Winter + warme Frühjahre verschieben Start 
 ### Wassertemperatur der Fließgewässer (`DF_DAS_WASSER_WW_I_10`)
 **Status:** 📝 draft  
 **Zeitraum:** 1981–2021
-**Serien:** ⏳ (mehrere Flussregionen)  
+**Serien:** 6
 **Beobachtungen:** 173
 **Chart:** Linie/Balken  
 **⚠️ Hinweis:** Äschenregion: Zeitreihe zu kurz für belastbaren Langzeittrend.
@@ -764,7 +764,7 @@ Seit 2007 dauerhaft <20 % (kritische EU-Schwelle). Regional: Ostdeutschland und 
 ### GAK-Mittel für den Hochwasserschutz (`DF_DAS_WASSER_WW_R_2`)
 **Status:** 📝 draft  
 **Zeitraum:** 2007–2021
-**Serien:** ⏳ (Bund, Länder, EU-Anteile)  
+**Serien:** 4  
 **Beobachtungen:** 60
 **Chart:** Linie/Balken
 
@@ -797,7 +797,7 @@ GAK Sonderrahmenplan seit 2015. Mittelabflüsse, nicht Budgets — Projektverzö
 ### Haushaltsabfall nach Abfallart (`DF_WASTE_HOUSEHOLDS_TYPE`)
 **Status:** 📝 draft  
 **Zeitraum:** 2004–2023
-**Serien:** ⏳ (Bioabfall, Restmüll, Verpackungen, Papier, Sperrmüll...)  
+**Serien:** 39  
 **Beobachtungen:** 724
 **Chart:** Linie/Balken
 
@@ -843,7 +843,7 @@ Bruttomengenprinzip ab 2006. Europäischer Abfallkatalog. Informelle Entsorgung 
 ### Verpackungsabfall nach Material (`DF_WASTE_VOLUMENS_PACKAGING`)
 **Status:** 📝 draft  
 **Zeitraum:** 1991–2021
-**Serien:** ⏳ (Plastik, Glas, Papier, Metall...)  
+**Serien:** 20  
 **Beobachtungen:** 620
 **Chart:** Linie/Balken
 
@@ -892,7 +892,7 @@ Index-Basis 2010. Relative Entkopplung, keine absolute. Offizieller DNS-Indikato
 ### Schadholzeinschlag in deutschen Wäldern (`DF_AGRICULTURE_FORESTRY_DAMAGED_WOOD`)
 **Status:** 📝 draft  
 **Zeitraum:** 2006–2023
-**Serien:** ⏳ (Schadursache, Baumart, Waldbesitzart)  
+**Serien:** 120  
 **Beobachtungen:** 1.880
 **Chart:** Linie/Balken
 
@@ -907,7 +907,7 @@ Dürrejahre 2018–2020: historische Schadholz-Höchststände. Borkenkäfer + St
 ### Holzeinschlag in deutschen Wäldern (`DF_AGRICULTURE_FORESTRY_TIMBER_HARVEST`)
 **Status:** 📝 draft  
 **Zeitraum:** 2006–2024
-**Serien:** ⏳ (Holzart, Baumart, Eigentumsform)  
+**Serien:** 125
 **Beobachtungen:** 2.375
 **Chart:** Linie/Balken
 
@@ -922,7 +922,7 @@ Schadholzanteil >70 % des Gesamteinschlags nach 2018. Amtliche Holzeinschlagssta
 ### Waldbrandflächen und -ursachen (`DF_AGRICULTURE_FORESTRY_FOREST_FIRE_AREA`)
 **Status:** 📝 draft  
 **Zeitraum:** 1991–2023
-**Serien:** ⏳ (Fläche, Ursachen, Kosten)  
+**Serien:** 12
 **Beobachtungen:** 396
 **Chart:** Linie/Balken
 
@@ -955,7 +955,7 @@ EU-Ziel: ≤70 kg N/ha bis 2030. Deutschland verfehlt. EU-Vertragsverletzungsver
 ### Siedlungs- und Verkehrsfläche nach Bundesland (`DF_AREA_SOIL_LAND_ECOSYSTEMS_AREA`)
 **Status:** 📝 draft  
 **Zeitraum:** 2016–2022
-**Serien:** ⏳ (Bundesländer × Nutzungsarten)  
+**Serien:** 508  
 **Beobachtungen:** 3.540
 **Chart:** Linie/Balken — auch als Choropleth Map (AnalysePage)
 
@@ -972,7 +972,7 @@ EU-Ziel: ≤70 kg N/ha bis 2030. Deutschland verfehlt. EU-Vertragsverletzungsver
 ### Energieverbrauch nach Sektor (`DF_ENV_ECON_ENERGY_CONSUMPTION`)
 **Status:** 📝 draft  
 **Zeitraum:** 1995–2020
-**Serien:** ⏳ (Sektoren: Verkehr, Industrie, Haushalte, Gewerbe...)  
+**Serien:** 49
 **Beobachtungen:** 1.274
 **Chart:** Linie/Balken
 
@@ -987,7 +987,7 @@ Primärenergieverbrauch. Energieeffizienzgesetz 2023: −39 % bis 2030 ggü. 200
 ### Industrieenergieverbrauch nach Branche (`DF_ENV_ECON_ENERGY_USAGE`)
 **Status:** 📝 draft  
 **Zeitraum:** 1995–2020
-**Serien:** ⏳ (Branchen × Energieträger)  
+**Serien:** 637
 **Beobachtungen:** 12.251
 **Chart:** Linie/Balken  
 **⚠️ Hinweis:** Doppelzählung wenn Betriebe Brennstoff zur Eigenstromversorgung nutzen.
@@ -1001,7 +1001,7 @@ Primärenergieverbrauch. Energieeffizienzgesetz 2023: −39 % bis 2030 ggü. 200
 ### Materialverbrauch der deutschen Wirtschaft (`DF_ENV_ECON_MATERIAL_ACCOUNT`)
 **Status:** 📝 draft  
 **Zeitraum:** 1994–2023
-**Serien:** ⏳ (Rohstoffarten, Import/Export/Inland)  
+**Serien:** 260
 **Beobachtungen:** 7.727
 **Chart:** Linie/Balken
 
@@ -1016,7 +1016,7 @@ Physisches Gewicht aller Materialflüsse. Wasser + Luftgase ausgeklammert. Inlä
 ### Umweltschutzausgaben nach Träger (`DF_ENV_ECON_PROTECTION_EXPENDITURE`)
 **Status:** 📝 draft  
 **Zeitraum:** 2010–2022
-**Serien:** ⏳ (Staat, Unternehmen, Haushalte)  
+**Serien:** 10
 **Beobachtungen:** 122
 **Chart:** Linie/Balken
 
@@ -1031,7 +1031,7 @@ Umweltgesamtrechnungen StBA. Indirekte Kosten und kleine Akteure nicht vollstän
 ### Umweltschutzausgaben nach Umweltbereich (`DF_ENV_ECON_PROTECTION_EXPENDITURE_AREA`)
 **Status:** 📝 draft  
 **Zeitraum:** 2010–2022
-**Serien:** ⏳ (Gewässerschutz, Abfall, Luftreinhaltung, Lärm, Artenschutz...)  
+**Serien:** 10
 **Beobachtungen:** 98
 **Chart:** Linie/Balken
 
@@ -1061,7 +1061,7 @@ Energie-, Strom- und Kfz-Steuer + EU-ETS-Erlöse. Bildet ein, was der Staat einn
 ### Umweltsteuern nach Steuerart (`DF_ENV_ECON_TAXES`)
 **Status:** 📝 draft  
 **Zeitraum:** 2008–2023
-**Serien:** ⏳ (Energiesteuer, Stromsteuer, Kfz-Steuer, CO₂-Preis...)  
+**Serien:** 106  
 **Beobachtungen:** 1.680
 **Chart:** Linie/Balken
 
@@ -1078,7 +1078,7 @@ Bemessungsgrundlage: physische Einheit mit Umweltwirkung. Verhaltenswirkung nich
 ### Geräteausstattung nach Einkommensgruppe (`DF_CONSUMPTION_EQUIPMENT_LEVEL`)
 **Status:** 📝 draft  
 **Zeitraum:** 2021-01-01–2022-01-01
-**Serien:** ⏳ (Einkommensklassen × Gerätetypen)  
+**Serien:** 468
 **Beobachtungen:** 563
 **Chart:** Linie/Balken  
 **⚠️ Hinweis:** Nur alle 5 Jahre erhoben (EVS). Haushalte >18.000 €/Monat netto ausgeschlossen — Spreizung unterschätzt.
@@ -1110,7 +1110,7 @@ Selbstständige, Landwirte, Haushalte >18.000 €/Monat ausgeschlossen. EU-Ökod
 ### Globaler Umweltfußabdruck deutscher Haushalte (`DF_CONSUMPTION_GLOBAL_ENV_FOOTPRINT`)
 **Status:** 📝 draft  
 **Zeitraum:** 2010–2021
-**Serien:** ⏳ (Biokapazität, Materialverbrauch, THG)  
+**Serien:** 3  
 **Beobachtungen:** 36
 **Chart:** Linie/Balken  
 **⚠️ Hinweis:** Daten erscheinen mit mehrjähriger Verzögerung.
@@ -1141,7 +1141,7 @@ Inklusive Auslandseffekte (z.B. Lebensmittelimporte). DNS-Indikator 12.1.b. Durc
 ### Konsumausgaben privater Haushalte nach Verwendungszweck (`DF_CONSUMPTION_SPENDING_USE`)
 **Status:** 📝 draft  
 **Zeitraum:** 1991–2024
-**Serien:** ⏳ (Lebensmittel, Energie, Mobilität, Wohnen, Freizeit...)  
+**Serien:** 15  
 **Beobachtungen:** 510
 **Chart:** Linie/Balken  
 **⚠️ Hinweis:** Nominale Preise, nicht inflationsbereinigt — Preisanstieg und echter Verbrauch nicht trennbar.
@@ -1161,7 +1161,7 @@ Inklusive Auslandseffekte (z.B. Lebensmittelimporte). DNS-Indikator 12.1.b. Durc
 ### Rahmendaten der Treibhausgasprojektionen (`DF_CROSS_PROJECTION_REPORT_BASIC`)
 **Status:** 📝 draft  
 **Zeitraum:** 1991–2050
-**Serien:** ⏳ (Bevölkerung, BIP, Energiepreise, CO₂-Preis)  
+**Serien:** 152
 **Beobachtungen:** 4.284
 **Chart:** Linie/Balken
 
@@ -1191,7 +1191,7 @@ Langsameres Wirtschaftswachstum, leicht schrumpfende Bevölkerung. CO₂-Zertifi
 ### Klimaprojektionen Kernindikatoren 2023 (`DF_CROSS_PROJECTION_REPORT_CORE_INDICATORS_23`)
 **Status:** 📝 draft  
 **Zeitraum:** 2023–2050
-**Serien:** ⏳ (Sektoren)  
+**Serien:** 333  
 **Beobachtungen:** 7.635
 **Chart:** Linie/Balken
 
@@ -1206,7 +1206,7 @@ Sechs Forschungsinstitute im UBA-Auftrag. Energiesektor durch EE-Ausbau auf Kurs
 ### Klimaprojektionen Kernindikatoren 2025 (`DF_CROSS_PROJECTION_REPORT_CORE_INDICATORS_25`)
 **Status:** 📝 draft  
 **Zeitraum:** 2025–2050
-**Serien:** ⏳ (Sektoren × Szenarien)  
+**Serien:** 479
 **Beobachtungen:** 11.436
 **Chart:** Linie/Balken
 
@@ -1236,7 +1236,7 @@ Aktuellste Projektion. Lücke ggü. Vorjahr kaum geschlossen. Sechs Institute im
 ### Energiepreisentwicklung bis 2045 (`DF_CROSS_PROJECTION_REPORT_FINAL_CONSUMER_PRICES`)
 **Status:** 📝 draft  
 **Zeitraum:** 2025–2050
-**Serien:** ⏳ (Benzin, Erdgas, Strom, Fernwärme, Biomasse, Wasserstoff × Preisbestandteile)  
+**Serien:** 71  
 **Beobachtungen:** 1.811
 **Chart:** Linie/Balken
 
@@ -1253,7 +1253,7 @@ Prognos-Modell. CO₂-Preis als Haupttreiber für Verteuerung Fossiler. Wasserst
 ### Schadstofffreisetzungen der Industrie (`DF_PRTR`)
 **Status:** 📝 draft  
 **Zeitraum:** 2007–2022
-**Serien:** ⏳ (~90 Schadstoffe × Anlagen × Sektoren)  
+**Serien:** 11.651
 **Beobachtungen:** 14.137
 **Chart:** Linie/Balken  
 **⚠️ Hinweis:** Sehr hohe Serienzahl erwartet. Filter zwingend. Nur Anlagen über Kapazitätsschwelle — kleine Betriebe fehlen.
@@ -1269,7 +1269,7 @@ EU-PRTR-Verordnung 2006. Selbstmeldungen, behördlich geprüft, nicht flächende
 ### Schadstoffeinleitungen in Gewässer (`DF_PRTR_WASTE_WATER`)
 **Status:** 📝 draft  
 **Zeitraum:** 2007–2022
-**Serien:** ⏳ (Schadstoffe × Anlagen)  
+**Serien:** 2.617
 **Beobachtungen:** 13.950
 **Chart:** Linie/Balken  
 **⚠️ Hinweis:** Nur Anlagen über Meldeschwelle. Landwirtschaft und diffuse Quellen fehlen.

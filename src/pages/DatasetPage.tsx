@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useCallback } from 'react'
+import { useEffect, useRef, useState, useMemo, useCallback } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
@@ -184,6 +184,26 @@ export default function DatasetPage() {
     })
   }, [seriesMap, filters, dims, varyingDimIndices, applyLabelOverride])
 
+  const filteredSeriesRef = useRef(filteredSeries)
+  filteredSeriesRef.current = filteredSeries
+  const seriesMapRef = useRef(seriesMap)
+  seriesMapRef.current = seriesMap
+
+  // When filters change (user picked a filter dropdown value), auto-select the
+  // top 5 matching series by data density so the chart is never empty.
+  useEffect(() => {
+    const current = filteredSeriesRef.current
+    if (current.length === 0) return
+    const ranked = current
+      .map(({ key }) => {
+        const s = seriesMapRef.current[key]
+        const vals = s ? Object.values(s.observations).filter(v => v !== null) : []
+        return { key, count: vals.length }
+      })
+      .sort((a, b) => b.count - a.count)
+    setSelectedSeries(new Set(ranked.slice(0, 5).map(s => s.key)))
+  }, [filters])
+
   const applyPreset = useCallback((presetFilters: Record<string, string>) => {
     const targetVals = Object.values(presetFilters).filter(Boolean)
     const matchingKeys = Object.entries(seriesMap).filter(([_, s]) =>
@@ -195,7 +215,19 @@ export default function DatasetPage() {
   }, [seriesMap])
 
   const meta = flow ? getCategoryMeta(flow.category) : getCategoryMeta('')
-  const activeSeriesList = filteredSeries.filter((s) => selectedSeries.has(s.key))
+
+  // Assign colors by position in filteredSeries so sidebar and chart always match.
+  const seriesColorMap = useMemo(() => {
+    const map: Record<string, string> = {}
+    filteredSeries.forEach(({ key }, i) => {
+      map[key] = CHART_COLORS[i % CHART_COLORS.length]
+    })
+    return map
+  }, [filteredSeries])
+
+  const activeSeriesList = filteredSeries
+    .filter((s) => selectedSeries.has(s.key))
+    .map((s) => ({ ...s, color: seriesColorMap[s.key] }))
 
   // ── States ────────────────────────────────────────────────────────────────
 

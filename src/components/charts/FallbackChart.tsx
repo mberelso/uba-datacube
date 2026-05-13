@@ -8,7 +8,7 @@ export const CHART_COLORS = CHART_COLORS_PALETTE
 
 export interface ChartProps {
   chartData: any[]
-  activeSeriesList: { label: string }[]
+  activeSeriesList: { label: string; color?: string }[]
   chartType: 'line' | 'bar'
   exportMode?: boolean
 }
@@ -25,10 +25,10 @@ export function FallbackChart({ chartData, activeSeriesList, chartType }: ChartP
           <YAxis tick={{ fontSize: 10 }} width={70} tickFormatter={tickFmt} />
           <Tooltip content={<GlassTooltip />} />
           <Legend wrapperStyle={{ fontSize: 11, paddingTop: 10 }} iconType="circle" />
-          {activeSeriesList.map(({ label }, i) => (
+          {activeSeriesList.map(({ label, color }, i) => (
             <Line key={label} type="monotone" dataKey={label}
-              stroke={CHART_COLORS[i % CHART_COLORS.length]}
-              dot={chartData.length === 1 ? { r: 4 } : false} 
+              stroke={color ?? CHART_COLORS[i % CHART_COLORS.length]}
+              dot={chartData.length === 1 ? { r: 4 } : false}
               strokeWidth={2.5} connectNulls />
           ))}
         </LineChart>
@@ -39,9 +39,9 @@ export function FallbackChart({ chartData, activeSeriesList, chartType }: ChartP
           <YAxis tick={{ fontSize: 10 }} width={70} tickFormatter={tickFmt} />
           <Tooltip content={<GlassTooltip />} />
           <Legend wrapperStyle={{ fontSize: 11, paddingTop: 10 }} iconType="circle" />
-          {activeSeriesList.map(({ label }, i) => (
+          {activeSeriesList.map(({ label, color }, i) => (
             <Bar key={label} dataKey={label}
-              fill={CHART_COLORS[i % CHART_COLORS.length]} radius={[3, 3, 0, 0]} />
+              fill={color ?? CHART_COLORS[i % CHART_COLORS.length]} radius={[3, 3, 0, 0]} />
           ))}
         </BarChart>
       )}

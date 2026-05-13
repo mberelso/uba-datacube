@@ -57,6 +57,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
   },
 
   DF_CLIMATE_EMISSIONS_GHG_TRENDS: {
+    displayName: 'Treibhausgasemissionen nach Sektor',
     headline: 'Die Emissionen sinken – aber nicht schnell genug für das Klimaziel.',
     lead: 'Deutschland erfasst jährlich alle Treibhausgase (CO₂, Methan, Lachgas und F-Gase) in CO₂-Äquivalenten. Diese Gesamtemissionsbilanz ist das zentrale Steuerungsinstrument der Klimapolitik – an ihr wird gemessen, ob Deutschland seinen Beitrag zum Pariser Abkommen erfüllt.",',
     trend: 'Seit 1990 sind die Emissionen um rund 40 % gesunken, vor allem durch den Rückgang der Kohleverstromung und effizientere Industrie. Der größte Rückgang in den letzten Jahren kam durch höhere Energiepreise und den Ausbau erneuerbarer Energien – nicht durch strukturelle Veränderungen in Verkehr oder Landwirtschaft.',
@@ -66,6 +67,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
   },
 
   DF_ENERGY_AGEE_SHARE: {
+    displayName: 'Anteil erneuerbarer Energien am Gesamtverbrauch',
     headline: 'Jede dritte Kilowattstunde kommt heute aus erneuerbaren Quellen.',
     lead: 'Der Anteil erneuerbarer Energien am Bruttoendenergieverbrauch zeigt, wie weit Deutschland bei der Energiewende ist – nicht nur im Stromsektor, sondern auch in Wärme und Verkehr zusammen.',
     trend: 'Der Anteil stieg von unter 5 % im Jahr 2000 auf über 20 % im Stromsektor. Im gesamten Energieverbrauch (inkl. Wärme und Verkehr) liegt er deutlich darunter, weil diese Sektoren langsamer dekarbonisieren.',
@@ -76,6 +78,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_AGRICULTURE_FORESTRY_DAMAGED_WOOD: {
+    displayName: 'Schadholzeinschlag in deutschen Wäldern',
     headline: 'Deutschlands Wälder fallen in Rekordzahlen – Schäden treiben die Ernte.',
     lead: 'Dieser Datensatz erfasst, wie viel Schadholz in deutschen Wäldern eingeschlagen wird – aufgeschlüsselt nach Schadursache, Baumart und Waldbesitzart. Wer verstehen will, wie es dem deutschen Wald wirklich geht, findet hier einen der härtesten Faktenbelege: nicht Umfragen oder Modelle, sondern tatsächlich gefällte Bäume.',
     trend: 'Seit den Dürrejahren 2018 bis 2020 dominiert Schadholz den deutschen Holzeinschlag – Borkenkäferbefall, Sturmschäden und Trockenheit trieben die Mengen auf historische Höchststände. Fichtenreiche Wälder in Mittel- und Ostdeutschland verloren in kurzer Zeit Millionen Festmeter Holz; der Einschlag aus Schadensereignissen übertraf zeitweise den planmäßigen Einschlag bei Weitem.',
@@ -86,6 +89,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_AGRICULTURE_FORESTRY_FOREST_FIRE_AREA: {
+    displayName: 'Waldbrandflächen und -ursachen',
     headline: 'Deutschlands Wälder brennen häufiger – und der Mensch zündet meistens selbst.',
     lead: 'Dieser Datensatz erfasst seit den 1970er-Jahren, wie viele Hektar Wald in Deutschland jedes Jahr abbrennen, wer oder was das Feuer auslöst und wie viel Geld Behörden für Prävention und Bekämpfung ausgeben. Wer verstehen will, wie verwundbar unsere Wälder sind, findet hier die Grundlage.',
     trend: 'Die Brandflächen schwanken stark von Jahr zu Jahr, steigen aber in Trockenjahren wie 2018, 2019 und 2022 sprunghaft an – teils auf ein Vielfaches des langjährigen Mittels. Fahrlässigkeit und Brandstiftung durch Menschen verursachen den größten Teil der Feuer, Blitzschlag spielt eine untergeordnete Rolle.',
@@ -96,6 +100,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_AGRICULTURE_FORESTRY_NITROGEN_SURPLUS: {
+    displayName: 'Stickstoffüberschuss in der Landwirtschaft',
     headline: 'Deutschlands Äcker verlieren jedes Jahr Tausende Tonnen Stickstoff unkontrolliert.',
     lead: 'Dieser Datensatz misst, wie viel Stickstoff die deutsche Landwirtschaft jährlich mehr ausbringt, als Pflanzen aufnehmen – der Überschuss versickert ins Grundwasser, strömt in Flüsse oder entweicht als Treibhausgas in die Luft. Wer Trinkwasser trinkt, Flüsse schützen will oder wissen möchte, wie Bauernhöfe die Umwelt belasten, findet hier die Grundlage.',
     trend: 'Seit 1990 ist der Stickstoffüberschuss in der deutschen Landwirtschaft gesunken, stagniert aber seit Jahren auf einem Niveau weit über den politischen Zielwerten. Deutschland verfehlt die EU-Vorgabe von 70 Kilogramm Stickstoff je Hektar landwirtschaftlicher Fläche bis 2030 nach aktuellem Stand deutlich.',
@@ -106,6 +111,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_AGRICULTURE_FORESTRY_TIMBER_HARVEST: {
+    displayName: 'Holzeinschlag in deutschen Wäldern',
     headline: 'Deutschlands Wälder liefern weniger Holz – Dürre und Borkenkäfer zeigen Wirkung.',
     lead: 'Dieser Datensatz erfasst, wie viel Holz jährlich in deutschen Wäldern eingeschlagen wird – aufgeschlüsselt nach Holzart, Baumart und Eigentumsform. Wer verstehen will, ob deutsche Wälder noch als Rohstoffquelle und Klimaschützer funktionieren, findet hier die Grundlage.',
     trend: 'Nach Rekordjahren durch Zwangseinschläge infolge von Dürre, Sturm und Borkenkäferbefall ab 2018 sinken die Einschlagsmengen wieder – nicht weil die Wälder sich erholen, sondern weil schlicht weniger gesundes Holz verfügbar ist. Der Schadholzanteil dominierte zeitweise über 70 Prozent der gesamten Ernte und verschob den Markt massiv.',
@@ -116,6 +122,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_AIR_EMISSIONS_INDEX: {
+    displayName: 'Luftschadstoff-Emissionsindex',
     headline: 'Ammoniak blockiert Deutschlands Luftreinhaltung – ein Schadstoff hält den Index hoch.',
     lead: 'Dieser Datensatz zeigt, wie sich die Emissionen von Schadstoffen in der deutschen Luft seit 2005 verändert haben – von Stickoxiden über Feinstaub bis hin zu Schwefeldioxid. Wer wissen will, ob die Luft tatsächlich sauberer wird, findet hier die Antwort in Zahlen.',
     trend: 'Seit 2005 sind die Luftschadstoffemissionen in Deutschland insgesamt gesunken – der Index zeigt einen rückläufigen Trend über nahezu alle gemessenen Substanzen. Einzelne Schadstoffe wie Ammoniak aus der Landwirtschaft hartnäckig auf erhöhtem Niveau verharren jedoch weiterhin. Der Rückgang verläuft je nach Sektor sehr ungleichmäßig.',
@@ -126,6 +133,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_AIR_EMISSIONS_TRENDS: {
+    displayName: 'Luftschadstoff-Emissionstrends seit 1990',
     headline: 'Schwefeldioxid fast verschwunden, Ammoniak kaum gesunken – Deutschlands Luftbilanz seit 1990.',
     lead: 'Dieser Datensatz erfasst, wie viel Schmutz Deutschland jedes Jahr in die Luft bläst – von Stickoxiden aus Auspuffrohren bis zu giftigen Schwermetallen aus Industriekaminen. Wer wissen will, ob die Luft wirklich sauberer wird oder ob das nur auf dem Papier steht, findet hier die Antwort.',
     trend: 'Seit 1990 sind die Gesamtemissionen der meisten Schadstoffe deutlich gesunken – bei Schwefeldioxid etwa um über 90 Prozent. Doch bei bestimmten Stoffen wie Ammoniak aus der Landwirtschaft oder Feinstaub aus Holzheizungen stagniert der Rückgang oder kehrt sich teilweise um.',
@@ -136,6 +144,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_AREA_SOIL_LAND_ECOSYSTEMS_AREA: {
+    displayName: 'Siedlungs- und Verkehrsfläche nach Bundesland',
     headline: 'Siedlungsflächen wachsen – Deutschlands Böden versiegeln weiter.',
     lead: 'Dieser Datensatz erfasst, wie Deutschland seine Landfläche tatsächlich nutzt: wie viel Raum auf Äcker, Wälder, Straßen oder Siedlungen entfällt – und wie sich das Jahr für Jahr verschiebt. Wer wissen will, ob Deutschland seinen Boden schützt oder weiter zubaut, findet hier die Grundlage.',
     trend: 'Seit Jahren schrumpft die Landwirtschafts- und Naturfläche zugunsten von Siedlungs- und Verkehrsflächen. Pro Tag werden in Deutschland noch immer rund 50 Hektar neu überbaut – Tendenz langsam sinkend, aber weit entfernt von den politischen Zielvorgaben.',
@@ -146,6 +155,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_CLIMATE_ATMO_GHG_CONCENTRATION: {
+    displayName: 'Treibhausgaskonzentration in der Atmosphäre',
     headline: 'Deutschlands Luft zeigt: CO₂ steigt weiter, ohne Pause.',
     lead: 'Zwei Messstationen in Deutschland – eine im Schwarzwald, eine auf der Zugspitze – zeichnen rund um die Uhr auf, wie viel Kohlendioxid, Methan und Lachgas in der Atmosphäre stecken. Diese drei Gase heizen die Erde auf, und ihre Konzentration entscheidet darüber, ob die Klimaziele noch erreichbar sind – oder längst verfehlt wurden.',
     trend: 'Die Messdaten von April bis Dezember 2023 zeigen an beiden Standorten anhaltend hohe CO₂-Werte, die saisonale Schwankungen aufweisen, aber keinen Rückgang. Methan und Lachgas bewegen sich auf ähnlich erhöhtem Niveau. Eine Trendwende – also ein messbarer Rückgang der atmosphärischen Konzentration – ist in den Daten nicht erkennbar.',
@@ -156,6 +166,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_CLIMATE_EMISSIONS_F_GASES: {
+    displayName: 'F-Gas-Emissionen nach Sektor',
     headline: 'F-Gase heizen das Klima auf – obwohl sie kaum jemand kennt.',
     lead: 'Dieser Datensatz erfasst, wie viel Fluorkohlenwasserstoffe und verwandte Gase Deutschland jedes Jahr in die Atmosphäre entlässt – aufgeteilt nach Quellen wie Kälteanlagen, Klimaanlagen oder der Halbleiterindustrie. Diese Gase sind zwar unsichtbar und geruchlos, wirken aber teils tausendmal stärker als CO₂ – wer Klimaschutz ernst nimmt, muss sie im Blick behalten.',
     trend: 'Seit den 1990er Jahren haben sich die Emissionsquellen verschoben: Ältere Substanzen wurden verboten oder ersetzt, doch neuere F-Gas-Generationen füllen die Lücke. Besonders der Boom bei Klimaanlagen und Wärmepumpen treibt den Verbrauch bestimmter Kältemittel nach oben, während andere Sektoren ihre Emissionen reduziert haben.',
@@ -166,6 +177,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_CLIMATE_EMISSIONS_GHG_TRENDS_KSG: {
+    displayName: 'THG-Emissionen nach Klimaschutzgesetz-Sektoren',
     headline: 'Deutschland stößt weniger Treibhausgase aus – doch das Tempo reicht nicht.',
     lead: 'Dieser Datensatz erfasst, wie viele klimaschädliche Gase Deutschland jedes Jahr seit 1990 in die Atmosphäre bläst – aufgeteilt nach Wirtschaftsbereichen wie Verkehr, Industrie oder Landwirtschaft. Wer verstehen will, ob Deutschland seine Klimaversprechen einhält oder bricht, findet hier die Grundlage.',
     trend: 'Die deutschen Treibhausgasemissionen sinken seit 1990 kontinuierlich, zuletzt beschleunigt durch den Rückgang in der Energiewirtschaft und schwächere Industrieproduktion. Allerdings verfehlt der Verkehrssektor seine Zielwerte seit Jahren konsequent, während die Landwirtschaft kaum Fortschritte zeigt.',
@@ -199,6 +211,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_CLIMATE_GERMANY_HOT_DAYS: {
+    displayName: 'Heiße Tage und Tropennächte in Deutschland',
     headline: 'Deutschland erlebt dreimal so viele Hitzetage wie noch vor 60 Jahren.',
     lead: 'Dieser Datensatz zählt, an wie vielen Tagen im Jahr die Temperatur in Deutschland über 30 Grad steigt – gemittelt über die gesamte Fläche des Landes. Wer verstehen will, ob Sommer heißer werden, findet hier eine der klarsten Antworten: eine jahrzehntelange Zahlenreihe, die zeigt, wie sich Extremhitze in unserem Alltag ausbreitet.',
     trend: 'Die Zahl der Hitzetage steigt seit Jahrzehnten deutlich an – besonders seit den 1990er Jahren beschleunigt sich dieser Anstieg. Jahre mit mehr als zehn Hitzetagen, die früher Ausnahmen waren, treten inzwischen regelmäßig auf. Der Deutsche Wetterdienst bestätigt diesen Aufwärtstrend durch lineare Trendberechnungen über den gesamten Aufzeichnungszeitraum.',
@@ -209,6 +222,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_CLIMATE_GERMANY_PHENOLOGY: {
+    displayName: 'Phänologische Jahreszeiten in Deutschland',
     headline: 'Deutschlands Frühling beginnt heute Wochen früher als vor 50 Jahren.',
     lead: 'Dieser Datensatz des Deutschen Wetterdienstes erfasst, wann Pflanzen wie der Apfelbaum blühen, die Salweide austreibt oder das Schneeglöckchen erscheint – und wie sich diese Zeitpunkte über Jahrzehnte verschoben haben. Wer wissen will, ob der Klimawandel in Deutschland tatsächlich ankommt, bekommt hier eine der direktesten Antworten: Die Natur selbst zeigt es.',
     trend: 'Frühlingsboten wie das Schneeglöckchen und die Salweide blühen heute im Schnitt zwei bis vier Wochen früher als noch in den 1960er Jahren. Der Blattfall der Stieleiche dagegen setzt sich tendenziell nach hinten, was den Sommer biologisch verlängert. Diese Verschiebungen beschleunigen sich mit jedem weiteren Wärmerekord.',
@@ -219,6 +233,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_CLIMATE_GERMANY_PRECIPATION: {
+    displayName: 'Niederschlag in Deutschland seit 1881',
     headline: 'Deutschland wird nasser — aber das Wasser kommt zur falschen Zeit.',
     lead: 'Dieser Datensatz zeigt, wie viel Regen und Schnee pro Jahr in Deutschland fällt — gemessen seit Beginn systematischer Wetteraufzeichnungen. Wer verstehen will, ob Dürren und Überschwemmungen zunehmen oder ob sich das Klima grundlegend verändert, findet hier die Rohdaten dafür.',
     trend: 'Die Jahresniederschläge in Deutschland schwanken stark von Jahr zu Jahr, zeigen aber über die Jahrzehnte keinen einfachen Aufwärtstrend. Was sich verändert, ist die Verteilung: Starkregen häufen sich, während längere Trockenphasen im Sommer zunehmen — mehr Niederschlag bedeutet also nicht automatisch mehr Wasser dort, wo es gebraucht wird.',
@@ -229,6 +244,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_CLIMATE_GERMANY_TEMPERATURE_SEASONAL: {
+    displayName: 'Saisonale Temperaturen in Deutschland seit 1881',
     headline: 'Deutschlands Sommer sind heute fast zwei Grad wärmer als 1881.',
     lead: 'Dieser Datensatz zeigt, wie sich die Durchschnittstemperaturen in Deutschland über alle vier Jahreszeiten seit dem Beginn systematischer Wetteraufzeichnungen verändert haben. Wer verstehen will, ob der letzte Sommer wirklich ungewöhnlich heiß war oder ob der milde Winter zum Muster gehört, findet hier die Antwort.',
     trend: 'Alle vier Jahreszeiten zeigen seit dem späten 19. Jahrhundert einen deutlichen Erwärmungstrend, wobei der Sommer und der Frühling besonders stark betroffen sind. Die wärmsten Jahre konzentrieren sich auffällig auf die letzten drei Jahrzehnte, und kurzfristige Schwankungen überlagern einen langfristigen Anstieg von etwa 1,5 bis 2 Grad Celsius gegenüber dem Referenzzeitraum.',
@@ -239,6 +255,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_CLIMATE_GLOBAL_TEMPERATURE: {
+    displayName: 'Globale Temperaturanomalie seit 1880',
     headline: 'Die Erde ist heute rund 1,3 Grad wärmer als im vorindustriellen Zeitalter.',
     lead: 'Dieser Datensatz zeigt, wie stark sich die globale Oberflächentemperatur seit der vorindustriellen Zeit verändert hat – gemessen als Abweichung vom Durchschnitt der Jahre 1850 bis 1900. Wer verstehen will, ob die Welt die Klimaziele noch erreichen kann, findet hier die Grundlage.',
     trend: 'Die globale Mitteltemperatur steigt seit Mitte des 20. Jahrhunderts beschleunigt an. In den letzten Jahren überschritt die Abweichung erstmals und wiederholt die Marke von 1,5 Grad – jene Schwelle, die das Pariser Abkommen als kritische Grenze benennt. Der Trend zeigt klar nach oben, ohne Anzeichen einer Abschwächung.',
@@ -249,6 +266,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_CONSUMPTION_EQUIPMENT_LEVEL: {
+    displayName: 'Geräteausstattung nach Einkommensgruppe',
     headline: 'Ärmere Haushalte besitzen deutlich weniger Elektrogeräte als reiche.',
     lead: 'Dieser Datensatz erfasst, welche Konsumgüter sich deutsche Privathaushalte leisten – aufgeschlüsselt nach Einkommensklassen. Wer wissen will, ob eine Wärmepumpe, ein Elektroauto oder ein Energiespargerät überhaupt in den Alltag der meisten Menschen passt, findet hier die Grundlage.',
     trend: 'Die Ausstattungsquoten steigen über die Einkommensklassen hinweg deutlich an: Haushalte mit hohem Einkommen besitzen häufiger mehrere Fahrzeuge, Geschirrspüler und moderne Unterhaltungselektronik als Haushalte im unteren Einkommensdrittel. Gleichzeitig wächst die Gesamtausstattung mit Haushaltsgeräten langfristig in allen Einkommensgruppen, wenn auch in unterschiedlichem Tempo.',
@@ -259,6 +277,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_CONSUMPTION_EQUIPMENT_LEVEL_TOTAL: {
+    displayName: 'Geräteausstattung privater Haushalte',
     headline: 'Deutsche Haushalte kaufen mehr Geräte – trotz Klimazielen.',
     lead: 'Dieser Datensatz zeigt, wie viele Haushaltsgeräte und Konsumgüter deutsche Privathaushalte besitzen und nutzen – von Kühlschränken über Fernseher bis hin zu Waschmaschinen. Wer verstehen will, wie viel Energie und Rohstoffe der private Konsum tatsächlich verschlingt, findet hier eine der wenigen verlässlichen Grundlagen dafür.',
     trend: 'Die Ausstattung deutscher Haushalte mit Geräten ist über die Jahrzehnte kontinuierlich gestiegen – mehr Geräte pro Haushalt, mehr Geräte pro Person. Besonders Unterhaltungselektronik und Haushaltskleingeräte haben seit den 2000er Jahren stark zugelegt, während klassische Großgeräte wie Kühlschrank oder Waschmaschine inzwischen nahezu flächendeckend vorhanden sind.',
@@ -269,6 +288,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_CONSUMPTION_GLOBAL_ENV_FOOTPRINT: {
+    displayName: 'Globaler Umweltfußabdruck deutscher Haushalte',
     headline: 'Deutsche Haushalte verbrauchen mehr Ressourcen, als die Erde verkraftet.',
     lead: 'Dieser Datensatz misst, wie stark der alltägliche Konsum privater Haushalte in Deutschland die Umwelt weltweit belastet – von der Kleidung über Lebensmittel bis hin zu Elektronik. Wer wissen will, ob das eigene Einkaufen, Essen und Reisen die natürlichen Grenzen des Planeten überschreitet, findet hier die Antwort.',
     trend: 'Der ökologische Fußabdruck deutscher Haushalte ist in den vergangenen Jahren nur geringfügig gesunken – zu langsam, um die Ziele der Deutschen Nachhaltigkeitsstrategie zu erreichen. In allen drei gemessenen Bereichen – Biokapazität, Materialverbrauch und Treibhausgasemissionen – liegt Deutschland weiterhin deutlich über einem global verträglichen Niveau.',
@@ -279,6 +299,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_CONSUMPTION_LIVING_SPACE: {
+    displayName: 'Wohnfläche pro Person in Deutschland',
     headline: 'Deutsche Wohnfläche wächst – obwohl die Bevölkerung schrumpft.',
     lead: 'Dieser Datensatz erfasst, wie viele Wohngebäude und Wohnungen es in Deutschland gibt, wie groß sie sind und wie sich diese Zahlen über die Zeit verändern. Wer verstehen will, warum Heizenergie, Flächenverbrauch und Baukosten politisch so umstritten sind, findet hier die Grundlage.',
     trend: 'Die gesamte Wohnfläche in Deutschland steigt seit Jahrzehnten kontinuierlich an – nicht nur weil mehr gebaut wird, sondern weil die durchschnittliche Wohnfläche pro Person von rund 15 Quadratmetern in den 1950er-Jahren auf heute über 47 Quadratmeter gewachsen ist. Selbst in Regionen mit rückläufiger Bevölkerung nimmt die beanspruchte Fläche zu.',
@@ -289,6 +310,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_CONSUMPTION_SPENDING_USE: {
+    displayName: 'Konsumausgaben privater Haushalte nach Verwendungszweck',
     headline: 'Wofür Deutsche ihr Geld ausgeben, zeigt den ökologischen Fußabdruck der Gesellschaft.',
     lead: 'Dieser Datensatz erfasst, wie viel Geld private Haushalte in Deutschland Jahr für Jahr für Lebensmittel, Energie, Mobilität, Wohnen und andere Konsumbereiche ausgeben. Wer verstehen will, ob Deutschland nachhaltiger wird, muss wissen, wohin das Geld fließt – denn Konsum treibt Emissionen, Ressourcenverbrauch und Umweltverschmutzung direkt an.',
     trend: 'Die privaten Konsumausgaben sind in Deutschland über Jahrzehnte nominell gestiegen und lagen zuletzt bei über 1,8 Billionen Euro jährlich. Nach dem pandemiebedingten Einbruch 2020 zogen die Ausgaben 2021 und 2022 kräftig an, getrieben auch durch steigende Preise infolge der Inflation – was bedeutet, dass höhere Ausgaben nicht zwingend mehr gekauften Gütern entsprechen.',
@@ -299,6 +321,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_CROSS_PROJECTION_REPORT_BASIC: {
+    displayName: 'Rahmendaten der Treibhausgasprojektionen',
     headline: 'Deutschlands Klimaprojektionen stehen auf wackeligem Fundament aus Annahmen.',
     lead: 'Dieser Datensatz legt fest, mit welchen Annahmen Deutschlands Treibhausgasemissionen bis 2045 berechnet werden: Bevölkerungsentwicklung, Energiepreise, Wirtschaftswachstum. Wer verstehen will, ob Deutschland seine Klimaziele erreicht, muss diese Zahlen kennen – denn alle offiziellen Klimaprojektionen bauen darauf auf.',
     trend: 'Die Rahmendaten für 2023, 2024 und 2025 zeigen, dass Forschungsinstitute wie Oeko-Institut und Prognos ihre Annahmen zu Energiepreisen und Nachfrage laufend aktualisieren – ein Zeichen dafür, dass sich die wirtschaftlichen Rahmenbedingungen nach der Energiekrise 2022 weiterhin verschieben. Je nachdem, welche Preispfade für Gas, Strom und CO₂-Zertifikate angesetzt werden, divergieren die projizierten Emissionen erheblich.',
@@ -309,6 +332,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_CROSS_PROJECTION_REPORT_BASIC_26: {
+    displayName: 'Rahmendaten Projektion 2026',
     headline: 'Deutschland rechnet bis 2050 mit sinkenden Großhandelspreisen für fossile Energien.',
     lead: 'Dieser Datensatz beschreibt, wie sich Bevölkerung, Wirtschaftsleistung und Energiepreise in Deutschland bis 2050 entwickeln könnten. Diese Zahlen sind keine Vorhersagen, sondern Annahmen – sie legen fest, unter welchen Bedingungen Deutschland seine Klimaziele rechnerisch erreichen kann oder verfehlt.',
     trend: 'Die Projektionen zeigen, dass die deutsche Wirtschaft bis 2050 langsam wächst, während die Bevölkerung leicht schrumpft. Die Großhandelspreise für Erdgas und Strom sinken in den Modellrechnungen mittelfristig, während CO₂-Zertifikate im Emissionshandel deutlich teurer werden – ein Preissignal, das fossile Energien schrittweise unattraktiver machen soll.',
@@ -319,6 +343,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_CROSS_PROJECTION_REPORT_CORE_INDICATORS_23: {
+    displayName: 'Klimaprojektionen Kernindikatoren 2023',
     headline: 'Projektion 2023: Gebäude und Verkehr werden ihre Sektorziele bis 2030 verfehlen.',
     lead: 'Dieser Datensatz zeigt, wie sich Treibhausgasemissionen in Deutschland bis 2035 voraussichtlich entwickeln werden – aufgeschlüsselt nach Sektoren wie Verkehr, Gebäude, Industrie und Landwirtschaft. Wer verstehen will, ob Deutschland seine Klimaversprechen einhalten kann, findet hier die Zahlen dahinter.',
     trend: 'Die Projektionen des Umweltbundesamtes zeigen, dass Deutschland ohne zusätzliche Maßnahmen die gesetzlich festgelegten Sektorziele des Klimaschutzgesetzes bis 2030 nicht erreichen wird. Besonders der Gebäude- und der Verkehrssektor liegen deutlich hinter den erforderlichen Reduktionspfaden zurück, während der Energiesektor durch den beschleunigten Ausbau erneuerbarer Energien Fortschritte verzeichnet.',
@@ -329,6 +354,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_CROSS_PROJECTION_REPORT_CORE_INDICATORS_25: {
+    displayName: 'Klimaprojektionen Kernindikatoren 2025',
     headline: 'Projektion 2025: Selbst mit zusätzlichen Maßnahmen verfehlt Deutschland das 65-Prozent-Ziel.',
     lead: 'Dieser Datensatz berechnet, wie sich die deutschen Treibhausgasemissionen bis 2045 entwickeln werden – aufgeschlüsselt nach Sektoren wie Energie, Verkehr, Gebäude und Landwirtschaft. Wer verstehen will, ob Deutschland seine Klimaversprechen tatsächlich einhalten kann, findet hier die Zahlen dahinter.',
     trend: 'Die Projektionen zeigen, dass Deutschland zwar auf einem Pfad sinkender Emissionen liegt, aber in mehreren Sektoren – insbesondere Verkehr und Gebäude – die gesetzlich festgelegten Jahresbudgets voraussichtlich überschreiten wird. Ohne zusätzliche politische Maßnahmen klafft eine messbare Lücke zwischen dem prognostizierten Verlauf und den Zielen des Klimaschutzgesetzes für 2030 und 2045.',
@@ -339,6 +365,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_CROSS_PROJECTION_REPORT_CORE_INDICATORS_26: {
+    displayName: 'Klimaprojektionen Kernindikatoren 2026',
     headline: 'Projektion 2026: Die Lücke zu Deutschlands Klimazielen hat sich kaum geschlossen.',
     lead: 'Dieser Datensatz zeigt, wie sich die deutschen Treibhausgasemissionen bis in die 2040er Jahre entwickeln werden – aufgeteilt nach Sektoren wie Verkehr, Gebäude, Industrie und Landwirtschaft. Wer verstehen will, ob Deutschland seine Klimaversprechen einhalten kann, findet hier die Zahlengrundlage.',
     trend: 'Die Projektionen zeigen, dass Deutschland seinen Emissionsausstoß zwar schrittweise senkt, in mehreren Sektoren – besonders im Gebäude- und Verkehrsbereich – aber langsamer als geplant vorankommt. Ohne zusätzliche Maßnahmen reißt Deutschland die gesetzlich festgelegten Sektorziele für 2030 in mindestens zwei Bereichen. Die Lücke zwischen dem Zielpfad und der Projektion hat sich gegenüber früheren Berechnungen kaum geschlossen.',
@@ -349,6 +376,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_CROSS_PROJECTION_REPORT_FINAL_CONSUMER_PRICES: {
+    displayName: 'Energiepreisentwicklung bis 2045',
     headline: 'Strom, Gas, Sprit: So teuer wird Energie in Deutschland bis 2045.',
     lead: 'Dieser Datensatz zeigt, wie sich die Preise für Benzin, Erdgas, Strom, Fernwärme, Biomasse und Wasserstoff bis 2045 entwickeln werden – aufgeschlüsselt nach allen Preisbestandteilen von der Beschaffung bis zur Steuer. Wer heute ein Haus saniert, ein Auto kauft oder eine Heizung einbaut, trifft Entscheidungen, die Jahrzehnte wirken – und dieser Datensatz zeigt, mit welchen Energiekosten die Bundesregierung dabei rechnet.',
     trend: 'Die Projektionen zeigen steigende CO₂-Preise als zentralen Treiber: Mit dem wachsenden CO₂-Preis im nationalen Emissionshandel verteuern sich fossile Energieträger wie Erdgas und Heizöl deutlich, während Strom aus erneuerbaren Quellen langfristig wettbewerbsfähiger wird. Wasserstoff gilt in den Szenarien noch als teuer, soll aber ab den 2030er-Jahren günstiger werden.',
@@ -468,6 +496,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
   },
 
   DF_ENERGY_AGEE_CAPACITY: {
+    displayName: 'Installierte Kapazität erneuerbarer Energien',
     headline: 'Photovoltaik überholt Wind: Solar ist 2023 zur größten installierten Ökostrom-Quelle geworden.',
     lead: 'Dieser Datensatz zeigt, wie viel Strom aus Wind, Sonne, Biomasse und anderen erneuerbaren Quellen Deutschland theoretisch erzeugen kann – gemessen in installierter Leistung, Jahr für Jahr seit 1990. Wer verstehen will, wie schnell die Energiewende tatsächlich vorankommt, findet hier die nüchterne Messlatte.',
     trend: 'Die installierte Kapazität erneuerbarer Energien ist in drei Jahrzehnten nahezu ununterbrochen gewachsen. Photovoltaik hat Windkraft an Land inzwischen als größte installierte Kapazität überholt – obwohl Windkraft mehr Strom erzeugt, weil sie höhere Volllaststunden erreicht. Allein seit 2020 hat sich die PV-Kapazität fast verdoppelt.',
@@ -500,6 +529,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
   },
 
   DF_ENERGY_AGEE_ECONOMY: {
+    displayName: 'Investitionen in erneuerbare Energien',
     headline: '2023 flossen fast 39 Milliarden Euro in neue Erneuerbare-Anlagen – Rekord.',
     lead: 'Dieser Datensatz erfasst, wie viel Geld Deutschland seit dem Jahr 2000 in den Bau neuer Wind-, Solar- und Biogasanlagen investiert hat — und welche wirtschaftlichen Impulse der laufende Betrieb dieser Anlagen auslöst. Wer wissen will, ob die Energiewende auch als Konjunkturprogramm funktioniert, findet hier die Zahlen.',
     trend: 'Die Investitionen in neue Erneuerbare-Anlagen erreichten 2023 mit fast 39 Milliarden Euro einen historischen Höchststand, angetrieben durch den PV-Boom und den Offshore-Windausbau. Hinzu kommen über 23 Milliarden Euro an laufenden wirtschaftlichen Effekten aus dem Betrieb bestehender Anlagen – zusammen übersteigt die Branche die 60-Milliarden-Marke.',
@@ -509,6 +539,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
   },
 
   DF_ENERGY_AGEE_ELECTRICITY: {
+    displayName: 'Stromerzeugung aus erneuerbaren Energien',
     headline: 'Wind liefert mehr Strom als alle anderen Quellen zusammen – seit 2023.',
     lead: 'Dieser Datensatz zeigt, wie viel Strom Deutschland seit 1990 aus Wind, Sonne, Wasser und Biomasse erzeugt hat – aufgeschlüsselt nach Quelle und Jahr. Wer verstehen will, welche Technologie die Energiewende trägt, findet hier die Antwort.',
     trend: 'Windkraft an Land und auf See zusammen erzeugte 2023 mit über 141.000 GWh mehr Strom als Photovoltaik, Biomasse und Wasserkraft zusammen. Der Gesamtanteil erneuerbarer Energien überschritt 2023 erstmals die 50-Prozent-Marke des deutschen Bruttostromverbrauchs. Photovoltaik wächst seit 2022 am schnellsten und dürfte Wind in den nächsten Jahren einholen.',
@@ -541,6 +572,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
   },
 
   DF_ENERGY_AGEE_HEAT: {
+    displayName: 'Wärmeversorgung aus erneuerbaren Energien',
     headline: 'Biomasse heizt Deutschland – Wärmepumpen und Solar spielen noch Nebenrollen.',
     lead: 'Dieser Datensatz zeigt, wie viel Wärme und Kälte Deutschland seit 1990 aus erneuerbaren Quellen wie Solarthermie, Wärmepumpen und Biomasse erzeugt. Wer verstehen will, ob die Heizwende wirklich vorankommt, findet hier die härtesten Zahlen dazu.',
     trend: 'Der Anteil erneuerbarer Energien am Wärmeverbrauch stagniert zuletzt bei rund 17–18 Prozent. Biomasse trägt dabei über 80 Prozent des erneuerbaren Wärmebeitrags – Wärmepumpen und Solarthermie wachsen zwar schnell, kommen aber von einem sehr niedrigen Ausgangsniveau. Eine echte Heizwende erfordert eine Verzehnfachung der Wärmepumpenleistung bis 2045.',
@@ -577,6 +609,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
   },
 
   DF_ENERGY_AGEE_HEAT_PUMP_STAT: {
+    displayName: 'Wärmepumpen-Bestand und Installationen',
     headline: 'Über 2 Millionen Wärmepumpen in Deutschland – aber das Ziel von 500.000 Neuinstallationen pro Jahr wurde verfehlt.',
     lead: 'Dieser Datensatz zählt jede Wärmepumpe in Deutschland: wie viele es gibt, wie viel Wärme sie erzeugen und wie viel Energie sie dafür verbrauchen. Wer verstehen will, ob die Wärmewende tatsächlich Fahrt aufnimmt oder ins Stocken gerät, findet hier die härtesten verfügbaren Zahlen dazu.',
     trend: 'Ende 2025 waren rund 2,2 Millionen Wärmepumpen in Deutschland installiert – fast doppelt so viele wie noch 2019. Luft-Wasser-Anlagen dominieren als günstigste Variante den Markt. Der Bestand wächst kontinuierlich, doch Branchenverbände meldeten nach dem Boom 2023 einen deutlichen Einbruch bei Neuinstallationen 2024.',
@@ -587,6 +620,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_ENERGY_AGEE_TRANSPORT: {
+    displayName: 'Erneuerbare Energien im Verkehrssektor',
     headline: 'Erneuerbare Energien im Verkehr wachsen – aber viel zu langsam für Klimaziele.',
     lead: 'Dieser Datensatz zeigt, wie viel Energie aus erneuerbaren Quellen – vor allem Biokraftstoffe und Ökostrom – deutsche Autos, Busse und Bahnen seit 1990 antreiben. Wer wissen will, ob Deutschland seinen Verkehr wirklich grüner macht oder nur auf dem Papier Fortschritte meldet, findet hier die Zahlen.',
     trend: 'Der Anteil erneuerbarer Energien im Verkehrssektor steigt seit Jahren, wird aber fast ausschließlich von Biokraftstoffen getragen, während Strom aus Wind und Sonne trotz des E-Auto-Booms noch eine Nebenrolle spielt. Die Zuwächse fallen zu gering aus, um die gesetzlich verankerten Klimaziele im Verkehr zu erreichen – einem Sektor, der seine CO₂-Emissionen seit 1990 kaum gesenkt hat.',
@@ -597,6 +631,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_ENV_AWARENESS_STUDIES: {
+    displayName: 'Umweltbewusstseinsstudie',
     headline: 'Die Deutschen verknüpfen Umweltschutz zunehmend mit ihrer eigenen Gesundheit.',
     lead: 'Diese Studie erfasst seit 1996 alle zwei Jahre, wie die Bevölkerung in Deutschland über Umweltthemen denkt und handelt. 2024 steht dabei im Mittelpunkt, wie Menschen den Zusammenhang zwischen Umwelt, Gesundheit und Lebensqualität wahrnehmen — eine Verbindung, die politische Entscheidungen über Luftqualität, Lärm oder Klimaschutz direkt beeinflusst.',
     trend: 'Die Studienreihe zeigt über fast drei Jahrzehnte, wie sich Einstellungen und Verhaltensweisen in der Bevölkerung verschieben. Der Schwerpunkt 2024 deutet darauf hin, dass Umweltbewusstsein nicht mehr abstrakt bleibt, sondern an persönliche Gesundheit und Alltagsqualität geknüpft wird — ein Wandel, der das Mobilisierungspotenzial für Umweltpolitik erhöht.',
@@ -607,6 +642,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_ENV_ECON_ENERGY_CONSUMPTION: {
+    displayName: 'Energieverbrauch nach Sektor',
     headline: 'Deutschlands Gesamtenergieverbrauch sinkt – doch der Verkehr bleibt hartnäckig auf dem alten Niveau.',
     lead: 'Dieser Datensatz zeigt, wie viel Energie einzelne Wirtschaftsbereiche in Deutschland tatsächlich verbrauchen – von der Stahlindustrie bis zu privaten Haushalten. Wer verstehen will, wo Deutschland beim Klimaschutz ansetzen muss, findet hier die Grundlage: Nicht der Strom aus der Steckdose zählt, sondern der gesamte Energieeinsatz entlang der Produktion.',
     trend: 'Der Primärenergieverbrauch in Deutschland sinkt langfristig, vor allem seit dem Energiepreisschock 2022 hat die Industrie ihren Verbrauch spürbar gedrosselt. Gleichzeitig bleibt der Verkehrssektor hartnäckig auf hohem Niveau und bremst den Gesamtrückgang. Eine strukturelle Wende hin zu erneuerbaren Energien zeichnet sich in den Zahlen ab, vollzieht sich aber langsamer als politisch angestrebt.',
@@ -617,6 +653,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_ENV_ECON_ENERGY_USAGE: {
+    displayName: 'Industrieenergieverbrauch nach Branche',
     headline: 'Chemie und Stahl treiben Deutschlands Industrieenergieverbrauch – Gas bleibt der dominierende Brennstoff.',
     lead: 'Dieser Datensatz erfasst, wie viel Energie deutsche Unternehmen aus Kohle, Gas, Öl und anderen Quellen verbrauchen – aufgeschlüsselt nach Branche und Energieträger. Wer verstehen will, ob Deutschland seine Klimaziele erreicht, muss wissen, wo die Energie tatsächlich hinfließt.',
     trend: 'Der Energieverbrauch der Industrie ist zwar seit dem Krisenjahr 2022 leicht gesunken, doch der Rückgang beruht weniger auf echten Effizienzgewinnen als auf gedrosselter Produktion. Gasabhängige Sektoren wie Chemie und Stahl verbrauchen nach wie vor den Löwenanteil fossiler Brennstoffe.',
@@ -627,6 +664,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_ENV_ECON_MATERIAL_ACCOUNT: {
+    displayName: 'Materialverbrauch der deutschen Wirtschaft',
     headline: 'Deutschland verbraucht jährlich Milliarden Tonnen Material – Tendenz sinkend.',
     lead: 'Dieser Datensatz erfasst, wie viel Rohstoff Deutschland aus der Natur entnimmt, importiert, exportiert und als Abfall oder Schadstoffe wieder abgibt – alles gemessen in Gewicht. Wer verstehen will, ob die Wirtschaft wirklich ressourcenschonender wird oder ob Deutschland seinen Verbrauch einfach ins Ausland verlagert, findet hier die Grundlage.',
     trend: 'Der inländische Rohstoffabbau ist seit den 1990er Jahren spürbar zurückgegangen, vor allem weil weniger Braunkohle gefördert und weniger Baumaterial abgebaut wird. Gleichzeitig blieben die Importe hoch, was bedeutet: Deutschland entlastet seine eigene Umwelt, schiebt den Materialverbrauch aber teilweise auf andere Länder ab.',
@@ -637,6 +675,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_ENV_ECON_PROTECTION_EXPENDITURE: {
+    displayName: 'Umweltschutzausgaben nach Träger',
     headline: 'Unternehmen tragen den Löwenanteil des deutschen Umweltschutzes – der Staat folgt erst.',
     lead: 'Dieser Datensatz erfasst, wie viel Staat, Unternehmen und Haushalte in Deutschland ausgeben, um die Umwelt zu schützen – von der Abwasserbehandlung bis zum Artenschutz. Wer verstehen will, ob Deutschland seinen ökologischen Herausforderungen finanziell gewachsen ist, findet hier die Grundlage.',
     trend: 'Die Umweltschutzausgaben in Deutschland sind über die vergangenen Jahrzehnte nominell gestiegen, wobei Unternehmen den größten Anteil tragen. Ob dieser Anstieg jedoch mit den wachsenden ökologischen Anforderungen – etwa durch den Klimawandel oder den Biodiversitätsverlust – Schritt hält, lässt sich erst im Verhältnis zur Wirtschaftsleistung und zu konkreten Umweltzielen beurteilen.',
@@ -647,6 +686,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_ENV_ECON_PROTECTION_EXPENDITURE_AREA: {
+    displayName: 'Umweltschutzausgaben nach Umweltbereich',
     headline: 'Abwasser und Abfall schlucken zwei Drittel aller deutschen Umweltschutzausgaben.',
     lead: 'Dieser Datensatz erfasst, wie viel Staat, Unternehmen und Haushalte in Deutschland für den Schutz von Wasser, Luft, Artenvielfalt und weitere Umweltbereiche ausgeben – sowohl als Investitionen als auch als laufende Kosten. Wer wissen will, ob Klimaversprechen auch mit echtem Geld unterlegt sind, findet hier die Grundlage.',
     trend: 'Die Umweltschutzausgaben in Deutschland sind über die vergangenen Jahrzehnte insgesamt gestiegen, wobei Abwasserentsorgung und Abfallwirtschaft traditionell den größten Anteil beanspruchen. Ob diese Mittel im gleichen Tempo wachsen wie die gesetzlichen Anforderungen und ökologischen Schäden, lässt sich anhand der Zeitreihen direkt ablesen.',
@@ -657,6 +697,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_ENV_ECON_REVENUE_ENV_TAXES: {
+    displayName: 'Einnahmen aus Umweltsteuern und CO₂-Handel',
     headline: 'CO₂-Zertifikate spülen Milliarden in den Staatshaushalt – und der Betrag wächst jedes Jahr.',
     lead: 'Dieser Datensatz erfasst, wie viel Geld der deutsche Staat durch Steuern auf Energie, Kraftstoffe und andere umweltbelastende Produkte einnimmt. Wer Strom verbraucht, tankt oder fliegt, zahlt diese Steuern — oft ohne es zu merken. Die Höhe dieser Einnahmen zeigt, wie stark der Staat Umweltkosten in den Alltag einpreist.',
     trend: 'Die Einnahmen aus umweltbezogenen Steuern sind in Deutschland über die vergangenen Jahrzehnte insgesamt gestiegen, getrieben vor allem durch Energie- und Stromsteuer. Seit der Einführung des EU-Emissionshandels fließen zusätzlich Milliarden aus der Versteigerung von CO₂-Zertifikaten in die Staatskasse — ein Posten, der mit steigendem CO₂-Preis weiter wächst. Kurzfristige Rückgänge, etwa durch gesunkenen Energieverbrauch oder politische Entlastungsmaßnahmen wie die Energiepreisbremsen 2022, können die Kurve jedoch vorübergehend dämpfen.',
@@ -667,6 +708,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_ENV_ECON_TAXES: {
+    displayName: 'Umweltsteuern nach Steuerart',
     headline: 'Deutschland nimmt Milliarden durch Umweltsteuern ein – aber lenken sie wirklich um?',
     lead: 'Dieser Datensatz erfasst, wie viel Geld der deutsche Staat durch Steuern einnimmt, die direkt an umweltschädliches Verhalten geknüpft sind – etwa an den Verbrauch von Kraftstoff, Strom oder die Nutzung von Fahrzeugen. Wer verstehen will, ob die Politik tatsächlich mit Preissignalen auf Klimaschutz setzt, findet hier die Zahlen dahinter.',
     trend: 'Die Einnahmen aus umweltbezogenen Steuern bewegen sich in Deutschland seit Jahren auf hohem Niveau im dreistelligen Milliardenbereich, getragen vor allem durch Energiesteuern und die Kraftfahrzeugsteuer. Kurzfristige Schwankungen – etwa durch den gesenkten Energiesteuersatz auf Kraftstoffe 2022 – zeigen, wie empfindlich diese Einnahmen auf politische Eingriffe reagieren.',
@@ -677,6 +719,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_PRTR: {
+    displayName: 'Schadstofffreisetzungen der Industrie (PRTR)',
     headline: 'Deutschlands Fabriken melden seit 2007, wie viel Gift sie freisetzen.',
     lead: 'Dieses Register zeigt, welche Industrieanlagen in Deutschland Schadstoffe in Luft, Wasser und Boden entlassen — und in welchen Mengen. Wer wissen will, was aus dem Schlot seines Nachbarwerks kommt oder welche Flüsse industriell belastet sind, findet hier konkrete Zahlen statt Versprechen.',
     trend: 'Über den Berichtszeitraum von 2007 bis 2022 sind die gemeldeten Schadstoffmengen bei mehreren klassischen Luftschadstoffen wie Schwefeldioxid und Stickoxiden deutlich gesunken, was den Rückgang schwerer Industrie und strengeren Grenzwerten widerspiegelt. Bei bestimmten Chemikalien und Treibhausgasen aus spezifischen Sektoren stagnieren die Werte oder zeigen nur langsame Rückgänge.',
@@ -687,6 +730,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_PRTR_WASTE_WATER: {
+    displayName: 'Schadstoffeinleitungen in Gewässer (PRTR)',
     headline: 'Deutschlands Fabriken leiten seit 2007 weniger Schadstoffe in Gewässer ein.',
     lead: 'Dieser Datensatz zeigt, welche Industrieanlagen in Deutschland giftige Stoffe in Abwässer einleiten – von Schwermetallen bis zu Stickstoffverbindungen. Wer wissen will, ob die Fabrik am Fluss das Wasser verschmutzt, findet hier die gesetzlich gemeldeten Zahlen.',
     trend: 'Über den Berichtszeitraum von 2007 bis 2022 sind die gemeldeten Schadstoffmengen in Abwässer bei vielen Substanzen spürbar gesunken. Einzelne Schadstoffe wie Schwermetalle zeigen dabei stärkere Rückgänge als Nährstoffe wie Stickstoff und Phosphor, deren Einträge hartnäckiger auf erhöhtem Niveau verbleiben.',
@@ -697,6 +741,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_TRANSPORT_ENERGY_FINAL: {
+    displayName: 'Endenergieverbrauch im Verkehr nach Energieträger',
     headline: 'Der Verkehr verbrennt noch immer fast ausschließlich fossile Kraftstoffe.',
     lead: 'Dieser Datensatz zeigt, wie viel Energie der deutsche Verkehrssektor jedes Jahr verbraucht – aufgeschlüsselt nach Kraftstoffart, also Benzin, Diesel, Kerosin, Strom und anderen. Wer verstehen will, ob die Verkehrswende wirklich in Gang kommt, findet hier die Rohzahlen dahinter.',
     trend: 'Der Anteil fossiler Kraftstoffe am gesamten Endenergieverbrauch im Verkehr sinkt nur langsam, während Strom als Antriebsenergie zwar wächst, aber gemessen am Gesamtverbrauch noch eine marginale Rolle spielt. Diesel dominiert weiterhin den Schwerlast- und Güterverkehr, Benzin den Pkw-Bereich – an dieser Grundstruktur hat sich in den letzten Jahren wenig verändert.',
@@ -734,6 +779,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_TRANSPORT_ENERGY_FUEL_CONSUMPTION: {
+    displayName: 'Kraftstoffverbrauch im Straßenverkehr',
     headline: 'Mehr Fahrzeuge, mehr Kilometer – der Kraftstoffverbrauch sank erst mit dem E-Auto-Boom.',
     lead: 'Dieser Datensatz erfasst, wie viel Kraftstoff alle Pkw, Lkw und Motorräder in Deutschland zusammen verbrauchen – und wie viel davon jedes Fahrzeug im Schnitt schluckt. Wer wissen will, ob die Energiewende im Verkehr ankommt, findet hier eine der härtesten Kennzahlen: nicht Versprechen, sondern gemessener Verbrauch.',
     trend: 'Der Gesamtkraftstoffverbrauch im Straßenverkehr ist über Jahrzehnte gestiegen, trotz technisch effizienterer Motoren – weil gleichzeitig mehr Fahrzeuge mehr Kilometer zurücklegten. Erst in jüngerer Zeit zeigen sich erste Rückgänge, angetrieben durch den wachsenden Anteil von Elektrofahrzeugen und veränderte Mobilitätsmuster nach der Corona-Pandemie.',
@@ -744,6 +790,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_TRANSPORT_ENERGY_FUEL_PRICES: {
+    displayName: 'Kraftstoffpreise an deutschen Tankstellen',
     headline: 'Benzin und Diesel fressen einen wachsenden Teil des Haushaltsbudgets.',
     lead: 'Dieser Datensatz erfasst, wie viel Autofahrerinnen und Autofahrer in Deutschland im Durchschnitt pro Liter Benzin oder Diesel an der Tankstelle bezahlen – aufgeschlüsselt nach Steuern und Abgaben. Wer tankt, zahlt nicht nur für den Rohstoff, sondern finanziert damit auch Energiesteuer, Mehrwertsteuer und Ökosteuern – und dieser Datensatz zeigt genau, wie sich dieses Verhältnis über die Zeit verändert hat.',
     trend: 'Die Kraftstoffpreise erreichten 2022 infolge des russischen Angriffs auf die Ukraine historische Höchststände – Superbenzin (E10) kostete zeitweise über zwei Euro je Liter. Seitdem sind die Preise zwar gesunken, liegen aber strukturell höher als vor 2021. Der Steueranteil macht dabei konstant mehr als die Hälfte des Endpreises aus.',
@@ -754,6 +801,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_TRANSPORT_FREIGHT_PERFORMANCE_MEANS: {
+    displayName: 'Güterverkehrsleistung nach Verkehrsträger',
     headline: 'Der Lkw dominiert Deutschlands Güterverkehr – und sein Anteil wächst weiter.',
     lead: 'Dieser Datensatz zeigt, wie viele Tonnen Güter jedes Jahr über welche Verkehrswege durch Deutschland bewegt werden – aufgeteilt auf Lkw, Güterzüge und Binnenschiffe. Wer verstehen will, warum Autobahnen verstopfen, Brücken marode werden und CO₂-Ziele im Verkehr verfehlt werden, findet hier den Ausgangspunkt.',
     trend: 'Der Lkw trägt seit Jahren den mit Abstand größten Teil der Gütertransportleistung – zuletzt über 70 Prozent aller Tonnenkilometer in Deutschland. Die Bahn gewinnt zwar vereinzelt Anteile, bleibt aber strukturell abgeschlagen, während die Binnenschifffahrt stagniert oder leicht zurückgeht.',
@@ -788,6 +836,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_TRANSPORT_FREIGHT_PERFORMANCE_SHARE: {
+    displayName: 'Modal Split im Güterverkehr',
     headline: 'Bahn und Binnenschiff verlieren Anteile am deutschen Güterverkehr.',
     lead: 'Dieser Datensatz zeigt, wie viel Güter in Deutschland per Güterzug und Binnenschiff transportiert werden – und welchen Anteil diese umweltfreundlicheren Verkehrsträger am gesamten Frachtaufkommen haben. Wer wissen will, ob Deutschland seinen Güterverkehr tatsächlich von der Straße auf die Schiene verlagert, findet hier die Antwort.',
     trend: 'Der Anteil von Schiene und Binnenschifffahrt am gesamten Güterverkehr stagniert seit Jahren und liegt deutlich unter dem politisch angestrebten Niveau. Die Binnenschifffahrt verlor zuletzt Anteile, auch weil Niedrigwasserereignisse die Transportkapazitäten immer häufiger einschränken. Die Schiene konnte trotz Investitionsprogrammen keine substanziellen Anteilsgewinne gegenüber dem Lkw verbuchen.',
@@ -798,6 +847,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_TRANSPORT_PASSENGER_PERFORMANCE_MEAN: {
+    displayName: 'Personenverkehrsleistung nach Verkehrsträger',
     headline: 'Deutsche legen jährlich über 1 Billion Personenkilometer zurück – fast alles mit dem Auto.',
     lead: 'Dieser Datensatz zeigt, wie viele Kilometer alle Menschen in Deutschland jedes Jahr zusammen mit Auto, Bus, Bahn oder Flugzeug zurücklegen. Wer wissen will, ob die Verkehrswende tatsächlich stattfindet oder nur auf dem Papier existiert, findet hier die Antwort.',
     trend: 'Der motorisierte Individualverkehr – also private Pkw und Motorräder – macht nach wie vor den größten Teil der zurückgelegten Personenkilometer aus und hat sich nach dem pandemiebedingten Einbruch 2020 weitgehend erholt. Der Anteil der Bahn wächst langsam, bleibt aber deutlich hinter dem Straßenverkehr zurück. Der Luftverkehr nähert sich ebenfalls wieder dem Vorkrisenniveau.',
@@ -830,6 +880,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_TRANSPORT_PASSENGER_PERFORMANCE_SHARE: {
+    displayName: 'Modal Split im Personenverkehr',
     headline: 'Das 49-Euro-Ticket kam – doch der Autoanteil blieb fast unverändert.',
     lead: 'Dieser Datensatz misst, wie viele Kilometer Deutsche zu Fuß, mit dem Fahrrad, der Bahn oder dem Bus zurücklegen – im Verhältnis zum gesamten Personenverkehr. Wer wissen will, ob die Verkehrswende tatsächlich stattfindet oder nur auf dem Papier existiert, findet hier eine der direktesten Antworten.',
     trend: 'Seit 2003 schwankt der Anteil umweltfreundlicher Verkehrsmittel am deutschen Personenverkehr, ohne einen klaren Aufwärtstrend zu zeigen – das Auto dominiert die zurückgelegten Kilometer nach wie vor. Die Pandemiejahre 2020 und 2021 verzerrten das Bild kurzfristig, weil der öffentliche Verkehr einbrach, während der Radverkehr zulegte.',
@@ -840,6 +891,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_TRANSPORT_PASSENGER_PERF_VEHICLE_TYPE_MEANS: {
+    displayName: 'Personenverkehrsleistung nach Fahrzeugart',
     headline: 'SUV oder Zug? Welches Fahrzeug die meisten Personenkilometer erzeugt.',
     lead: 'Dieser Datensatz schlüsselt auf, wie viele Kilometer Menschen in Deutschland mit welchem konkreten Fahrzeugtyp zurücklegen — von Pkw-Klassen bis zu Fern- und Nahverkehrszügen. Wer verstehen will, welche Fahrzeuge die Klimabilanz des Verkehrs wirklich treiben, findet hier die Grundlage.',
     trend: 'Das private Auto erbringt nach wie vor den mit Abstand größten Anteil der gesamten Personenverkehrsleistung in Deutschland – mehr als 80 Prozent der Personenkilometer entfallen auf den motorisierten Individualverkehr. Bahn und öffentlicher Nahverkehr gewinnen zwar langsam Anteile, doch das Gesamtbild verschiebt sich nur träge.',
@@ -850,6 +902,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_TRANSPORT_PERFORMANCE_FUEL_VEHICLE_TYPE: {
+    displayName: 'Fahrleistung nach Antriebsart',
     headline: 'Elektroautos fahren im Schnitt weniger Kilometer als Verbrenner.',
     lead: 'Dieser Datensatz zeigt, wie viele Kilometer Pkw in Deutschland je nach Antriebsart im Jahresdurchschnitt zurücklegen – also ob Benziner, Dieselfahrzeuge oder Elektroautos tatsächlich unterschiedlich intensiv genutzt werden. Das berührt jeden, der wissen will, ob die Verkehrswende im Alltag schon angekommen ist.',
     trend: 'Dieselfahrzeuge legen nach wie vor die höchsten Jahresdurchschnittskilometer zurück, was ihren anhaltenden Einsatz im Berufs- und Fernverkehr widerspiegelt. Elektroautos erreichen bislang deutlich geringere Durchschnittswerte, was auf kürzere Alltagsfahrten oder eine Nutzung als Zweitwagen hindeutet. Der Abstand verringert sich jedoch mit steigender Zulassungszahl und wachsender Ladeinfrastruktur schrittweise.',
@@ -860,6 +913,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_TRANSPORT_PUBLIC_PASSENGERS_BUS_TRAIN: {
+    displayName: 'Fahrgastzahlen im öffentlichen Nahverkehr',
     headline: 'Busse und Bahnen verlieren Fahrgäste – und gewinnen sie nur langsam zurück.',
     lead: 'Dieser Datensatz zählt, wie viele Menschen in Deutschland pro Quartal Busse und Bahnen des öffentlichen Nahverkehrs nutzen. Wer wissen will, ob der Umstieg vom Auto auf öffentliche Verkehrsmittel tatsächlich stattfindet, findet hier die härteste verfügbare Zahl dazu.',
     trend: 'Die Fahrgastzahlen brachen 2020 durch die Corona-Pandemie massiv ein – in manchen Quartalen um über 40 Prozent gegenüber dem Vorjahreszeitraum. Seitdem steigen die Zahlen wieder, haben aber das Niveau von 2019 noch nicht vollständig erreicht. Der Erholungskurs verläuft schleppend und ungleichmäßig über die Quartale.',
@@ -870,6 +924,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_TRANSPORT_ROUTES: {
+    displayName: 'Streckenlänge Straße und Schiene',
     headline: 'Deutschlands Straßennetz wächst, während die Schiene stagniert.',
     lead: 'Dieser Datensatz erfasst, wie viele Kilometer Straßen, Schienen, Binnenwasserstraßen und Pipelines in Deutschland existieren – und wie sich diese Zahlen über die Jahre verändert haben. Wer verstehen will, ob Deutschland seine Verkehrsinfrastruktur wirklich in Richtung Schiene und weg vom Auto umbaut, findet hier die Grundlage.',
     trend: 'Die Daten zeigen, dass das Straßennetz in Deutschland über Jahrzehnte kontinuierlich ausgebaut wurde, während das Schienennetz seit den 1990er Jahren geschrumpft ist und sich seitdem kaum erholt hat. Diese Schere zwischen Straße und Schiene hat sich trotz politischer Bekenntnisse zur Verkehrswende nicht geschlossen.',
@@ -880,6 +935,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_TRANSPORT_TOTAL_PERFORMANCE_VEHICLE_TYPE: {
+    displayName: 'Gesamtfahrleistung nach Fahrzeugart',
     headline: 'Über 700 Milliarden Fahrzeugkilometer pro Jahr – Pkw stellen drei Viertel davon.',
     lead: 'Dieser Datensatz zeigt, wie viele Kilometer alle Kraftfahrzeuge in Deutschland pro Jahr zurücklegen – aufgeschlüsselt nach Fahrzeugtyp, von Motorrädern bis zum Sattelzug. Wer verstehen will, ob der Verkehr wirklich klimafreundlicher wird, muss wissen, ob die Gesamtfahrleistung sinkt oder steigt – denn selbst sauberere Autos nützen wenig, wenn immer mehr gefahren wird.',
     trend: 'Die Gesamtfahrleistung auf deutschen Straßen ist über Jahrzehnte nahezu kontinuierlich gewachsen und liegt aktuell bei über 700 Milliarden Fahrzeugkilometern pro Jahr. Nach einem deutlichen Einbruch während der COVID-19-Pandemie 2020 erholten sich die Werte rasch und nähern sich wieder dem Vorkrisenniveau. PKW stellen dabei konstant den größten Anteil – rund drei Viertel aller gefahrenen Kilometer entfallen auf sie.',
@@ -909,6 +965,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_TRANSPORT_TRAFFIC_AREA_BUNDESLAND: {
+    displayName: 'Verkehrsfläche nach Bundesland',
     headline: 'Bundesland für Bundesland: Wo Deutschland am meisten Boden für Verkehr verbraucht.',
     lead: 'Dieser Datensatz erfasst, wie viel Fläche in jedem Bundesland tatsächlich für Straßen, Wege, Parkplätze und sonstige Verkehrsinfrastruktur genutzt wird. Wer wissen will, wo Deutschland seinen Boden versiegelt und wie sich das von Bundesland zu Bundesland unterscheidet, findet hier die Grundlage.',
     trend: 'Die Verkehrsflächen in Deutschland nehmen seit Jahrzehnten kontinuierlich zu – jedes neue Gewerbegebiet, jede Ortsumgehung, jeder Großparkplatz schlägt sich in diesen Zahlen nieder. Zwar verlangsamt sich das Wachstum leicht, doch eine Trendwende hin zur Flächenreduktion ist in keinem Bundesland erkennbar.',
@@ -919,6 +976,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_TRANSPORT_TRAFFIC_AREA_LONG_TIMESERIES: {
+    displayName: 'Verkehrsfläche Deutschland Langzeitreihe',
     headline: 'Deutschlands Verkehrsfläche wächst seit drei Jahrzehnten ungebremst.',
     lead: 'Dieser Datensatz erfasst, wie viel Fläche in Deutschland für Straßen, Wege, Parkplätze und andere Verkehrsinfrastruktur genutzt wird — gemessen in Quadratkilometern, jährlich seit 1992. Wer verstehen will, wie stark der Autoverkehr die Landschaft verändert, findet hier eine der wenigen langfristigen Messreihen dazu.',
     trend: 'Seit 1992 steigt die Verkehrsfläche in Deutschland kontinuierlich an, ohne erkennbare Trendwende — auch in Jahren, in denen die Politik Flächensparziele ausgegeben hat. Der Zuwachs summiert sich über drei Jahrzehnte auf mehrere hundert Quadratkilometer, was einer Fläche größer als Berlin entspricht.',
@@ -929,6 +987,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_TRANSPORT_VEHICLE_STOCK_SEGMENT: {
+    displayName: 'Pkw-Bestand nach Fahrzeugsegment',
     headline: 'SUVs verdrängen Kleinwagen – Deutschlands Autoflotte wird größer und schwerer.',
     lead: 'Dieser Datensatz zeigt, wie viele Pkw in Deutschland auf der Straße sind – aufgeschlüsselt nach Fahrzeugklassen wie Kleinwagen, Kompaktklasse oder SUV. Wer wissen will, ob die Deutschen tatsächlich umsteigen, findet hier die Antwort: nicht in Meinungsumfragen, sondern im tatsächlichen Fahrzeugbestand zum 1. Januar jeden Jahres.',
     trend: 'Der Bestand an SUVs und Geländewagen wächst seit Jahren kontinuierlich und macht inzwischen einen der größten Anteile am gesamten Pkw-Bestand aus, während klassische Kleinwagen anteilig schrumpfen. Gleichzeitig steigt die Gesamtzahl zugelassener Pkw weiter an, was bedeutet: Mehr Autos, im Schnitt größer und schwerer als noch vor zehn Jahren.',
@@ -939,6 +998,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_TRANSPORT_VEHICLE_STOCK_TREND: {
+    displayName: 'Pkw-Bestand nach Antriebsart',
     headline: '49 Millionen Autos – und davon sind nur 3 % elektrisch.',
     lead: 'Dieser Datensatz zeigt, wie sich der Fahrzeugbestand in Deutschland über die Jahre verändert — aufgeschlüsselt nach Antriebsart, von Benzinern bis zu Elektroautos. Wer wissen will, ob die Verkehrswende auf der Straße ankommt, findet hier die Antwort.',
     trend: 'Der Gesamtbestand hat sich auf rund 49 Millionen Pkw eingependelt. Elektroautos wuchsen rasant auf über 1,65 Millionen — aber gemessen an der Gesamtflotte machen sie gerade einmal 3 % aus. Diesel und Benziner dominieren weiterhin mit über 90 % des Bestands, was zeigt: Die Flottenwende ist gestartet, aber noch weit von einer Trendwende entfernt.',
@@ -948,6 +1008,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
   },
 
   DF_TRANSPORT_VEHICLE_STOCK_TREND_FUEL: {
+    displayName: 'Pkw-Neuzulassungen nach Kraftstoffart',
     headline: 'Von 2.000 auf 1,65 Millionen: Deutschlands E-Auto-Bestand in 20 Jahren.',
     lead: 'Dieser Datensatz zählt jedes Jahr, wie viele Pkw und Lkw in Deutschland zugelassen sind – aufgeschlüsselt nach Antriebsart: Benzin, Diesel, Elektro, Hybrid und weitere. Er macht sichtbar, wie schnell sich die Flotte auf der Straße tatsächlich verändert.',
     trend: 'Zwischen 2021 und 2025 verfünffachte sich die Zahl der reinen Elektro-Pkw auf über 1,65 Millionen. Plug-in-Hybride legten im gleichen Zeitraum auf knapp 967.000 zu. Gemessen am Gesamtbestand von rund 49 Millionen Pkw machen Elektrofahrzeuge aber weiterhin nur etwa 3 % aus.',
@@ -1000,6 +1061,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_WASTE_HOUSEHOLDS_TYPE: {
+    displayName: 'Haushaltsabfall nach Abfallart',
     headline: 'Deutsche Haushalte produzieren mehr Müll als je zuvor.',
     lead: 'Dieser Datensatz erfasst, wie viel Abfall private Haushalte in Deutschland pro Jahr erzeugen und an die öffentliche Müllabfuhr übergeben — von Biotonnen über Restmüll bis hin zu Verpackungen aus dem Grünen Punkt. Wer verstehen will, ob Recyclingkampagnen und Verpackungsgesetze tatsächlich wirken, findet hier die Grundlage.',
     trend: 'Die Abfallmengen aus Haushalten sind in Deutschland über die vergangenen Jahrzehnte trotz Recyclinginitiativen insgesamt gestiegen, angetrieben durch wachsenden Onlinehandel, mehr Verpackungen und veränderte Konsummuster. Kurzfristige Rückgänge in einzelnen Kategorien werden durch Zuwächse in anderen Bereichen regelmäßig ausgeglichen.',
@@ -1010,6 +1072,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_WASTE_RECOVERY_RATE: {
+    displayName: 'Recycling- und Verwertungsquoten',
     headline: 'Deutschland recycelt mehr Abfall – doch die Fortschritte verlangsamen sich.',
     lead: 'Dieser Datensatz zeigt, wie viel Abfall in Deutschland wiederverwertet wird – also nicht auf der Deponie landet, sondern als Material oder Energie zurück in den Kreislauf fließt. Wer wissen will, ob Deutschlands Mülltrennung wirklich etwas bewirkt, findet hier die Antwort.',
     trend: 'Die Recyclingquote ist über die vergangenen Jahrzehnte gestiegen, hat aber in den letzten Jahren ein Plateau erreicht. Leicht verwertbare Abfallströme wie Papier und Glas sind bereits gut erschlossen – Zuwächse kommen jetzt vor allem aus schwieriger zu trennenden Materialien wie Verbundwerkstoffen und Elektroschrott.',
@@ -1020,6 +1083,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_WASTE_RE_T_RAW_MATERIAL_PROD: {
+    displayName: 'Rohstoffproduktivität der deutschen Wirtschaft',
     headline: 'Deutschland produziert mehr Wirtschaftsleistung pro verbrauchter Tonne Rohstoff.',
     lead: 'Dieser Datensatz misst, wie viel Wirtschaftsleistung Deutschland aus jeder Tonne eingesetzter Rohstoffe herausholt – ob Erz, Holz oder importiertes Öl. Wer weniger Material für denselben Wohlstand braucht, schont Böden, Gewässer und Klima. Die Kennzahl zeigt, ob Wachstum und Ressourcenverbrauch tatsächlich entkoppelt werden.',
     trend: 'Seit 2010 steigt die Rohstoffproduktivität in Deutschland – die Wirtschaft wächst, während der Materialeinsatz langsamer zunimmt oder zeitweise sinkt. Der Index-Anstieg zeigt eine relative Entkopplung, keine absolute: Deutschland verbraucht insgesamt noch immer erhebliche Mengen an Primärrohstoffen. Ob dieser Trend stabil bleibt oder auf statistischen Verschiebungen durch mehr Importe beruht, ist politisch umstritten.',
@@ -1030,6 +1094,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_WASTE_VOLUME: {
+    displayName: 'Gesamtabfallaufkommen nach Entsorgungsweg',
     headline: 'Deutschland produziert jährlich Millionen Tonnen Abfall – die Bilanz zeigt, wohin er fließt.',
     lead: 'Dieser Datensatz erfasst, wie viel Abfall in Deutschland entsteht, in welche Kategorien er fällt und ob er recycelt, verwertet oder entsorgt wird. Wer wissen will, ob Deutschlands Kreislaufwirtschaft funktioniert oder ob Müll nur verlagert wird, findet hier die Grundlage.',
     trend: 'Die Abfallmengen in Deutschland sind seit den 2000er Jahren nicht grundsätzlich gesunken – trotz wachsender Recyclingquoten. Zwar steigt der Anteil der verwerteten Abfälle, doch das Gesamtaufkommen bleibt auf hohem Niveau, was zeigt, dass Vermeidung hinter Verwertung zurückbleibt.',
@@ -1040,6 +1105,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_WASTE_VOLUMENS_PACKAGING: {
+    displayName: 'Verpackungsabfall nach Material',
     headline: 'Deutschland verpackt mehr – der Müllberg aus Plastik, Papier und Glas wächst.',
     lead: 'Dieser Datensatz zeigt, wie viel Verpackungsmaterial in Deutschland Jahr für Jahr auf den Markt kommt – aufgeteilt nach Materialien wie Plastik, Glas, Papier und Metall. Wer wissen will, ob Recyclingpflichten und Mehrweginitiativen tatsächlich etwas bewirken, findet hier die Grundlage.',
     trend: 'Die Gesamtmenge an Verpackungen ist über die vergangenen Jahrzehnte nahezu kontinuierlich gestiegen, getrieben vor allem durch den Onlinehandel und den wachsenden Außer-Haus-Konsum. Kunststoffverpackungen verzeichnen dabei den stärksten Zuwachs, während schwere Materialien wie Glas relativ an Bedeutung verloren haben.',
@@ -1050,6 +1116,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_WASTE_VOL_PACKAGING_DISPOSAL: {
+    displayName: 'Verpackungsabfall nach Entsorgungsweg',
     headline: 'Onlinehandel und Takeaway treiben Deutschlands Verpackungsmüll in die Höhe.',
     lead: 'Dieser Datensatz erfasst, wie viel Verpackungsmüll in Deutschland jedes Jahr zur Entsorgung anfällt – von Plastikfolien über Glasflaschen bis hin zu Kartons. Wer wissen will, ob Recyclingversprechen der Industrie und Verordnungen des Gesetzgebers tatsächlich etwas bewirken, findet hier die Antwort in Zahlen.',
     trend: 'Die Gesamtmenge der entsorgten Verpackungen ist in den vergangenen Jahren trotz zwischenzeitlicher Rückgänge – etwa während der Corona-Pandemie – langfristig gestiegen. Besonders Onlinehandel und Takeaway-Kultur treiben die Mengen an Kunststoff- und Verbundverpackungen nach oben. Eine nachhaltige Trendwende ist bislang nicht erkennbar.',
@@ -1060,6 +1127,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_WATER_GROUNDWATER: {
+    displayName: 'Grundwasserqualität in Deutschland',
     headline: 'Deutschlands Grundwasser zeigt flächendeckend erhöhte Nitrat- und Schadstoffbelastung.',
     lead: 'Dieses Datensatz erfasst die chemische und mengenmäßige Qualität des Grundwassers an Hunderten Messstellen quer durch Deutschland – also das Wasser, das unter unseren Füßen liegt und aus dem ein Großteil des Trinkwassers gewonnen wird. Wer wissen will, ob das Wasser, das aus dem Hahn kommt, langfristig sauber bleibt, findet hier die Grundlage.',
     trend: 'Die Messdaten zeigen, dass in landwirtschaftlich intensiv genutzten Regionen die Nitratkonzentrationen im Grundwasser seit Jahrzehnten über den EU-Grenzwerten liegen und sich trotz politischer Gegenmaßnahmen nur langsam verbessern. In einigen Bundesländern sinken die Werte leicht, in anderen stagnieren sie auf hohem Niveau – von einer flächendeckenden Entlastung ist Deutschland weit entfernt.',
@@ -1070,6 +1138,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_WATER_PUB_EXTRAC: {
+    displayName: 'Grundwasserentnahme für die öffentliche Versorgung',
     headline: 'Deutschland entnimmt weniger Grundwasser – doch regionale Engpässe verschärfen sich.',
     lead: 'Dieser Datensatz misst, wie viel Wasser deutsche Wasserversorger aus der Erde und aus Oberflächengewässern holen, wie viele Menschen daran angeschlossen sind und wie viel Liter pro Kopf täglich fließen. Wer verstehen will, ob Deutschlands Trinkwasserversorgung dem Klimawandel standhält, findet hier die Grundlage.',
     trend: 'Seit den 1990er Jahren sinkt die Wasserentnahme in Deutschland trotz wachsender Bevölkerung — ein Zeichen gestiegener Effizienz in Haushalten und Industrie. Allerdings zeigen jüngere Erhebungszyklen ab 2016, dass heiße Trockensommer den Verbrauch kurzfristig nach oben treiben und den langfristigen Rückgang bremsen.',
@@ -1080,6 +1149,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_WATER_PUB_SUPPLY: {
+    displayName: 'Öffentliche Wasserversorgung nach Wasserart',
     headline: 'Deutschlands Grundwasser trägt die öffentliche Wasserversorgung fast allein.',
     lead: 'Dieser Datensatz erfasst, wie viel Wasser deutsche Versorger aus Grundwasser, Quellen, Oberflächengewässern und Uferfiltrat entnehmen – und wie viele Menschen daran angeschlossen sind. Wer wissen will, woraus sein Leitungswasser stammt und wie verlässlich diese Quellen in trockenen Jahren noch sind, findet hier die Grundlage.',
     trend: 'Grundwasser dominiert die öffentliche Versorgung seit Jahren mit einem Anteil von deutlich über 60 Prozent, während Oberflächenwasser eine vergleichsweise kleine Rolle spielt. Anhaltende Trockenperioden seit 2018 haben den Druck auf Grundwasserspeicher spürbar erhöht, was sich in sinkenden Entnahmemengen einzelner Regionen niederschlägt.',

@@ -204,12 +204,13 @@ export default function DatasetPage() {
   }, [id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Gefilterte Daten laden (Lazy-Modus: wenn User auf "Laden" klickt)
-  const loadFilteredData = useCallback(async () => {
+  const loadFilteredData = useCallback(async (overrideFilters?: Record<string, string>) => {
     if (!flow) return
     setDataLoading(true)
     setError('')
     try {
-      const key = buildSdmxKey(dims, filters, lazyDimConfig)
+      const activeFilters = overrideFilters ?? filters
+      const key = buildSdmxKey(dims, activeFilters, lazyDimConfig)
       const { seriesMap: sm, timeValues: tv, seriesDimensions } = await fetchData(flow, key || 'all')
       setSeriesMap(sm)
       setTimeValues(tv)
@@ -331,15 +332,23 @@ export default function DatasetPage() {
     setSelectedSeries(new Set(ranked.slice(0, 5).map(s => s.key)))
   }, [filters])
 
-  const applyPreset = useCallback((presetFilters: Record<string, string>) => {
-    const targetVals = Object.values(presetFilters).filter(Boolean)
-    const matchingKeys = Object.entries(seriesMap).filter(([_, s]) =>
-      targetVals.every(val => s.dimValues.includes(val))
-    ).map(([key]) => key)
-    setSelectedSeries(new Set(matchingKeys))
-    setFilters({})
-    window.scrollTo({ top: 300, behavior: 'smooth' })
-  }, [seriesMap])
+  const applyPreset = useCallback((presetFilters: Record<string, string>, lazyFilters?: Record<string, string>) => {
+    if (lazyMode && lazyFilters) {
+      // Lazy-Modus: Filter setzen + Daten sofort laden
+      setFilters(lazyFilters)
+      loadFilteredData(lazyFilters)
+      window.scrollTo({ top: 300, behavior: 'smooth' })
+    } else {
+      // Normal-Modus: seriesMap bereits geladen, passende Serien selektieren
+      const targetVals = Object.values(presetFilters).filter(Boolean)
+      const matchingKeys = Object.entries(seriesMap).filter(([_, s]) =>
+        targetVals.every(val => s.dimValues.includes(val))
+      ).map(([key]) => key)
+      setSelectedSeries(new Set(matchingKeys))
+      setFilters({})
+      window.scrollTo({ top: 300, behavior: 'smooth' })
+    }
+  }, [seriesMap, lazyMode, loadFilteredData])
 
   const meta = flow ? getCategoryMeta(flow.category) : getCategoryMeta('')
 
@@ -523,7 +532,7 @@ export default function DatasetPage() {
             {/* Lazy-Modus: "Laden"-Button */}
             {lazyMode && (
               <button
-                onClick={loadFilteredData}
+                onClick={() => loadFilteredData()}
                 disabled={dataLoading}
                 className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-[12px] font-semibold transition-all cursor-pointer border-0 mb-3"
                 style={{

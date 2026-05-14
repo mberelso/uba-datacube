@@ -1,10 +1,11 @@
 
-
 export interface Preset {
   title: string
   icon: string
   description: string
   filters: Record<string, string>
+  /** Code-IDs für den Lazy-Load-Modus (dim-ID → SDMX code) */
+  lazyFilters?: Record<string, string>
 }
 
 const GHG_PRESETS: Preset[] = [
@@ -12,104 +13,81 @@ const GHG_PRESETS: Preset[] = [
     title: "Hauptemittent: Energiewirtschaft",
     icon: "🏭",
     description: "Gigantische Emissionen, primär aus Kohle- und Gaskraftwerken.",
-    filters: {
-      "Quellgruppen": "1 A 1, Energiewirtschaft",
-      "Substanzen": "Treibhausgase",
-      "Einheit": "Millionen Tonnen"
-    }
+    filters: { "Quellgruppen": "1 A 1, Energiewirtschaft", "Substanzen": "Treibhausgase", "Einheit": "Millionen Tonnen" },
+    lazyFilters: { D_SOURCE_CATEGORIES: "1A1", D_SUBSTANCES: "GHG", D_UNIT: "MT" },
   },
   {
     title: "Fokus: Stromerzeugung",
     icon: "⚡",
     description: "Der absolute Löwenanteil innerhalb der Energiewirtschaft.",
-    filters: {
-      "Quellgruppen": "1 A 1 a i, Stromerzeugung",
-      "Substanzen": "Kohlendioxid"
-    }
+    filters: { "Quellgruppen": "1 A 1 a i, Stromerzeugung", "Substanzen": "Kohlendioxid" },
+    lazyFilters: { D_SOURCE_CATEGORIES: "1A1ai", D_SUBSTANCES: "CO2", D_UNIT: "MT" },
   },
   {
     title: "Problem-Sektor: PKW",
     icon: "🚗",
     description: "Der eigentliche Treiber im Straßenverkehr, der extrem langsam sinkt.",
-    filters: {
-      "Quellgruppen": "1 A 3 b i, Pkw",
-      "Substanzen": "Kohlendioxid",
-      "Einheit": "Millionen Tonnen"
-    }
+    filters: { "Quellgruppen": "1 A 3 b i, Pkw", "Substanzen": "Kohlendioxid", "Einheit": "Millionen Tonnen" },
+    lazyFilters: { D_SOURCE_CATEGORIES: "1A3bi", D_SUBSTANCES: "CO2", D_UNIT: "MT" },
   },
   {
     title: "Landwirtschaft: Rinderhaltung",
     icon: "🐄",
     description: "Der massive Einfluss der Verdauungsprozesse (Methan).",
-    filters: {
-      "Quellgruppen": "3 A 1, Rinder",
-      "Substanzen": "Methan",
-      "Einheit": "Millionen Tonnen"
-    }
+    filters: { "Quellgruppen": "3 A 1, Rinder", "Substanzen": "Methan", "Einheit": "Millionen Tonnen" },
+    lazyFilters: { D_SOURCE_CATEGORIES: "3A1", D_SUBSTANCES: "CH4", D_UNIT: "MT" },
   },
   {
     title: "Privates Heizen",
     icon: "🏠",
     description: "Direkte Emissionen aus Öl- und Gasheizungen (reagiert auf warme/kalte Winter).",
-    filters: {
-      "Quellgruppen": "1 A 4 b i, Wohngebäude",
-      "Substanzen": "Kohlendioxid",
-      "Einheit": "Millionen Tonnen"
-    }
+    filters: { "Quellgruppen": "1 A 4 b i, Wohngebäude", "Substanzen": "Kohlendioxid", "Einheit": "Millionen Tonnen" },
+    lazyFilters: { D_SOURCE_CATEGORIES: "1A4bi", D_SUBSTANCES: "CO2", D_UNIT: "MT" },
   },
   {
     title: "Chemische Falle: Zementindustrie",
     icon: "🏗️",
     description: "CO2 entsteht hier chemisch beim Brennen von Kalkstein, nicht nur durch Energiebedarf.",
-    filters: {
-      "Quellgruppen": "2 A 1, Zementherstellung",
-      "Substanzen": "Kohlendioxid",
-      "Einheit": "Millionen Tonnen"
-    }
+    filters: { "Quellgruppen": "2 A 1, Zementherstellung", "Substanzen": "Kohlendioxid", "Einheit": "Millionen Tonnen" },
+    lazyFilters: { D_SOURCE_CATEGORIES: "2A1", D_SUBSTANCES: "CO2", D_UNIT: "MT" },
   },
   {
     title: "Altlasten: Mülldeponien",
     icon: "🗑️",
     description: "Historische Deponien emittieren auch heute noch gigantische Mengen an Methan.",
-    filters: {
-      "Quellgruppen": "5 A, Deponierung von festen Abfällen",
-      "Substanzen": "Methan",
-      "Einheit": "Millionen Tonnen"
-    }
+    filters: { "Quellgruppen": "5 A, Deponierung von festen Abfällen", "Substanzen": "Methan", "Einheit": "Millionen Tonnen" },
+    lazyFilters: { D_SOURCE_CATEGORIES: "5A", D_SUBSTANCES: "CH4", D_UNIT: "MT" },
   },
   {
     title: "Zivile Luftfahrt (Inland)",
     icon: "✈️",
     description: "Nationale Flüge (internationale Flüge fehlen in dieser UNFCCC-Metrik).",
-    filters: {
-      "Quellgruppen": "1 A 3 a, Zivile Luftfahrt",
-      "Substanzen": "Kohlendioxid",
-      "Einheit": "Millionen Tonnen"
-    }
+    filters: { "Quellgruppen": "1 A 3 a, Zivile Luftfahrt", "Substanzen": "Kohlendioxid", "Einheit": "Millionen Tonnen" },
+    lazyFilters: { D_SOURCE_CATEGORIES: "1A3aii", D_SUBSTANCES: "CO2", D_UNIT: "MT" },
   },
   {
     title: "Unsichtbare Gefahr: Kältemittel",
     icon: "❄️",
     description: "Extrem klimaschädliche Gase (HFCs) aus alten Klimaanlagen und Kühlschränken.",
-    filters: {
-      "Quellgruppen": "2 F 1, Kälte- und Klimaanlagen",
-      "Substanzen": "HFCs (Teilfluorierte Kohlenwasserstoffe)",
-      "Einheit": "Millionen Tonnen"
-    }
+    filters: { "Quellgruppen": "2 F 1, Kälte- und Klimaanlagen", "Substanzen": "HFCs" },
+    lazyFilters: { D_SOURCE_CATEGORIES: "2F1", D_SUBSTANCES: "HFC" },
   },
   {
     title: "Die CO2-Senke: Wälder",
     icon: "🌲",
     description: "Der einzige Sektor mit oft negativen Werten (CO2-Speicherung), der aber unter Dürren leidet.",
-    filters: {
-      "Quellgruppen": "4 A, Waldland",
-      "Substanzen": "Kohlendioxid",
-      "Einheit": "Millionen Tonnen"
-    }
-  }
+    filters: { "Quellgruppen": "4 A, Waldland", "Substanzen": "Kohlendioxid", "Einheit": "Millionen Tonnen" },
+    lazyFilters: { D_SOURCE_CATEGORIES: "4A", D_SUBSTANCES: "CO2", D_UNIT: "MT" },
+  },
 ]
 
-export function DatasetPresets({ flowId, onApplyPreset }: { flowId: string, onApplyPreset: (filters: Record<string, string>) => void }) {
+export function DatasetPresets({
+  flowId,
+  onApplyPreset,
+}: {
+  flowId: string
+  onApplyPreset: (filters: Record<string, string>, lazyFilters?: Record<string, string>) => void
+}) {
   if (flowId !== 'DF_CLIMATE_EMISSIONS_GHG_TRENDS') return null
 
   return (
@@ -121,7 +99,7 @@ export function DatasetPresets({ flowId, onApplyPreset }: { flowId: string, onAp
         {GHG_PRESETS.map((preset, idx) => (
           <button
             key={idx}
-            onClick={() => onApplyPreset(preset.filters)}
+            onClick={() => onApplyPreset(preset.filters, preset.lazyFilters)}
             style={{
               background: '#fff',
               border: '1px solid #e2e8f0',

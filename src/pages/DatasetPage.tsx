@@ -494,8 +494,8 @@ export default function DatasetPage() {
           </button>
 
           <div className={`px-3 py-3 md:block ${sidebarOpen ? 'block' : 'hidden'}`}>
-            {/* Dimension filters */}
-            {dims.length > 0 && (
+            {/* Dimension filters — hidden in stacked mode (chart series are fixed) */}
+            {dims.length > 0 && !isStacked && (
               <div className="flex flex-col gap-3 mb-3">
                 {dims.map((d, i) => {
                   // Im Lazy-Modus: Code-IDs als Values, Labels als Anzeigetext
@@ -553,6 +553,17 @@ export default function DatasetPage() {
                   </>
                 )}
               </button>
+            )}
+
+            {isStacked && defaultChartConfig && (
+              <div className="flex flex-col gap-1.5 pt-1">
+                {defaultChartConfig.stackedSeries.map(({ label, color }) => (
+                  <div key={label} className="flex items-center gap-2">
+                    <div className="w-2.5 h-2.5 rounded-sm flex-shrink-0" style={{ background: color }} />
+                    <span className="text-[11px] text-slate-600">{label}</span>
+                  </div>
+                ))}
+              </div>
             )}
 
             {!isStacked && (

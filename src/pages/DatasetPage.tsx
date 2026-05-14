@@ -819,7 +819,7 @@ export default function DatasetPage() {
           </AnimatePresence>
 
           {/* Data table */}
-          {selectedSeries.size > 0 && (
+          {(isStacked ? chartData.length > 0 : selectedSeries.size > 0) && (
             <details className="mt-4 group">
               <summary className="list-none cursor-pointer">
                 <div className="flex items-center gap-2 bg-white rounded-xl border border-slate-200/80 px-4 py-2.5 text-[12px] font-semibold text-slate-600 select-none hover:bg-slate-50 transition-colors">
@@ -835,7 +835,7 @@ export default function DatasetPage() {
                       <th className="px-4 py-2.5 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">
                         Jahr
                       </th>
-                      {activeSeriesList.map(({ label }) => (
+                      {(isStacked ? defaultChartConfig!.stackedSeries.map(s => ({ label: s.label })) : activeSeriesList).map(({ label }) => (
                         <th key={label} className="px-4 py-2.5 text-right text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">
                           {label}
                         </th>
@@ -849,7 +849,7 @@ export default function DatasetPage() {
                         className="border-b border-slate-50 hover:bg-slate-50/60 transition-colors"
                       >
                         <td className="px-4 py-2 font-semibold text-[#1B2B3A] tabular-nums">{row.year}</td>
-                        {activeSeriesList.map(({ label }) => (
+                        {(isStacked ? defaultChartConfig!.stackedSeries.map(s => ({ label: s.label })) : activeSeriesList).map(({ label }) => (
                           <td key={label} className="px-4 py-2 text-right text-slate-500 tabular-nums">
                             {row[label] != null
                               ? Number(row[label]).toLocaleString('de-DE', { maximumFractionDigits: 3 })

@@ -337,6 +337,7 @@ function DatasetCard({ flow, color }: { flow: Dataflow; color: string }) {
   const content = getDatasetContent(flow.id)
   const displayDesc = content?.lead ?? flow.description
   const displayName = content?.displayName ?? flow.name
+  const hasCuratedInsights = !!(content?.lazyDimensions || content?.defaultChartConfig)
 
   return (
     <Link to={`/dataset/${encodeURIComponent(flow.id)}`} style={{ textDecoration: 'none', display: 'block' }}>
@@ -361,11 +362,25 @@ function DatasetCard({ flow, color }: { flow: Dataflow; color: string }) {
           height: '100%',
         }}
       >
-        <div style={{
-          fontSize: 13, fontWeight: 600, color: NORDIC.navy,
-          marginBottom: 5, lineHeight: 1.4,
-        }}>
-          {displayName}
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8, marginBottom: 5 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: NORDIC.navy, lineHeight: 1.4 }}>
+            {displayName}
+          </div>
+          {hasCuratedInsights && (
+            <span style={{
+              flexShrink: 0,
+              fontSize: 10, fontWeight: 600,
+              color: '#7c3aed',
+              background: '#f5f3ff',
+              border: '1px solid #ddd6fe',
+              borderRadius: 5,
+              padding: '2px 6px',
+              letterSpacing: '0.02em',
+              lineHeight: 1.4,
+            }}>
+              ✦ Einblicke
+            </span>
+          )}
         </div>
         <div style={{ fontSize: 10, color: NORDIC.fog, fontFamily: 'monospace', letterSpacing: '0.03em', marginBottom: displayDesc ? 6 : 0 }}>
           {flow.id} · v{flow.version}

@@ -211,7 +211,10 @@ export async function fetchData(flow: Dataflow, key = 'all'): Promise<{
 }> {
   const url = `${BASE}/data/${flow.agencyID},${flow.id},${flow.version}/${key}?format=jsondata`
   const r = await fetch(url, {
-    headers: { Accept: 'application/vnd.sdmx.data+json;version=2.0,application/json' },
+    headers: {
+      Accept: 'application/vnd.sdmx.data+json;version=2.0,application/json',
+      'Accept-Language': 'de',
+    },
   })
   if (!r.ok) throw new Error(`API-Fehler ${r.status} für ${flow.id}`)
   const json = await r.json()
@@ -300,7 +303,7 @@ export async function fetchData(flow: Dataflow, key = 'all'): Promise<{
 
   if (isSparse && Object.keys(seriesMap).length > 0) {
     try {
-      const csvUrl = `${BASE}/data/${flow.agencyID},${flow.id},${flow.version}/all?format=csv`
+      const csvUrl = `${BASE}/data/${flow.agencyID},${flow.id},${flow.version}/${key}?format=csv`
       const csvR = await fetch(csvUrl, { headers: { Accept: 'text/csv' } })
       if (csvR.ok) {
         const text = await csvR.text()

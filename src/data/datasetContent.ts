@@ -30,6 +30,21 @@ export interface DefaultChartConfig {
   stackedSeries: StackedSeriesSpec[]
 }
 
+export interface LazyDimension {
+  id: string
+  name: string
+  /** 0-based position in the full SDMX key (out of totalDimensions) */
+  position: number
+  values: { id: string; name: string }[]
+}
+
+export interface LazyDimensionConfig {
+  /** Total number of dimensions in the SDMX key for this dataset */
+  totalDimensions: number
+  /** Only the curated, filterable dimensions — others default to empty (=all) */
+  dimensions: LazyDimension[]
+}
+
 export interface DatasetContent {
   headline: string
   lead: string
@@ -45,6 +60,8 @@ export interface DatasetContent {
   defaultChartConfig?: DefaultChartConfig
   /** Exclude this dataset from the catalog and dashboard counts (e.g. survey-only data not suited for time-series explorer) */
   excludeFromCatalog?: boolean
+  /** Curated filter dimensions for lazy-load mode (used when DSD is unavailable from API) */
+  lazyDimensions?: LazyDimensionConfig
 }
 
 export const DATASET_CONTENT: Record<string, DatasetContent> = {
@@ -729,6 +746,61 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
     context: 'Die EU-PRTR-Verordnung von 2006 verpflichtet Betreiber großer Anlagen zur jährlichen Meldung — diese Daten fließen direkt in Entscheidungen über Betriebsgenehmigungen, Klagen von Umweltverbänden und die Überprüfung nationaler Klimaziele ein. Mit dem European Green Deal und verschärften Industrieemissionsrichtlinien steigt der politische Druck, die gemeldeten Mengen weiter zu senken.',
     methodology: 'Erfasst werden Freisetzungen von rund 90 Schadstoffen aus Anlagen, die festgelegte Kapazitätsschwellen überschreiten — kleinere Betriebe fehlen damit systematisch im Register. Die Daten beruhen auf Selbstmeldungen der Unternehmen und werden von den Behörden geprüft, aber nicht flächendeckend messtechnisch verifiziert.',
     status: 'draft',
+    lazyDimensions: {
+      totalDimensions: 14,
+      dimensions: [
+        {
+          id: 'D_FEDERAL_STATES', name: 'Bundesland', position: 0,
+          values: [
+            { id: 'NW', name: 'Nordrhein-Westfalen' }, { id: 'BW', name: 'Baden-Württemberg' },
+            { id: 'BY', name: 'Bayern' }, { id: 'HE', name: 'Hessen' },
+            { id: 'RP', name: 'Rheinland-Pfalz' }, { id: 'ST', name: 'Sachsen-Anhalt' },
+            { id: 'BE', name: 'Berlin' }, { id: 'BB', name: 'Brandenburg' },
+            { id: 'SN', name: 'Sachsen' }, { id: 'SH', name: 'Schleswig-Holstein' },
+            { id: 'HH', name: 'Hamburg' }, { id: 'NI', name: 'Niedersachsen' },
+            { id: 'HB', name: 'Bremen' }, { id: 'TH', name: 'Thüringen' },
+            { id: 'MV', name: 'Mecklenburg-Vorpommern' }, { id: 'DE', name: 'Deutschland gesamt' },
+          ],
+        },
+        {
+          id: 'D_SUBSTANCES', name: 'Schadstoff', position: 4,
+          values: [
+            { id: 'NOx_NO2', name: 'Stickoxide' }, { id: 'CO2', name: 'Kohlendioxid' },
+            { id: 'CH4', name: 'Methan' }, { id: 'NH3', name: 'Ammoniak' },
+            { id: 'CO', name: 'Kohlenmonoxid' }, { id: 'N2O', name: 'Lachgas' },
+            { id: 'HCl', name: 'Chlor und anorg. Verbindungen' }, { id: 'BENZOL', name: 'Benzol' },
+            { id: 'PAH', name: 'Polyzyklische arom. Kohlenwasserstoffe' },
+            { id: 'TEQ', name: 'Dioxine + Furane' }, { id: 'Hg', name: 'Quecksilber' },
+            { id: 'Pb', name: 'Blei' }, { id: 'Cd', name: 'Cadmium' },
+            { id: 'Cr', name: 'Chrom' }, { id: 'Cu', name: 'Kupfer' },
+            { id: 'Ni', name: 'Nickel' }, { id: 'Zn', name: 'Zink' },
+            { id: 'As', name: 'Arsen' }, { id: 'TOC', name: 'Gesamter organ. Kohlenstoff' },
+            { id: 'TP', name: 'Gesamtphosphor' }, { id: 'TS', name: 'Gesamtstickstoff' },
+            { id: 'AOX', name: 'Halogenierte org. Verbindungen' }, { id: 'THG', name: 'Treibhausgase gesamt' },
+            { id: 'HM', name: 'Schwermetalle gesamt' }, { id: 'PCB', name: 'Polychlorierte Biphenyle' },
+            { id: 'DCM', name: 'Dichlormethan' }, { id: 'CFC', name: 'Fluorchlorkohlenwasserstoffe' },
+            { id: 'HCFC', name: 'Teilhalogenierte FCKW' },
+          ],
+        },
+        {
+          id: 'D_SECTOR', name: 'Sektor', position: 6,
+          values: [
+            { id: 'WASTE', name: 'Abfall & Abwasser' }, { id: 'MINERAL', name: 'Mineralindustrie' },
+            { id: 'METAL', name: 'Metallindustrie' }, { id: 'CHEM', name: 'Chemieindustrie' },
+            { id: 'PAPER', name: 'Papier- & Holzindustrie' }, { id: 'EN', name: 'Energiesektor' },
+            { id: 'FOOD', name: 'Lebensmittelindustrie' }, { id: 'OTHER', name: 'Sonstige' },
+          ],
+        },
+        {
+          id: 'D_RELEASE', name: 'Freisetzungsart', position: 7,
+          values: [
+            { id: 'YR_AIR', name: 'Luft (jährlich)' }, { id: 'YR_WAT', name: 'Wasser (jährlich)' },
+            { id: 'YR_SOI', name: 'Boden (jährlich)' }, { id: 'AIR', name: 'Luft' },
+            { id: 'WAT', name: 'Wasser' }, { id: 'SOI', name: 'Boden' },
+          ],
+        },
+      ],
+    },
   },
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
@@ -740,6 +812,46 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
     context: 'Die EU-PRTR-Verordnung von 2006 verpflichtet Industrieanlagen ab bestimmten Schwellenwerten zur jährlichen Meldung ihrer Emissionen – das Ziel ist öffentliche Transparenz und politischer Druck zur Reduktion. Diese Daten fließen direkt in die Bewertung ein, ob Deutschland die Ziele der EU-Wasserrahmenrichtlinie erreicht, die einen guten Gewässerzustand vorschreibt.',
     methodology: 'Gemessen werden die jährlich gemeldeten Schadstoffmengen in Kilogramm oder Tonnen, die Industriebetriebe aus definierten Sektoren über Abwasser in Gewässer oder Kläranlagen einleiten. Erfasst sind nur Anlagen oberhalb gesetzlicher Meldeschwellen – kleinere Betriebe und diffuse Quellen wie Landwirtschaft bleiben außen vor.',
     status: 'draft',
+    lazyDimensions: {
+      totalDimensions: 14,
+      dimensions: [
+        {
+          id: 'D_FEDERAL_STATES', name: 'Bundesland', position: 0,
+          values: [
+            { id: 'NW', name: 'Nordrhein-Westfalen' }, { id: 'BW', name: 'Baden-Württemberg' },
+            { id: 'BY', name: 'Bayern' }, { id: 'HE', name: 'Hessen' },
+            { id: 'RP', name: 'Rheinland-Pfalz' }, { id: 'ST', name: 'Sachsen-Anhalt' },
+            { id: 'BE', name: 'Berlin' }, { id: 'BB', name: 'Brandenburg' },
+            { id: 'SN', name: 'Sachsen' }, { id: 'SH', name: 'Schleswig-Holstein' },
+            { id: 'HH', name: 'Hamburg' }, { id: 'NI', name: 'Niedersachsen' },
+            { id: 'HB', name: 'Bremen' }, { id: 'TH', name: 'Thüringen' },
+            { id: 'MV', name: 'Mecklenburg-Vorpommern' }, { id: 'DE', name: 'Deutschland gesamt' },
+          ],
+        },
+        {
+          id: 'D_SUBSTANCES', name: 'Schadstoff', position: 4,
+          values: [
+            { id: 'AOX', name: 'Halogenierte org. Verbindungen' }, { id: 'Cd', name: 'Cadmium' },
+            { id: 'Cr', name: 'Chrom' }, { id: 'Cu', name: 'Kupfer' },
+            { id: 'Hg', name: 'Quecksilber' }, { id: 'Ni', name: 'Nickel' },
+            { id: 'Pb', name: 'Blei' }, { id: 'TOC', name: 'Gesamter organ. Kohlenstoff' },
+            { id: 'TP', name: 'Gesamtphosphor' }, { id: 'TS', name: 'Gesamtstickstoff' },
+            { id: 'Zn', name: 'Zink' }, { id: 'As', name: 'Arsen' },
+            { id: 'HM', name: 'Schwermetalle gesamt' }, { id: 'PHENOLE', name: 'Phenole' },
+            { id: 'PAH', name: 'Polyzyklische arom. Kohlenwasserstoffe' },
+          ],
+        },
+        {
+          id: 'D_SECTOR', name: 'Sektor', position: 6,
+          values: [
+            { id: 'WASTE', name: 'Abfall & Abwasser' }, { id: 'MINERAL', name: 'Mineralindustrie' },
+            { id: 'METAL', name: 'Metallindustrie' }, { id: 'CHEM', name: 'Chemieindustrie' },
+            { id: 'PAPER', name: 'Papier- & Holzindustrie' }, { id: 'EN', name: 'Energiesektor' },
+            { id: 'FOOD', name: 'Lebensmittelindustrie' }, { id: 'OTHER', name: 'Sonstige' },
+          ],
+        },
+      ],
+    },
   },
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'

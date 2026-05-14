@@ -4,9 +4,11 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   ArrowLeft, ShareNetwork, ChartLine, ChartBar,
   MagnifyingGlass, Funnel, CaretDown, Check, DownloadSimple,
+  ArrowLineRight,
 } from '@phosphor-icons/react'
 
-import { fetchSingleDataflow, fetchData, type Dataflow, type Dimension } from '../api/sdmx'
+import { fetchSingleDataflow, fetchData, fetchStructure, type Dataflow, type Dimension } from '../api/sdmx'
+import { type LazyDimensionConfig } from '../data/datasetContent'
 import { getCategoryMeta } from '../utils/categories'
 import ForestFiresAnalysis from '../components/ForestFiresAnalysis'
 import { DatasetPresets } from '../components/DatasetPresets'
@@ -22,6 +24,19 @@ const CHART_COLORS = [
   '#1B2B3A', '#dc2626', '#4A6741', '#d97706', '#7c3aed',
   '#3D5A6E', '#be185d', '#65a30d', '#0284c7', '#92400e',
 ]
+
+// Datensätze mit mehr als dieser Serien-Schätzung bekommen Lazy-Load-Modus
+const LAZY_THRESHOLD = 500
+
+// Bekannte Datensätze mit sehr vielen Serien — DSD gibt keine zuverlässige Schätzung zurück
+const KNOWN_LARGE_DATASETS = new Set([
+  'DF_PRTR',                          // 11.651 Serien
+  'DF_AIR_EMISSIONS_TRENDS',          // 8.524 Serien
+  'DF_CLIMATE_EMISSIONS_GHG_TRENDS',  // 6.696 Serien
+  'DF_CLIMATE_EMISSIONS_GHG_TRENDS_KSG', // 6.344 Serien
+  'DF_PRTR_WASTE_WATER',              // 2.617 Serien
+  'DF_TRANSPORT_TRAFFIC_AREA_BUNDESLAND', // 2.004 Serien
+])
 
 type ChartType = 'line' | 'bar'
 
@@ -67,36 +82,147 @@ export default function DatasetPage() {
   )
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
+  // Lazy-Load-Modus: true wenn Datensatz zu groß für vollständigen Download
+  const [lazyMode, setLazyMode] = useState(false)
+  // true während gefilterter Daten-Request läuft
+  const [dataLoading, setDataLoading] = useState(false)
+  // Kuratierte Dim-Konfiguration für Lazy-Modus (wenn DSD nicht verfügbar)
+  const [lazyDimConfig, setLazyDimConfig] = useState<LazyDimensionConfig | null>(null)
+
+  // Baut SDMX-Key aus aktiven Filtern.
+  // Bei lazyDimConfig: Key hat genau totalDimensions Positionen, nur konfigurierte Dims werden gesetzt.
+  // Bei normalen Dims: Key hat so viele Positionen wie dims.length.
+  const buildSdmxKey = useCallback((
+    activeDims: Dimension[],
+    activeFilters: Record<string, string>,
+    dimConfig: LazyDimensionConfig | null,
+  ) => {
+    if (dimConfig) {
+      const slots = Array(dimConfig.totalDimensions).fill('')
+      for (const d of dimConfig.dimensions) {
+        const val = activeFilters[d.name] || activeFilters[d.id] || ''
+        if (val) {
+          const code = d.values.find(v => v.name === val || v.id === val)
+          slots[d.position] = code?.id ?? val
+        }
+      }
+      return slots.join('.')
+    }
+    return activeDims.map((d) => {
+      const val = activeFilters[d.name] || activeFilters[d.id] || ''
+      if (val) {
+        const code = d.values.find(v => v.name === val || v.id === val)
+        return code?.id ?? val
+      }
+      return ''
+    }).join('.')
+  }, [])
+
+  const autoSelectTopSeries = useCallback((sm: typeof seriesMap) => {
+    const ranked = Object.entries(sm).map(([key, s]) => {
+      const vals = Object.values(s.observations).filter((v) => v !== null) as number[]
+      const avg = vals.length ? vals.reduce((a, v) => a + Math.abs(v), 0) / vals.length : -Infinity
+      return { key, avg }
+    })
+    ranked.sort((a, b) => b.avg - a.avg)
+    setSelectedSeries(new Set(ranked.slice(0, 5).map((s) => s.key)))
+  }, [])
+
+  // Initialer Load: Struktur + Daten parallel — Struktur entscheidet ob Lazy-Modus nötig
   useEffect(() => {
     if (!id) return
     setLoading(true)
     setError('')
+    setLazyMode(false)
+    setLazyDimConfig(null)
+    setSeriesMap({})
+    setTimeValues([])
+
+    const dataAbort = new AbortController()
+
     fetchSingleDataflow(decodeURIComponent(id))
-      .then((f) => {
+      .then(async (f) => {
         setFlow(f)
-        return fetchData(f)
-      })
-      .then(({ seriesMap, timeValues, seriesDimensions }) => {
-        setSeriesMap(seriesMap)
-        setTimeValues(timeValues)
-        setDims(seriesDimensions)
-        const cfg = id ? getDatasetContent(decodeURIComponent(id))?.defaultChartConfig : null
-        if (cfg?.defaultFilters) {
-          setFilters(cfg.defaultFilters)
+        const cfg = getDatasetContent(decodeURIComponent(id))?.defaultChartConfig ?? null
+
+        // Bekannte Datensätze mit vielen Serien sofort in Lazy-Modus — ohne API-Runde
+        if (KNOWN_LARGE_DATASETS.has(f.id)) {
+          const localContent = getDatasetContent(f.id)
+          if (localContent?.lazyDimensions && localContent.lazyDimensions.dimensions.length > 0) {
+            // Kuratierte Filter direkt aus datasetContent — kein API-Call nötig
+            const dimCfg = localContent.lazyDimensions
+            setLazyDimConfig(dimCfg)
+            setDims(dimCfg.dimensions.map(d => ({ ...d })))
+          } else {
+            const structure = await fetchStructure(f)
+            setDims(structure.seriesDimensions)
+          }
+          setLazyMode(true)
+          if (cfg?.defaultFilters) setFilters(cfg.defaultFilters)
+          return
         }
-        if (selectedSeries.size === 0) {
-          const ranked = Object.entries(seriesMap).map(([key, s]) => {
-            const vals = Object.values(s.observations).filter((v) => v !== null) as number[]
-            const avg = vals.length ? vals.reduce((a, v) => a + Math.abs(v), 0) / vals.length : -Infinity
-            return { key, avg }
-          })
-          ranked.sort((a, b) => b.avg - a.avg)
-          setSelectedSeries(new Set(ranked.slice(0, 5).map((s) => s.key)))
+
+        // Für alle anderen: Struktur und Daten gleichzeitig anfordern
+        const structurePromise = fetchStructure(f)
+        const dataPromise = fetchData(f).catch(() => null)
+
+        // Struktur auswerten — Fallback-Prüfung für unbekannte große Datensätze
+        const structure = await structurePromise
+        const structDims = structure.seriesDimensions
+        setDims(structDims)
+
+        const estimate = structDims.reduce((acc, d) => acc * (d.values.length || 1), 1)
+
+        if (estimate > LAZY_THRESHOLD) {
+          dataAbort.abort()
+          setLazyMode(true)
+          if (cfg?.defaultFilters) setFilters(cfg.defaultFilters)
+        } else {
+          // Klein: auf parallel laufende Daten warten
+          const result = await dataPromise
+          if (!result) {
+            const { seriesMap: sm, timeValues: tv, seriesDimensions } = await fetchData(f)
+            setSeriesMap(sm)
+            setTimeValues(tv)
+            if (seriesDimensions.length > 0) setDims(seriesDimensions)
+            if (cfg?.defaultFilters) setFilters(cfg.defaultFilters)
+            autoSelectTopSeries(sm)
+          } else {
+            const { seriesMap: sm, timeValues: tv, seriesDimensions } = result
+            setSeriesMap(sm)
+            setTimeValues(tv)
+            if (seriesDimensions.length > 0) setDims(seriesDimensions)
+            if (cfg?.defaultFilters) setFilters(cfg.defaultFilters)
+            autoSelectTopSeries(sm)
+          }
         }
       })
       .catch((e) => setError(e.message ?? 'Fehler beim Laden'))
       .finally(() => setLoading(false))
-  }, [id])
+
+    return () => dataAbort.abort()
+  }, [id]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Gefilterte Daten laden (Lazy-Modus: wenn User auf "Laden" klickt)
+  const loadFilteredData = useCallback(async () => {
+    if (!flow) return
+    setDataLoading(true)
+    setError('')
+    try {
+      const key = buildSdmxKey(dims, filters, lazyDimConfig)
+      const { seriesMap: sm, timeValues: tv, seriesDimensions } = await fetchData(flow, key || 'all')
+      setSeriesMap(sm)
+      setTimeValues(tv)
+      // Im Lazy-Modus mit kuratierter Dim-Config: dims nicht überschreiben,
+      // damit die Filter-Dropdowns erhalten bleiben
+      if (!lazyDimConfig && seriesDimensions.length > 0) setDims(seriesDimensions)
+      autoSelectTopSeries(sm)
+    } catch (e: any) {
+      setError(e.message ?? 'Fehler beim Laden der gefilterten Daten')
+    } finally {
+      setDataLoading(false)
+    }
+  }, [flow, dims, filters, lazyDimConfig, buildSdmxKey, autoSelectTopSeries])
 
   const content = id ? getDatasetContent(decodeURIComponent(id)) : null
   const labelOverrides = content?.labelOverrides ?? {}
@@ -170,7 +296,8 @@ export default function DatasetPage() {
 
   const filteredSeries = useMemo(() => {
     return Object.entries(seriesMap).filter(([_, s]) =>
-      Object.entries(filters).every(([dimKey, targetVal]) => {
+      // Im Lazy-Modus: API hat bereits durch den Key gefiltert — alle geladenen Serien sind relevant
+      lazyDimConfig ? true : Object.entries(filters).every(([dimKey, targetVal]) => {
         if (!targetVal) return true
         const dimIdx = dims.findIndex(d => d.name === dimKey || d.id === dimKey)
         return dimIdx === -1 || s.dimValues[dimIdx] === targetVal
@@ -182,7 +309,7 @@ export default function DatasetPage() {
       const label = shortVals.map(applyLabelOverride).join(' · ') || s.dimValues.map(applyLabelOverride).join(' · ') || key
       return { key, label, dimValues: s.dimValues }
     })
-  }, [seriesMap, filters, dims, varyingDimIndices, applyLabelOverride])
+  }, [seriesMap, filters, dims, lazyDimConfig, varyingDimIndices, applyLabelOverride])
 
   const filteredSeriesRef = useRef(filteredSeries)
   filteredSeriesRef.current = filteredSeries
@@ -362,8 +489,14 @@ export default function DatasetPage() {
             {dims.length > 0 && (
               <div className="flex flex-col gap-3 mb-3">
                 {dims.map((d, i) => {
-                  const uniqueVals = Array.from(new Set(Object.values(seriesMap).map(s => s.dimValues[i]))).sort()
-                  if (uniqueVals.length <= 1) return null
+                  // Im Lazy-Modus: Code-IDs als Values, Labels als Anzeigetext
+                  // Nach dem Load: Werte aus geladenen Daten
+                  const isLazyDim = lazyMode && d.values.length > 0
+                  const options = isLazyDim
+                    ? d.values.map(v => ({ id: v.id, label: v.name || v.id }))
+                    : Array.from(new Set(Object.values(seriesMap).map(s => s.dimValues[i])))
+                        .sort().map(v => ({ id: v, label: applyLabelOverride(v) }))
+                  if (options.length <= 1) return null
                   return (
                     <div key={d.name}>
                       <div className="text-[9px] font-bold text-slate-400 tracking-widest uppercase mb-1.5 flex items-center gap-1">
@@ -372,12 +505,12 @@ export default function DatasetPage() {
                       </div>
                       <div className="relative">
                         <select
-                          value={filters[d.name] || ''}
+                          value={filters[d.name] || filters[d.id] || ''}
                           onChange={(e) => setFilters(prev => ({ ...prev, [d.name]: e.target.value }))}
                           className="w-full text-[11px] py-1.5 pl-2.5 pr-7 rounded-lg border border-slate-200 bg-slate-50 text-slate-600 appearance-none focus:outline-none focus:border-slate-400 focus:bg-white transition-colors cursor-pointer"
                         >
                           <option value="">Alle</option>
-                          {uniqueVals.map(v => <option key={v} value={v}>{applyLabelOverride(v)}</option>)}
+                          {options.map(({ id, label }) => <option key={id} value={id}>{label}</option>)}
                         </select>
                         <CaretDown size={9} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                       </div>
@@ -385,6 +518,32 @@ export default function DatasetPage() {
                   )
                 })}
               </div>
+            )}
+
+            {/* Lazy-Modus: "Laden"-Button */}
+            {lazyMode && (
+              <button
+                onClick={loadFilteredData}
+                disabled={dataLoading}
+                className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-[12px] font-semibold transition-all cursor-pointer border-0 mb-3"
+                style={{
+                  background: dataLoading ? '#e2e8f0' : meta.color,
+                  color: dataLoading ? '#94a3b8' : '#fff',
+                  opacity: dataLoading ? 1 : undefined,
+                }}
+              >
+                {dataLoading ? (
+                  <>
+                    <span className="w-3 h-3 rounded-full border-2 border-white/40 border-t-white animate-spin" />
+                    Lädt…
+                  </>
+                ) : (
+                  <>
+                    <ArrowLineRight size={13} weight="bold" />
+                    {Object.values(seriesMap).length > 0 ? 'Neu laden' : 'Serien laden'}
+                  </>
+                )}
+              </button>
             )}
 
             {!isStacked && (
@@ -562,9 +721,24 @@ export default function DatasetPage() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="bg-white rounded-2xl border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.05)] overflow-hidden"
+                className={`bg-white rounded-2xl border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.05)] overflow-hidden${lazyMode && Object.keys(seriesMap).length === 0 ? ' border-dashed' : ''}`}
               >
-                {!isStacked && selectedSeries.size === 0 ? (
+                {lazyMode && Object.keys(seriesMap).length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-20 px-8 text-center">
+                    <div
+                      className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4"
+                      style={{ background: `${meta.color}12` }}
+                    >
+                      <Funnel size={22} weight="duotone" style={{ color: meta.color }} />
+                    </div>
+                    <h3 className="text-[15px] font-bold text-[#1B2B3A] mb-2 tracking-tight">
+                      Dieser Datensatz ist sehr groß
+                    </h3>
+                    <p className="text-[13px] text-slate-400 max-w-[380px] leading-relaxed m-0">
+                      Wähle links Filter (Bundesland, Schadstoff, Sektor) und klicke dann auf <strong className="text-slate-600">Serien laden</strong>.
+                    </p>
+                  </div>
+                ) : !isStacked && selectedSeries.size === 0 ? (
                   <div className="flex flex-col items-center justify-center py-20 px-8 text-center">
                     <div
                       className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4"

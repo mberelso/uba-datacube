@@ -50,8 +50,35 @@ export default function Navbar() {
           ))}
         </div>
 
-        <div className="ml-auto hidden md:block" style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>
-          Daten: Umweltbundesamt
+        <div className="ml-auto hidden md:flex items-center gap-4">
+          <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>Daten: Umweltbundesamt</span>
+          <a
+            href="https://ko-fi.com/mberelso"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              fontSize: 12,
+              fontWeight: 500,
+              color: 'rgba(255,255,255,0.55)',
+              textDecoration: 'none',
+              border: '1px solid rgba(255,255,255,0.15)',
+              borderRadius: 6,
+              padding: '3px 10px',
+              transition: 'all 0.15s',
+            }}
+            onMouseOver={e => {
+              e.currentTarget.style.color = '#fff'
+              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.35)'
+              e.currentTarget.style.background = 'rgba(255,255,255,0.07)'
+            }}
+            onMouseOut={e => {
+              e.currentTarget.style.color = 'rgba(255,255,255,0.55)'
+              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)'
+              e.currentTarget.style.background = 'transparent'
+            }}
+          >
+            ☕ Unterstützen
+          </a>
         </div>
 
         {/* Hamburger */}
@@ -87,9 +114,18 @@ export default function Navbar() {
               {l.label}
             </Link>
           ))}
-          <div className="px-5 pt-3 mt-1 border-t text-[11px]"
-            style={{ borderColor: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.35)' }}>
-            Daten: Umweltbundesamt
+          <div className="px-5 pt-3 mt-1 border-t flex items-center justify-between"
+            style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
+            <span className="text-[11px]" style={{ color: 'rgba(255,255,255,0.35)' }}>Daten: Umweltbundesamt</span>
+            <a
+              href="https://ko-fi.com/mberelso"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[12px] no-underline"
+              style={{ color: 'rgba(255,255,255,0.55)', fontWeight: 500 }}
+            >
+              ☕ Unterstützen
+            </a>
           </div>
         </div>
       )}

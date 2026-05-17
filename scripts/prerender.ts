@@ -26,6 +26,8 @@ function trimDesc(text: string, max = 155): string {
   return (lastSpace > 100 ? cut.slice(0, lastSpace) : cut) + '…'
 }
 
+const BUILD_DATE = new Date().toISOString().slice(0, 10)
+
 /** Build JSON-LD for a route. Returns null for routes without structured data. */
 function buildJsonLd(route: string): string | null {
   const siteUrl = 'https://www.umweltpuls.de'
@@ -106,6 +108,19 @@ function buildJsonLd(route: string): string | null {
       },
       license: 'https://www.govdata.de/dl-de/by-2-0',
       isAccessibleForFree: true,
+      dateModified: BUILD_DATE,
+      distribution: [
+        {
+          '@type': 'DataDownload',
+          encodingFormat: 'application/json',
+          contentUrl: `https://daten.uba.de/release/rest/data/UBA,${id},1.0/all?format=jsondata`,
+        },
+        {
+          '@type': 'DataDownload',
+          encodingFormat: 'text/csv',
+          contentUrl: `https://daten.uba.de/release/rest/data/UBA,${id},1.0/all?format=csv`,
+        },
+      ],
     })
   }
 

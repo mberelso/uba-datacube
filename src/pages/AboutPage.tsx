@@ -49,8 +49,9 @@ export default function AboutPage() {
           Über dieses Projekt
         </div>
         <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 mb-4 leading-tight">
-          Kein UBA-Produkt.<br />Ein Bürger-Werkzeug.
+          Umweltdaten Deutschland — offen, interaktiv, kostenlos
         </h1>
+        <p className="text-sm text-slate-400 -mt-2 mb-2">Kein UBA-Produkt. Ein Bürger-Werkzeug.</p>
         <p className="text-base text-slate-600 leading-relaxed max-w-[60ch]">
           Umweltpuls ist ein privates Projekt ohne Verbindung zum Umweltbundesamt. Ziel ist es, öffentliche Umweltdaten — die bereits existieren und frei zugänglich sind — besser lesbar zu machen.
         </p>

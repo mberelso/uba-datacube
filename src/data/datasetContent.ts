@@ -45,6 +45,13 @@ export interface LazyDimensionConfig {
   dimensions: LazyDimension[]
 }
 
+export interface PresetConfig {
+  title: string
+  description: string
+  filters: Record<string, string>
+  lazyFilters?: Record<string, string>
+}
+
 export interface DatasetContent {
   headline: string
   lead: string
@@ -62,6 +69,8 @@ export interface DatasetContent {
   excludeFromCatalog?: boolean
   /** Curated filter dimensions for lazy-load mode (used when DSD is unavailable from API) */
   lazyDimensions?: LazyDimensionConfig
+  /** Quick-access presets shown above the explorer */
+  presets?: PresetConfig[]
 }
 
 export const DATASET_CONTENT: Record<string, DatasetContent> = {
@@ -327,6 +336,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
     context: 'Die EU hat sich mit dem European Green Deal verpflichtet, die Nettoemissionen bis 2050 auf null zu senken; Zwischenziel sind minus 55 Prozent bis 2030 gegenüber 1990. Atmosphärische Konzentrationsdaten liefern den unabhängigen Gegencheck zu nationalen Emissionsbilanzen – sie zeigen, was tatsächlich in der Luft landet, unabhängig davon, was Staaten in ihren Berichten ausweisen. Klimapolitische Entscheidungen, von der CO₂-Bepreisung bis zum Kohleausstieg, müssen sich an diesen Messwerten messen lassen.',
     methodology: 'Gemessen werden stündliche Mittelwerte der Gaskonzentrationen in der Umgebungsluft – auf dem Schauinsland in 35 Metern Höhe, auf der Zugspitze in 3 Metern Höhe über dem Boden. Die Standorte erfassen regionale Hintergrundluft, spiegeln aber nicht direkt lokale Emissionsquellen wider; kurzfristige Extremwerte durch nahegelegene Quellen werden durch die Messanordnung weitgehend herausgefiltert.',
     status: 'draft',
+    excludeFromCatalog: true, // stündliche Rohdaten — ISO-Timestamps, nicht im Jahres-Explorer darstellbar
   },
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
@@ -609,6 +619,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
     context: 'Sinkende Grundwasserspiegel gefährden die Trinkwasserversorgung von Millionen Menschen und zwingen Bundesländer wie Brandenburg und Bayern bereits zu Entnahmeverboten. Die EU-Wasserrahmenrichtlinie verpflichtet Deutschland zum guten ökologischen Zustand seiner Gewässer — ein Ziel, das bei anhaltendem Wasserverlust schwer erreichbar bleibt.',
     methodology: 'Satelliten der GRACE-Mission messen minimale Veränderungen im Schwerefeld der Erde und leiten daraus ab, wie viel Wasser sich ober- und unterirdisch angesammelt hat oder fehlt. Die Methode erfasst keine einzelnen Regionen oder Grundwasserschichten getrennt, sondern liefert räumlich gemittelte Gesamtwerte für größere Gebiete.',
     status: 'draft',
+    excludeFromCatalog: true, // API antwortet mit 404 — Datensatz derzeit nicht erreichbar
   },
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
@@ -1231,6 +1242,87 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
     context: 'Die Bundesregierung hat sich verpflichtet, den Verkehrssektor bis 2030 deutlich klimafreundlicher zu gestalten – dafür muss der öffentliche Verkehr mehr Menschen bewegen als heute. Das 49-Euro-Ticket, eingeführt im Mai 2023, sollte genau diesen Wechsel beschleunigen; ob es die Fahrgastzahlen dauerhaft hebt, lässt sich mit diesem Datensatz direkt ablesen.',
     methodology: 'Gemessen wird die Anzahl der Fahrten auf Basis von Meldungen der Verkehrsunternehmen an das Statistische Bundesamt, getrennt nach Quartalen. Für den Fernverkehr – also Fernbusse und Fernzüge – weist der Datensatz bewusst keine Länderwerte aus, weil die Unternehmen ihren Sitz oft in nur einem Bundesland haben, ihre Fahrgäste aber bundesweit befördern.',
     status: 'draft',
+    lazyDimensions: {
+      totalDimensions: 5,
+      dimensions: [
+        {
+          id: 'D_COUNTRY',
+          name: 'Land',
+          position: 0,
+          values: [{ id: 'DE', name: 'Deutschland' }],
+          defaultValue: 'DE',
+        },
+        {
+          id: 'FREQUENCY',
+          name: 'Frequenz',
+          position: 1,
+          values: [
+            { id: 'Q', name: 'Vierteljährlich' },
+            { id: 'A', name: 'Jährlich' },
+          ],
+          defaultValue: 'A',
+        },
+        {
+          id: 'D_UNIT',
+          name: 'Einheit',
+          position: 2,
+          values: [
+            { id: 'TSD', name: 'Anzahl in 1.000' },
+          ],
+          defaultValue: 'TSD',
+        },
+        {
+          id: 'D_FEDERAL_STATES',
+          name: 'Bundesland',
+          position: 3,
+          values: [
+            { id: 'BB', name: 'Brandenburg' },
+            { id: 'BE', name: 'Berlin' },
+            { id: 'BW', name: 'Baden-Württemberg' },
+            { id: 'BY', name: 'Bayern' },
+            { id: 'HB', name: 'Bremen' },
+            { id: 'HE', name: 'Hessen' },
+            { id: 'HH', name: 'Hamburg' },
+            { id: 'MV', name: 'Mecklenburg-Vorpommern' },
+            { id: 'NI', name: 'Niedersachsen' },
+            { id: 'NW', name: 'Nordrhein-Westfalen' },
+            { id: 'RP', name: 'Rheinland-Pfalz' },
+            { id: 'SH', name: 'Schleswig-Holstein' },
+            { id: 'SL', name: 'Saarland' },
+            { id: 'SN', name: 'Sachsen' },
+            { id: 'ST', name: 'Sachsen-Anhalt' },
+            { id: 'TH', name: 'Thüringen' },
+          ],
+          defaultValue: 'NW',
+        },
+        {
+          id: 'D_TRAFFIC_TYPE',
+          name: 'Verkehrsart',
+          position: 4,
+          values: [
+            { id: 'VERLINNAHINSG', name: 'Nahverkehr insgesamt' },
+            { id: 'VERLINNAHEISB', name: 'Eisenbahn (Nah)' },
+            { id: 'VERLINNAHSTB', name: 'Straßenbahn' },
+            { id: 'VERLINNAHOBUS', name: 'Omnibus' },
+          ],
+          defaultValue: 'VERLINNAHINSG',
+        },
+      ],
+    },
+    presets: [
+      {
+        title: 'Corona-Einbruch: NRW Gesamtnahverkehr',
+        description: 'Alle Verkehrsmittel zusammen – der Pandemieeinbruch 2020 und die langsame Erholung.',
+        filters: { 'Frequenz': 'Vierteljährlich', 'Bundesland': 'Nordrhein-Westfalen', 'Verkehrsart': 'Nahverkehr insgesamt' },
+        lazyFilters: { D_COUNTRY: 'DE', FREQUENCY: 'Q', D_UNIT: 'TSD', D_FEDERAL_STATES: 'NW', D_TRAFFIC_TYPE: 'VERLINNAHINSG' },
+      },
+      {
+        title: 'Bayern: Bahn vs. Bus (Jährlich)',
+        description: 'Eisenbahn und Omnibus im Vergleich – wer gewinnt Fahrgäste?',
+        filters: { 'Frequenz': 'Jährlich', 'Bundesland': 'Bayern', 'Verkehrsart': 'Eisenbahn (Nah)' },
+        lazyFilters: { D_COUNTRY: 'DE', FREQUENCY: 'A', D_UNIT: 'TSD', D_FEDERAL_STATES: 'BY', D_TRAFFIC_TYPE: 'VERLINNAHEISB' },
+      },
+    ],
   },
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'

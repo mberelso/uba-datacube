@@ -36,6 +36,7 @@ const KNOWN_LARGE_DATASETS = new Set([
   'DF_CLIMATE_EMISSIONS_GHG_TRENDS_KSG', // 6.344 Serien
   'DF_PRTR_WASTE_WATER',              // 2.617 Serien
   'DF_TRANSPORT_TRAFFIC_AREA_BUNDESLAND', // 2.004 Serien
+  'DF_TRANSPORT_PUBLIC_PASSENGERS_BUS_TRAIN', // 160 Serien, Quartalsdaten
 ])
 
 type ChartType = 'line' | 'bar'

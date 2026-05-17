@@ -296,6 +296,9 @@ export async function fetchData(flow: Dataflow, key = 'all'): Promise<{
     timeValues = Array.from(allYears).sort()
   }
 
+  // Always sort timeValues chronologically — the API does not guarantee order
+  timeValues.sort((a, b) => a.localeCompare(b))
+
   // Sparse data fallback: if JSON only returned ≤2 observations per series, try CSV
   const totalObs = Object.values(seriesMap).reduce((n, s) => n + Object.keys(s.observations).length, 0)
   const seriesCount = Object.keys(seriesMap).length

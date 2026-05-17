@@ -1,7 +1,7 @@
 
 export interface Preset {
   title: string
-  icon: string
+  icon?: string
   description: string
   filters: Record<string, string>
   /** Code-IDs für den Lazy-Load-Modus (dim-ID → SDMX code) */
@@ -81,6 +81,8 @@ const GHG_PRESETS: Preset[] = [
   },
 ]
 
+import { getDatasetContent } from '../data/datasetContent'
+
 export function DatasetPresets({
   flowId,
   onApplyPreset,
@@ -88,15 +90,20 @@ export function DatasetPresets({
   flowId: string
   onApplyPreset: (filters: Record<string, string>, lazyFilters?: Record<string, string>) => void
 }) {
-  if (flowId !== 'DF_CLIMATE_EMISSIONS_GHG_TRENDS') return null
+  // GHG_TRENDS has curated hardcoded presets; other datasets read from datasetContent
+  const presets: Preset[] = flowId === 'DF_CLIMATE_EMISSIONS_GHG_TRENDS'
+    ? GHG_PRESETS
+    : (getDatasetContent(flowId)?.presets ?? [])
+
+  if (!presets.length) return null
 
   return (
     <div style={{ marginBottom: 24 }}>
       <h3 style={{ fontSize: 14, fontWeight: 600, color: '#1e293b', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-        <span>✨</span> Top 10 Einblicke & Filter-Presets
+        <span>✨</span> Einblicke & Filter-Presets
       </h3>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 12 }}>
-        {GHG_PRESETS.map((preset, idx) => (
+        {presets.map((preset, idx) => (
           <button
             key={idx}
             onClick={() => onApplyPreset(preset.filters, preset.lazyFilters)}
@@ -124,7 +131,7 @@ export function DatasetPresets({
             }}
           >
             <div style={{ fontSize: 13, fontWeight: 600, color: '#0f172a' }}>
-              {preset.icon} {preset.title}
+              {preset.icon ? `${preset.icon} ` : ''}{preset.title}
             </div>
             <div style={{ fontSize: 11, color: '#64748b', lineHeight: 1.4 }}>
               {preset.description}

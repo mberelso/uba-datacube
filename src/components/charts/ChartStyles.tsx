@@ -62,6 +62,40 @@ export const CHART_COLORS_PALETTE = [
 // Alias for direct import
 export const CHART_COLORS = CHART_COLORS_PALETTE
 
+/**
+ * Computes XAxis tick props for dense or sub-annual time series.
+ * - Quarterly data ("2022-Q3"): shows only Q1 labels, i.e. one per year
+ * - Monthly data ("2002-04"): shows only January labels
+ * - Annual data with >20 points: shows every 5th year
+ * - Otherwise: show all ticks (interval="preserveStartEnd" default)
+ */
+export function xAxisTickProps(data: { year: string }[]): {
+  interval: number | 'preserveStartEnd' | 'equidistantPreserveStart'
+  angle?: number
+  textAnchor?: 'start' | 'middle' | 'end' | 'inherit'
+  dy?: number
+  ticks?: string[]
+} {
+  if (!data.length) return { interval: 'preserveStartEnd' }
+  const sample = data[0].year
+  if (/^\d{4}-Q\d$/.test(sample)) {
+    // Quarterly: only show Q1 of each year as tick
+    const q1ticks = data.map(d => d.year).filter(y => y.endsWith('-Q1'))
+    return { ticks: q1ticks, interval: 0, angle: -30, textAnchor: 'end', dy: 4 }
+  }
+  if (/^\d{4}-\d{2}$/.test(sample)) {
+    // Monthly: only show January of each year
+    const janTicks = data.map(d => d.year).filter(y => y.endsWith('-01'))
+    return { ticks: janTicks, interval: 0, angle: -30, textAnchor: 'end', dy: 4 }
+  }
+  if (data.length > 20) {
+    // Annual but many: show every 5th
+    const every5 = data.filter((_, i) => i % 5 === 0 || i === data.length - 1).map(d => d.year)
+    return { ticks: every5, interval: 0 }
+  }
+  return { interval: 'preserveStartEnd' }
+}
+
 // --- Glassmorphism Tooltip component (reusable) ---
 export function GlassTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null

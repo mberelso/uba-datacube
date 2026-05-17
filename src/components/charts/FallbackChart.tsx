@@ -2,7 +2,7 @@ import {
   LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip, Legend, ResponsiveContainer,
 } from 'recharts'
-import { GlassTooltip, CHART_COLORS_PALETTE, formatVal } from './ChartStyles'
+import { GlassTooltip, CHART_COLORS_PALETTE, formatVal, xAxisTickProps } from './ChartStyles'
 
 export const CHART_COLORS = CHART_COLORS_PALETTE
 
@@ -15,13 +15,16 @@ export interface ChartProps {
 
 export function FallbackChart({ chartData, activeSeriesList, chartType }: ChartProps) {
   const tickFmt = (val: number) => formatVal(val)
+  const { interval, angle, textAnchor, dy, ticks } = xAxisTickProps(chartData)
+  const bottomMargin = angle ? 20 : 5
 
   return (
     <ResponsiveContainer width="100%" height={380}>
       {chartType === 'line' ? (
-        <LineChart data={chartData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+        <LineChart data={chartData} margin={{ top: 5, right: 20, left: 0, bottom: bottomMargin }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-          <XAxis dataKey="year" tick={{ fontSize: 11 }} />
+          <XAxis dataKey="year" tick={{ fontSize: 11, ...(angle ? { angle, textAnchor, dy } : {}) }}
+            ticks={ticks} interval={ticks ? 0 : interval} />
           <YAxis tick={{ fontSize: 10 }} width={70} tickFormatter={tickFmt} />
           <Tooltip content={<GlassTooltip />} />
           <Legend wrapperStyle={{ fontSize: 11, paddingTop: 10 }} iconType="circle" />
@@ -33,9 +36,10 @@ export function FallbackChart({ chartData, activeSeriesList, chartType }: ChartP
           ))}
         </LineChart>
       ) : (
-        <BarChart data={chartData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+        <BarChart data={chartData} margin={{ top: 5, right: 20, left: 0, bottom: bottomMargin }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-          <XAxis dataKey="year" tick={{ fontSize: 11 }} />
+          <XAxis dataKey="year" tick={{ fontSize: 11, ...(angle ? { angle, textAnchor, dy } : {}) }}
+            ticks={ticks} interval={ticks ? 0 : interval} />
           <YAxis tick={{ fontSize: 10 }} width={70} tickFormatter={tickFmt} />
           <Tooltip content={<GlassTooltip />} />
           <Legend wrapperStyle={{ fontSize: 11, paddingTop: 10 }} iconType="circle" />

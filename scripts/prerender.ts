@@ -18,6 +18,100 @@ import { join, resolve } from 'path'
 import { fileURLToPath } from 'url'
 import { DATASET_CONTENT } from '../src/data/datasetContent.ts'
 
+/** Trim a description to max 155 chars, breaking at a word boundary. */
+function trimDesc(text: string, max = 155): string {
+  if (text.length <= max) return text
+  const cut = text.slice(0, max)
+  const lastSpace = cut.lastIndexOf(' ')
+  return (lastSpace > 100 ? cut.slice(0, lastSpace) : cut) + '…'
+}
+
+/** Build JSON-LD for a route. Returns null for routes without structured data. */
+function buildJsonLd(route: string): string | null {
+  const siteUrl = 'https://www.umweltpuls.de'
+
+  if (route === '/') {
+    return JSON.stringify({
+      '@context': 'https://schema.org',
+      '@graph': [
+        {
+          '@type': 'WebSite',
+          '@id': `${siteUrl}/#website`,
+          url: siteUrl,
+          name: 'Umweltpuls',
+          description: 'Klimadaten, Emissionstrends und Umweltindikatoren des Umweltbundesamts — interaktiv erkunden, filtern und exportieren.',
+          inLanguage: 'de-DE',
+          potentialAction: {
+            '@type': 'SearchAction',
+            target: { '@type': 'EntryPoint', urlTemplate: `${siteUrl}/catalog?category={search_term_string}` },
+            'query-input': 'required name=search_term_string',
+          },
+        },
+        {
+          '@type': 'Organization',
+          '@id': `${siteUrl}/#organization`,
+          name: 'Umweltpuls',
+          url: siteUrl,
+          description: 'Privates, nicht-kommerzielles Projekt zur interaktiven Aufbereitung von Umweltdaten des Umweltbundesamts.',
+        },
+      ],
+    })
+  }
+
+  if (route === '/about') {
+    return JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: [
+        {
+          '@type': 'Question',
+          name: 'Ist das eine offizielle Publikation des Umweltbundesamts?',
+          acceptedAnswer: { '@type': 'Answer', text: 'Nein. Dieses Projekt ist ein privates Vorhaben ohne jede Verbindung zum Umweltbundesamt (UBA) oder einer anderen Behörde.' },
+        },
+        {
+          '@type': 'Question',
+          name: 'Woher kommen die Daten?',
+          acceptedAnswer: { '@type': 'Answer', text: 'Alle Daten stammen aus der öffentlich zugänglichen SDMX-REST-API des Umweltbundesamts (daten.uba.de).' },
+        },
+        {
+          '@type': 'Question',
+          name: 'Ist die Nutzung kostenlos?',
+          acceptedAnswer: { '@type': 'Answer', text: 'Ja, Umweltpuls ist vollständig kostenlos und werbefrei.' },
+        },
+      ],
+    })
+  }
+
+  const dsMatch = route.match(/^\/dataset\/(.+)$/)
+  if (dsMatch) {
+    const id = decodeURIComponent(dsMatch[1])
+    const c = DATASET_CONTENT[id]
+    if (!c) return null
+    return JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'Dataset',
+      name: c.displayName ?? id,
+      description: c.lead ? trimDesc(c.lead, 300) : (c.headline ?? ''),
+      url: `${siteUrl}/dataset/${encodeURIComponent(id)}`,
+      inLanguage: 'de-DE',
+      creator: {
+        '@type': 'Organization',
+        name: 'Umweltbundesamt',
+        url: 'https://www.umweltbundesamt.de',
+      },
+      publisher: {
+        '@type': 'Organization',
+        name: 'Umweltpuls',
+        url: siteUrl,
+      },
+      license: 'https://www.govdata.de/dl-de/by-2-0',
+      isAccessibleForFree: true,
+    })
+  }
+
+  return null
+}
+
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
 const ROOT = resolve(__dirname, '..')
 const DIST = join(ROOT, 'dist')
@@ -189,11 +283,18 @@ async function run() {
           .replace(/(<meta[^>]*og:title[^>]*content=")[^"]*(")/gi, `$1${dsTitle}$2`)
           .replace(/(<meta[^>]*name="twitter:title"[^>]*content=")[^"]*(")/gi, `$1${dsTitle}$2`)
         if (lead) {
+          const desc = trimDesc(lead)
           html = html
-            .replace(/(<meta[^>]*name="description"[^>]*content=")[^"]*(")/gi, `$1${lead.slice(0, 160)}$2`)
-            .replace(/(<meta[^>]*og:description[^>]*content=")[^"]*(")/gi, `$1${lead.slice(0, 160)}$2`)
-            .replace(/(<meta[^>]*name="twitter:description"[^>]*content=")[^"]*(")/gi, `$1${lead.slice(0, 160)}$2`)
+            .replace(/(<meta[^>]*name="description"[^>]*content=")[^"]*(")/gi, `$1${desc}$2`)
+            .replace(/(<meta[^>]*og:description[^>]*content=")[^"]*(")/gi, `$1${desc}$2`)
+            .replace(/(<meta[^>]*name="twitter:description"[^>]*content=")[^"]*(")/gi, `$1${desc}$2`)
         }
+      }
+
+      // Inject JSON-LD structured data
+      const jsonLd = buildJsonLd(route)
+      if (jsonLd) {
+        html = html.replace('</head>', `<script type="application/ld+json">${jsonLd}</script></head>`)
       }
 
       const segments = route === '/' ? [] : route.split('/').filter(Boolean)

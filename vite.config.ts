@@ -7,6 +7,8 @@ import { DATASET_CONTENT } from './src/data/datasetContent'
 const SITE_URL = 'https://www.umweltpuls.de'
 
 function generateSitemap(): string {
+  const today = new Date().toISOString().slice(0, 10)
+
   const staticPages = [
     { path: '/', priority: '1.0', changefreq: 'weekly' },
     { path: '/catalog', priority: '0.9', changefreq: 'weekly' },
@@ -25,6 +27,7 @@ function generateSitemap(): string {
   const urls = [...staticPages, ...datasetPages]
     .map(({ path, priority, changefreq }) => `  <url>
     <loc>${SITE_URL}${path}</loc>
+    <lastmod>${today}</lastmod>
     <changefreq>${changefreq}</changefreq>
     <priority>${priority}</priority>
   </url>`)

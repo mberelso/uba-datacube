@@ -3,7 +3,9 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { motion, AnimatePresence, type Variants } from 'framer-motion'
 import { fetchDataflows, type Dataflow } from '../api/sdmx'
 import { CATEGORIES, getCategoryMeta } from '../utils/categories'
-import { getDatasetContent } from '../data/datasetContent'
+import { getDatasetContent, DATASET_CONTENT } from '../data/datasetContent'
+
+const STATIC_DATASET_COUNT = Object.values(DATASET_CONTENT).filter(c => !c.excludeFromCatalog).length
 import { GuidedTip } from '../components/GuidedTip'
 import { SEO } from '../components/SEO'
 
@@ -109,7 +111,7 @@ export default function CatalogPage() {
           )}
         </h1>
         <p style={{ fontSize: 14, color: NORDIC.stone, fontWeight: 400 }}>
-          {visibleFlows.length} Datensätze des Umweltbundesamts · SDMX REST API
+          {loading ? STATIC_DATASET_COUNT : visibleFlows.length} Datensätze des Umweltbundesamts · SDMX REST API
         </p>
 
         {/* Moss accent bar */}

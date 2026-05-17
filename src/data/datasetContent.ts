@@ -638,21 +638,25 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
       {
         title: 'THG-Gesamtemissionen bis 2045',
         description: 'Projektierter Rückgang der deutschen Gesamtemissionen im MMS-Szenario.',
+        filters: {},
         lazyFilters: { D_COUNTRY: 'DE', FREQUENCY: 'A', D_REPORTING_YEAR: '2026', D_INDICATOR_PROJECTION_REPORT: 'THPR_DTNTBL_SNSTGS_10703870', D_UNIT: 'MT_CO2_EQ', D_KSG_SECTOR: 'TOTAL', D_SCENARIO_TYPE: 'MMS' },
       },
       {
         title: 'Verkehr: Emissionen bis 2045',
         description: 'Wie schnell sinken die THG-Emissionen im Verkehrssektor?',
+        filters: {},
         lazyFilters: { D_COUNTRY: 'DE', FREQUENCY: 'A', D_REPORTING_YEAR: '2026', D_INDICATOR_PROJECTION_REPORT: 'THPR_DTNTBL_SNSTGS_10703870', D_UNIT: 'MT_CO2_EQ', D_KSG_SECTOR: 'VERKEHR', D_SCENARIO_TYPE: 'MMS' },
       },
       {
         title: 'Gebäude: Emissionen bis 2045',
         description: 'Emissionspfad des Gebäudesektors — Wärmewende im Fokus.',
+        filters: {},
         lazyFilters: { D_COUNTRY: 'DE', FREQUENCY: 'A', D_REPORTING_YEAR: '2026', D_INDICATOR_PROJECTION_REPORT: 'THPR_DTNTBL_SNSTGS_10703870', D_UNIT: 'MT_CO2_EQ', D_KSG_SECTOR: 'GEBAEUDE', D_SCENARIO_TYPE: 'MMS' },
       },
       {
         title: 'EE-Anteil Strom bis 2038',
         description: 'Wie viel Prozent des Stroms kommen aus Erneuerbaren?',
+        filters: {},
         lazyFilters: { D_COUNTRY: 'DE', FREQUENCY: 'A', D_REPORTING_YEAR: '2026', D_INDICATOR_PROJECTION_REPORT: 'THPR_DTNTBL_ENRGWRTSCHFT_56241560', D_UNIT: 'PZ', D_KSG_SECTOR: 'ENERGIEWIRTSCHAFT', D_SCENARIO_TYPE: 'MMS' },
       },
     ],

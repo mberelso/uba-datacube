@@ -1051,7 +1051,7 @@ function EeAnteilProjectionChart() {
     <ChartCard
       title="Strom & Mobilität: Hochlauf der Elektrifizierung"
       subtitle="Projektion 2026 · MMS-Szenario · EE-Anteil & E-PKW Bestand"
-      kpi={latest?.['EE-Anteil Strom (%)']} kpiUnit="% EE-Strom" kpiYear={latest?.year}
+      kpi={latest?.['EE-Anteil Strom (%)'] ?? undefined} kpiUnit="% EE-Strom" kpiYear={latest?.year}
       color="#16a34a" loading={loading} error={error} height={220}
       flowId="DF_CROSS_PROJECTION_REPORT_CORE_INDICATORS_26"
       source="Quelle: Umweltbundesamt / Projektion 2026"
@@ -1109,7 +1109,7 @@ function WaermepumpenProjectionChart() {
     <ChartCard
       title="Wärmewende im Gebäudebestand bis 2045"
       subtitle="Projektion 2026 · MMS-Szenario · Mio. Gebäude"
-      kpi={latest?.['Wärmepumpen (Mio.)']} kpiUnit="Mio. WP" kpiYear={latest?.year}
+      kpi={latest?.['Wärmepumpen (Mio.)'] ?? undefined} kpiUnit="Mio. WP" kpiYear={latest?.year}
       color="#f59e0b" loading={loading} error={error} height={220}
       flowId="DF_CROSS_PROJECTION_REPORT_CORE_INDICATORS_26"
       source="Quelle: Umweltbundesamt / Projektion 2026"
@@ -1166,7 +1166,7 @@ function EnergiepreisProjectionChart() {
     <ChartCard
       title="Energiepreise bis 2045 (Bundesregierung)"
       subtitle="Projektion 2025 · Endverbraucherpreise inkl. MwSt."
-      kpi={latestStrom?.['Strom HH (€/MWh)']} kpiUnit="€/MWh Strom" kpiYear={latestStrom?.year}
+      kpi={latestStrom?.['Strom HH (€/MWh)'] ?? undefined} kpiUnit="€/MWh Strom" kpiYear={latestStrom?.year}
       color="#7c3aed" loading={loading} error={error} height={220}
       flowId="DF_CROSS_PROJECTION_REPORT_FINAL_CONSUMER_PRICES"
       source="Quelle: Umweltbundesamt / Prognos · Projektion 2025"

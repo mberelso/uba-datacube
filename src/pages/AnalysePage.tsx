@@ -141,10 +141,19 @@ function Section({ title, icon, color, children }: { title: string; icon: string
   )
 }
 
-function ChartCard({ title, subtitle, kpi, kpiUnit, kpiYear, trend, color, loading, error, height = 220, flowId, source, children }: {
+/** Baut einen vorausgefüllten Datensatz-Link mit optionalen Lazy-Filtern. */
+function datasetLink(flowId: string, lazyFilters?: Record<string, string>): string {
+  const base = `/dataset/${encodeURIComponent(flowId)}`
+  if (!lazyFilters) return base
+  return `${base}?lazy=${encodeURIComponent(JSON.stringify(lazyFilters))}`
+}
+
+function ChartCard({ title, subtitle, kpi, kpiUnit, kpiYear, trend, color, loading, error, height = 220, flowId, lazyFilters, source, children }: {
   title: string; subtitle: string
   kpi?: number; kpiUnit?: string; kpiYear?: string; trend?: number
-  color: string; loading: boolean; error?: boolean; height?: number; flowId?: string
+  color: string; loading: boolean; error?: boolean; height?: number
+  flowId?: string
+  lazyFilters?: Record<string, string>
   source?: string
   children: ReactNode
 }) {
@@ -181,7 +190,7 @@ function ChartCard({ title, subtitle, kpi, kpiUnit, kpiYear, trend, color, loadi
           : <span />}
         {flowId && (
           <Link
-            to={`/dataset/${encodeURIComponent(flowId)}`}
+            to={datasetLink(flowId, lazyFilters)}
             style={{ fontSize: 11, color: '#1e3a5f', textDecoration: 'none', fontWeight: 500, opacity: 0.8, whiteSpace: 'nowrap' }}
           >
             → Rohdaten erkunden
@@ -990,6 +999,7 @@ function GhgSectorProjectionChart() {
       kpi={totalLatest} kpiUnit="Mio. t CO₂" kpiYear={latest?.year}
       color="#dc2626" loading={loading} error={error} height={260}
       flowId="DF_CROSS_PROJECTION_REPORT_CORE_INDICATORS_26"
+      lazyFilters={{ D_COUNTRY: 'DE', FREQUENCY: 'A', D_REPORTING_YEAR: '2026', D_INDICATOR_PROJECTION_REPORT: 'THPR_DTNTBL_SNSTGS_10703870', D_UNIT: 'MT_CO2_EQ', D_KSG_SECTOR: 'TOTAL', D_SCENARIO_TYPE: 'MMS' }}
       source="Quelle: Umweltbundesamt / Klimaschutzbericht 2026"
     >
       <ResponsiveContainer width="100%" height="100%">
@@ -1054,6 +1064,7 @@ function EeAnteilProjectionChart() {
       kpi={latest?.['EE-Anteil Strom (%)'] ?? undefined} kpiUnit="% EE-Strom" kpiYear={latest?.year}
       color="#16a34a" loading={loading} error={error} height={220}
       flowId="DF_CROSS_PROJECTION_REPORT_CORE_INDICATORS_26"
+      lazyFilters={{ D_COUNTRY: 'DE', FREQUENCY: 'A', D_REPORTING_YEAR: '2026', D_INDICATOR_PROJECTION_REPORT: 'THPR_DTNTBL_ENRGWRTSCHFT_56241560', D_UNIT: 'PZ', D_KSG_SECTOR: 'ENERGIEWIRTSCHAFT', D_SCENARIO_TYPE: 'MMS' }}
       source="Quelle: Umweltbundesamt / Projektion 2026"
     >
       <ResponsiveContainer width="100%" height="100%">
@@ -1112,6 +1123,7 @@ function WaermepumpenProjectionChart() {
       kpi={latest?.['Wärmepumpen (Mio.)'] ?? undefined} kpiUnit="Mio. WP" kpiYear={latest?.year}
       color="#f59e0b" loading={loading} error={error} height={220}
       flowId="DF_CROSS_PROJECTION_REPORT_CORE_INDICATORS_26"
+      lazyFilters={{ D_COUNTRY: 'DE', FREQUENCY: 'A', D_REPORTING_YEAR: '2026', D_INDICATOR_PROJECTION_REPORT: 'THPR_DTNTBL_GBD_44869581', D_UNIT: 'AZ', D_KSG_SECTOR: 'GEBAEUDE', D_SCENARIO_TYPE: 'MMS' }}
       source="Quelle: Umweltbundesamt / Projektion 2026"
     >
       <ResponsiveContainer width="100%" height="100%">
@@ -1169,6 +1181,7 @@ function EnergiepreisProjectionChart() {
       kpi={latestStrom?.['Strom HH (€/MWh)'] ?? undefined} kpiUnit="€/MWh Strom" kpiYear={latestStrom?.year}
       color="#7c3aed" loading={loading} error={error} height={220}
       flowId="DF_CROSS_PROJECTION_REPORT_FINAL_CONSUMER_PRICES"
+      lazyFilters={{ D_COUNTRY: 'DE', D_UNIT: 'EUR_2023_MWH', D_INDICATOR_PROJECTION_REPORT: 'STROMPREIS_HAUSHALTE_2_ENDVERBRAUCHERPREIS_INKL_MWST', D_REPORTING_YEAR: '2025' }}
       source="Quelle: Umweltbundesamt / Prognos · Projektion 2025"
     >
       <ResponsiveContainer width="100%" height="100%">

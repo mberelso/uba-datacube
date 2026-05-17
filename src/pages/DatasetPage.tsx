@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useMemo, useCallback } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, useLocation, Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   ArrowLeft, ShareNetwork, ChartLine, ChartBar,
@@ -65,6 +65,17 @@ function PageSkeleton() {
 
 export default function DatasetPage() {
   const { id } = useParams<{ id: string }>()
+  const location = useLocation()
+
+  // ?lazy=<JSON> aus der URL lesen — wird nach dem ersten Daten-Load einmalig angewendet
+  const urlLazyFilters = useRef<Record<string, string> | null>(null)
+  if (urlLazyFilters.current === null) {
+    try {
+      const raw = new URLSearchParams(location.search).get('lazy')
+      urlLazyFilters.current = raw ? JSON.parse(decodeURIComponent(raw)) : null
+    } catch { urlLazyFilters.current = null }
+  }
+  const urlPresetApplied = useRef(false)
 
   const [flow, setFlow] = useState<Dataflow | null>(null)
   const [loading, setLoading] = useState(true)
@@ -332,6 +343,18 @@ export default function DatasetPage() {
       .sort((a, b) => b.count - a.count)
     setSelectedSeries(new Set(ranked.slice(0, 5).map(s => s.key)))
   }, [filters])
+
+  // URL-Preset einmalig nach dem ersten Daten-Load anwenden
+  useEffect(() => {
+    if (loading || urlPresetApplied.current) return
+    const lf = urlLazyFilters.current
+    if (!lf) return
+    urlPresetApplied.current = true
+    if (lazyMode) {
+      setFilters(lf)
+      loadFilteredData(lf)
+    }
+  }, [loading, lazyMode, loadFilteredData])
 
   const applyPreset = useCallback((presetFilters: Record<string, string>, lazyFilters?: Record<string, string>) => {
     if (lazyMode && lazyFilters) {

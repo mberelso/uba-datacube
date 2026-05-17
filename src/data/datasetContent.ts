@@ -36,6 +36,8 @@ export interface LazyDimension {
   /** 0-based position in the full SDMX key (out of totalDimensions) */
   position: number
   values: { id: string; name: string }[]
+  /** Default value (code ID) pre-selected in the filter dropdown */
+  defaultValue?: string
 }
 
 export interface LazyDimensionConfig {

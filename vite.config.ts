@@ -14,11 +14,13 @@ function generateSitemap(): string {
     { path: '/about', priority: '0.5', changefreq: 'monthly' },
   ]
 
-  const datasetPages = Object.keys(DATASET_CONTENT).map(id => ({
-    path: `/dataset/${encodeURIComponent(id)}`,
-    priority: '0.6',
-    changefreq: 'monthly',
-  }))
+  const datasetPages = Object.entries(DATASET_CONTENT)
+    .filter(([, c]) => !c.excludeFromCatalog)
+    .map(([id]) => ({
+      path: `/dataset/${encodeURIComponent(id)}`,
+      priority: '0.6',
+      changefreq: 'monthly',
+    }))
 
   const urls = [...staticPages, ...datasetPages]
     .map(({ path, priority, changefreq }) => `  <url>
@@ -47,7 +49,6 @@ export default defineConfig({
     },
     {
       // dist/404.html = copy of homepage for GitHub Pages SPA fallback
-      // (after prerender this still covers any unlisted routes)
       name: 'copy-404',
       closeBundle() {
         copyFileSync('dist/index.html', 'dist/404.html')

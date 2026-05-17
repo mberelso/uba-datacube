@@ -25,6 +25,13 @@ const PORT = 4173
 const SITE_URL = 'https://www.umweltpuls.de'
 
 const STATIC_ROUTES = ['/', '/catalog', '/analysen', '/about']
+
+const STATIC_DESCRIPTIONS: Record<string, string> = {
+  '/': 'Klimadaten, Emissionstrends und Umweltindikatoren des Umweltbundesamts — interaktiv erkunden, filtern und exportieren. Kostenlos und offen.',
+  '/catalog': 'Alle Umweltdatensätze des Umweltbundesamts auf einen Blick — durchsuchen, filtern und interaktiv erkunden.',
+  '/analysen': 'Ausgewählte Umwelttrends: Temperaturentwicklung, Treibhausgase, Erneuerbare Energien und mehr — basierend auf Daten des Umweltbundesamts.',
+  '/about': 'Hintergründe, FAQ und Impressum zu Umweltpuls — einem privaten, nicht-kommerziellen Aufbereitungsprojekt für Umweltdaten des Umweltbundesamts.',
+}
 const DATASET_ROUTES = Object.keys(DATASET_CONTENT).map(
   id => `/dataset/${encodeURIComponent(id)}`
 )
@@ -47,34 +54,32 @@ function findChromium() {
 }
 
 /**
- * Patch canonical, og:url, og:title, twitter:title to be route-specific.
+ * Patch canonical, og:url, og:title, twitter:title, and descriptions to be route-specific.
  * We derive og:title from the already-correct <title> tag.
- * og:description and twitter:description are left as-is (site-level is fine for now).
+ * For static routes, descriptions come from STATIC_DESCRIPTIONS.
+ * For dataset routes, descriptions come from DATASET_CONTENT.lead (handled separately).
  */
 function patchRouteMeta(html: string, route: string): string {
   const fullUrl = `${SITE_URL}${route}`
 
-  // Extract the page title from the (correct) <title> tag
   const titleMatch = html.match(/<title[^>]*>(.*?)<\/title>/i)
   const pageTitle = titleMatch?.[1] ?? ''
 
-  return html
-    .replace(
-      /(<link[^>]*rel="canonical"[^>]*href=")[^"]*(")/gi,
-      `$1${fullUrl}$2`
-    )
-    .replace(
-      /(<meta[^>]*property="og:url"[^>]*content=")[^"]*(")/gi,
-      `$1${fullUrl}$2`
-    )
-    .replace(
-      /(<meta[^>]*property="og:title"[^>]*content=")[^"]*(")/gi,
-      `$1${pageTitle}$2`
-    )
-    .replace(
-      /(<meta[^>]*name="twitter:title"[^>]*content=")[^"]*(")/gi,
-      `$1${pageTitle}$2`
-    )
+  let out = html
+    .replace(/(<link[^>]*rel="canonical"[^>]*href=")[^"]*(")/gi, `$1${fullUrl}$2`)
+    .replace(/(<meta[^>]*property="og:url"[^>]*content=")[^"]*(")/gi, `$1${fullUrl}$2`)
+    .replace(/(<meta[^>]*property="og:title"[^>]*content=")[^"]*(")/gi, `$1${pageTitle}$2`)
+    .replace(/(<meta[^>]*name="twitter:title"[^>]*content=")[^"]*(")/gi, `$1${pageTitle}$2`)
+
+  const staticDesc = STATIC_DESCRIPTIONS[route]
+  if (staticDesc) {
+    out = out
+      .replace(/(<meta[^>]*name="description"[^>]*content=")[^"]*(")/gi, `$1${staticDesc}$2`)
+      .replace(/(<meta[^>]*property="og:description"[^>]*content=")[^"]*(")/gi, `$1${staticDesc}$2`)
+      .replace(/(<meta[^>]*name="twitter:description"[^>]*content=")[^"]*(")/gi, `$1${staticDesc}$2`)
+  }
+
+  return out
 }
 
 /** For dataset routes, derive a meaningful title from DATASET_CONTENT if available. */

@@ -71,11 +71,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.umweltpuls.de/dataset/DF_CLIMATE_ATMO_GHG_CONCENTRATION</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://www.umweltpuls.de/dataset/DF_CLIMATE_EMISSIONS_F_GASES</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -166,11 +161,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.umweltpuls.de/dataset/DF_DAS_WASSER_WW_I_1</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://www.umweltpuls.de/dataset/DF_DAS_WASSER_WW_I_10</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -242,11 +232,6 @@
   </url>
   <url>
     <loc>https://www.umweltpuls.de/dataset/DF_ENERGY_AGEE_TRANSPORT</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.umweltpuls.de/dataset/DF_ENV_AWARENESS_STUDIES</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>

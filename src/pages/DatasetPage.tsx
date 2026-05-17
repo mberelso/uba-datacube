@@ -67,9 +67,9 @@ export default function DatasetPage() {
   const { id } = useParams<{ id: string }>()
   const location = useLocation()
 
-  // ?lazy=<JSON> aus der URL lesen — wird nach dem ersten Daten-Load einmalig angewendet
-  const urlLazyFilters = useRef<Record<string, string> | null>(null)
-  if (urlLazyFilters.current === null) {
+  // ?lazy=<JSON> aus der URL lesen — einmalig beim Mount, nie wieder
+  const urlLazyFilters = useRef<Record<string, string> | null | false>(false)
+  if (urlLazyFilters.current === false) {
     try {
       const raw = new URLSearchParams(location.search).get('lazy')
       urlLazyFilters.current = raw ? JSON.parse(decodeURIComponent(raw)) : null
@@ -160,17 +160,33 @@ export default function DatasetPage() {
         // Bekannte Datensätze mit vielen Serien sofort in Lazy-Modus — ohne API-Runde
         if (KNOWN_LARGE_DATASETS.has(f.id)) {
           const localContent = getDatasetContent(f.id)
+          let resolvedDimCfg: LazyDimensionConfig | null = null
           if (localContent?.lazyDimensions && localContent.lazyDimensions.dimensions.length > 0) {
-            // Kuratierte Filter direkt aus datasetContent — kein API-Call nötig
-            const dimCfg = localContent.lazyDimensions
-            setLazyDimConfig(dimCfg)
-            setDims(dimCfg.dimensions.map(d => ({ ...d })))
+            resolvedDimCfg = localContent.lazyDimensions
+            setLazyDimConfig(resolvedDimCfg)
+            setDims(resolvedDimCfg.dimensions.map(d => ({ ...d })))
           } else {
             const structure = await fetchStructure(f)
             setDims(structure.seriesDimensions)
           }
           setLazyMode(true)
-          if (cfg?.defaultFilters) setFilters(cfg.defaultFilters)
+          const urlFilters = urlLazyFilters.current as Record<string, string> | null
+          const initFilters = urlFilters ?? cfg?.defaultFilters ?? null
+          if (initFilters && Object.keys(initFilters).length > 0) {
+            setFilters(initFilters)
+            urlPresetApplied.current = true
+            const dimsForKey = resolvedDimCfg ? resolvedDimCfg.dimensions.map(d => ({ ...d })) : []
+            const key = buildSdmxKey(dimsForKey, initFilters, resolvedDimCfg)
+            setDataLoading(true)
+            fetchData(f, key || 'all')
+              .then(({ seriesMap: sm, timeValues: tv }) => {
+                setSeriesMap(sm)
+                setTimeValues(tv)
+                autoSelectTopSeries(sm)
+              })
+              .catch(() => {})
+              .finally(() => setDataLoading(false))
+          }
           return
         }
 
@@ -188,7 +204,19 @@ export default function DatasetPage() {
         if (estimate > LAZY_THRESHOLD) {
           dataAbort.abort()
           setLazyMode(true)
-          if (cfg?.defaultFilters) setFilters(cfg.defaultFilters)
+          const urlFilters2 = urlLazyFilters.current as Record<string, string> | null
+          if (urlFilters2 && Object.keys(urlFilters2).length > 0) {
+            setFilters(urlFilters2)
+            urlPresetApplied.current = true
+            const key = buildSdmxKey(structDims, urlFilters2, null)
+            setDataLoading(true)
+            fetchData(f, key || 'all')
+              .then(({ seriesMap: sm, timeValues: tv }) => { setSeriesMap(sm); setTimeValues(tv); autoSelectTopSeries(sm) })
+              .catch(() => {})
+              .finally(() => setDataLoading(false))
+          } else if (cfg?.defaultFilters) {
+            setFilters(cfg.defaultFilters)
+          }
         } else {
           // Klein: auf parallel laufende Daten warten
           const result = await dataPromise
@@ -343,18 +371,6 @@ export default function DatasetPage() {
       .sort((a, b) => b.count - a.count)
     setSelectedSeries(new Set(ranked.slice(0, 5).map(s => s.key)))
   }, [filters])
-
-  // URL-Preset einmalig nach dem ersten Daten-Load anwenden
-  useEffect(() => {
-    if (loading || urlPresetApplied.current) return
-    const lf = urlLazyFilters.current
-    if (!lf) return
-    urlPresetApplied.current = true
-    if (lazyMode) {
-      setFilters(lf)
-      loadFilteredData(lf)
-    }
-  }, [loading, lazyMode, loadFilteredData])
 
   const applyPreset = useCallback((presetFilters: Record<string, string>, lazyFilters?: Record<string, string>) => {
     if (lazyMode && lazyFilters) {

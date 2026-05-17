@@ -599,6 +599,63 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
     context: 'Das Bundes-Klimaschutzgesetz schreibt für jeden Sektor verbindliche Jahresemissionsmengen vor – wer die Vorgaben überschreitet, muss nachsteuern. Diese Projektionsdaten bilden die gesetzlich vorgeschriebene Grundlage, auf der Bundesministerien ihre Sofortprogramme planen und der Deutsche Bundestag politische Maßnahmen beschließt. Auch auf EU-Ebene fließen die Zahlen in die Berichterstattung unter der europäischen Klimaschutzverordnung ein.',
     methodology: 'Gemessen werden projizierte Treibhausgasemissionen sowie Energieverbrauch, Produktionsmengen und Verkehrsleistungen – berechnet von sechs Forschungsinstituten im Auftrag des Umweltbundesamts auf Basis zweier Szenarien: eines mit bestehenden Maßnahmen und eines mit zusätzlichen geplanten Maßnahmen. Projektionen sind keine Vorhersagen, sondern modellbasierte Abschätzungen, die stark von Annahmen über Energiepreise, Wirtschaftswachstum und politischen Rahmenbedingungen abhängen.',
     status: 'draft',
+    lazyDimensions: {
+      totalDimensions: 7,
+      dimensions: [
+        { id: 'D_COUNTRY',      name: 'Land',       position: 0, values: [{ id: 'DE', name: 'Deutschland' }], defaultValue: 'DE' },
+        { id: 'FREQUENCY',      name: 'Frequenz',   position: 1, values: [{ id: 'A', name: 'Jährlich' }], defaultValue: 'A' },
+        { id: 'D_REPORTING_YEAR', name: 'Berichtsjahr', position: 2, values: [{ id: '2026', name: '2026' }], defaultValue: '2026' },
+        { id: 'D_INDICATOR_PROJECTION_REPORT', name: 'Indikator', position: 3, values: [
+          { id: 'THPR_DTNTBL_SNSTGS_10703870', name: 'THG-Emissionen (Sektoren)' },
+          { id: 'THPR_DTNTBL_ENRGWRTSCHFT_56241560', name: 'EE-Anteil Bruttostromverbrauch' },
+          { id: 'THPR_DTNTBL_GBD_44869581', name: 'Wärmepumpen Bestand' },
+          { id: 'THPR_DTNTBL_GBD_19628695', name: 'Gasheizungen Bestand' },
+          { id: 'THPR_DTNTBL_VRKHR_71151484', name: 'E-PKW Bestand' },
+        ], defaultValue: 'THPR_DTNTBL_SNSTGS_10703870' },
+        { id: 'D_UNIT', name: 'Einheit', position: 4, values: [
+          { id: 'MT_CO2_EQ', name: 'Mio. t CO₂-Äq.' },
+          { id: 'PJ', name: 'Petajoule' },
+          { id: 'PZ', name: 'Prozent' },
+          { id: 'AZ', name: 'Anzahl' },
+          { id: 'MIL_AZ', name: 'Millionen Stück' },
+        ], defaultValue: 'MT_CO2_EQ' },
+        { id: 'D_KSG_SECTOR', name: 'KSG-Sektor', position: 5, values: [
+          { id: 'TOTAL', name: 'Gesamt' },
+          { id: 'ENERGIEWIRTSCHAFT', name: 'Energiewirtschaft' },
+          { id: 'VERKEHR', name: 'Verkehr' },
+          { id: 'GEBAEUDE', name: 'Gebäude' },
+          { id: 'INDUSTRIE', name: 'Industrie' },
+          { id: 'LANDWIRTSCHAFT', name: 'Landwirtschaft' },
+          { id: 'ABFALLWIRTSCHAFT_SONSTIGES', name: 'Abfall & Sonstiges' },
+          { id: '_Z', name: 'Nicht anwendbar' },
+        ], defaultValue: 'TOTAL' },
+        { id: 'D_SCENARIO_TYPE', name: 'Szenario', position: 6, values: [
+          { id: 'MMS', name: 'MMS (Mit Maßnahmen)' },
+        ], defaultValue: 'MMS' },
+      ],
+    },
+    presets: [
+      {
+        title: 'THG-Gesamtemissionen bis 2045',
+        description: 'Projektierter Rückgang der deutschen Gesamtemissionen im MMS-Szenario.',
+        lazyFilters: { D_COUNTRY: 'DE', FREQUENCY: 'A', D_REPORTING_YEAR: '2026', D_INDICATOR_PROJECTION_REPORT: 'THPR_DTNTBL_SNSTGS_10703870', D_UNIT: 'MT_CO2_EQ', D_KSG_SECTOR: 'TOTAL', D_SCENARIO_TYPE: 'MMS' },
+      },
+      {
+        title: 'Verkehr: Emissionen bis 2045',
+        description: 'Wie schnell sinken die THG-Emissionen im Verkehrssektor?',
+        lazyFilters: { D_COUNTRY: 'DE', FREQUENCY: 'A', D_REPORTING_YEAR: '2026', D_INDICATOR_PROJECTION_REPORT: 'THPR_DTNTBL_SNSTGS_10703870', D_UNIT: 'MT_CO2_EQ', D_KSG_SECTOR: 'VERKEHR', D_SCENARIO_TYPE: 'MMS' },
+      },
+      {
+        title: 'Gebäude: Emissionen bis 2045',
+        description: 'Emissionspfad des Gebäudesektors — Wärmewende im Fokus.',
+        lazyFilters: { D_COUNTRY: 'DE', FREQUENCY: 'A', D_REPORTING_YEAR: '2026', D_INDICATOR_PROJECTION_REPORT: 'THPR_DTNTBL_SNSTGS_10703870', D_UNIT: 'MT_CO2_EQ', D_KSG_SECTOR: 'GEBAEUDE', D_SCENARIO_TYPE: 'MMS' },
+      },
+      {
+        title: 'EE-Anteil Strom bis 2038',
+        description: 'Wie viel Prozent des Stroms kommen aus Erneuerbaren?',
+        lazyFilters: { D_COUNTRY: 'DE', FREQUENCY: 'A', D_REPORTING_YEAR: '2026', D_INDICATOR_PROJECTION_REPORT: 'THPR_DTNTBL_ENRGWRTSCHFT_56241560', D_UNIT: 'PZ', D_KSG_SECTOR: 'ENERGIEWIRTSCHAFT', D_SCENARIO_TYPE: 'MMS' },
+      },
+    ],
   },
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'

@@ -922,6 +922,272 @@ function EnvTaxRevenueChart() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// KLIMAPROJEKTIONEN
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const SEKTOR_COLORS: Record<string, string> = {
+  'Energie':          '#ef4444',
+  'Verkehr':          '#f97316',
+  'Gebäude':          '#eab308',
+  'Industrie':        '#8b5cf6',
+  'Landwirtschaft':   '#16a34a',
+  'Abfall':           '#0891b2',
+}
+
+// Sektoremissionen THG bis 2045 — Feature-Chart (volle Breite)
+function GhgSectorProjectionChart() {
+  const { data, loading, error } = useData(async () => {
+    const csv = await fetchCsvSeries('DF_CROSS_PROJECTION_REPORT_CORE_INDICATORS_26', '1.0')
+    // D_KSG_SECTOR is the sector dim; D_UNIT=MT_CO2_EQ, D_SCENARIO_TYPE=MMS
+    // Indicator THPR_DTNTBL_SNSTGS_10703870 = Sektoremissionen THG (Hauptserie)
+    const THG_IND = 'THPR_DTNTBL_SNSTGS_10703870'
+    const sectorKeys: Record<string, string> = {
+      'Energie':          'ENERGIEWIRTSCHAFT',
+      'Verkehr':          'VERKEHR',
+      'Gebäude':          'GEBAEUDE',
+      'Industrie':        'INDUSTRIE',
+      'Landwirtschaft':   'LANDWIRTSCHAFT',
+      'Abfall':           'ABFALLWIRTSCHAFT_SONSTIGES',
+    }
+    const years = new Set<string>()
+    const seriesData: Record<string, Record<string, number | null>> = {}
+    for (const [label, sectorCode] of Object.entries(sectorKeys)) {
+      seriesData[label] = {}
+      for (const { codes, colIds, obs } of Object.values(csv)) {
+        const indIdx    = colIds.indexOf('D_INDICATOR_PROJECTION_REPORT')
+        const unitIdx   = colIds.indexOf('D_UNIT')
+        const sectorIdx = colIds.indexOf('D_KSG_SECTOR')
+        const scenIdx   = colIds.indexOf('D_SCENARIO_TYPE')
+        if (indIdx === -1 || unitIdx === -1 || sectorIdx === -1) continue
+        if (codes[indIdx] !== THG_IND) continue
+        if (codes[unitIdx] !== 'MT_CO2_EQ') continue
+        if (codes[sectorIdx] !== sectorCode) continue
+        if (scenIdx !== -1 && codes[scenIdx] !== 'MMS') continue
+        for (const [yr, val] of Object.entries(obs)) {
+          if (val != null) { seriesData[label][yr] = val; years.add(yr) }
+        }
+        break
+      }
+    }
+    return Array.from(years).sort().map(year => {
+      const row: Record<string, any> = { year }
+      for (const label of Object.keys(sectorKeys)) {
+        row[label] = seriesData[label][year] != null ? +seriesData[label][year]!.toFixed(1) : null
+      }
+      return row
+    })
+  })
+
+  const latest = data?.[data.length - 1]
+  const totalLatest = latest
+    ? Object.keys(SEKTOR_COLORS).reduce((s, k) => s + (latest[k] ?? 0), 0)
+    : undefined
+
+  return (
+    <ChartCard
+      title="THG-Emissionen nach Sektor bis 2045"
+      subtitle="Projektion 2026 · MMS-Szenario · Mio. t CO₂-Äq."
+      kpi={totalLatest} kpiUnit="Mio. t CO₂" kpiYear={latest?.year}
+      color="#dc2626" loading={loading} error={error} height={260}
+      flowId="DF_CROSS_PROJECTION_REPORT_CORE_INDICATORS_26"
+      source="Quelle: Umweltbundesamt / Klimaschutzbericht 2026"
+    >
+      <ResponsiveContainer width="100%" height="100%">
+        <AreaChart data={data ?? []} margin={{ top: 16, right: 12, left: 0, bottom: 0 }}>
+          <Grad id="gcEnergy"  color="#ef4444" />
+          <Grad id="gcVerkehr" color="#f97316" />
+          <Grad id="gcGeb"     color="#eab308" />
+          <Grad id="gcInd"     color="#8b5cf6" />
+          <Grad id="gcAgri"    color="#16a34a" />
+          <Grad id="gcAbfall"  color="#0891b2" />
+          <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+          <XAxis dataKey="year" tick={{ fontSize: 10, fill: '#64748b' }} interval={4} />
+          <YAxis tick={{ fontSize: 10, fill: '#64748b' }} width={36} />
+          <Tooltip content={<TT unit="Mio. t" />} />
+          <Legend wrapperStyle={{ fontSize: 10 }} />
+          <Area type="monotone" dataKey="Energie"        stackId="s" stroke="#ef4444" fill="url(#gcEnergy)"  strokeWidth={1.5} connectNulls />
+          <Area type="monotone" dataKey="Industrie"      stackId="s" stroke="#8b5cf6" fill="url(#gcInd)"     strokeWidth={1.5} connectNulls />
+          <Area type="monotone" dataKey="Gebäude"        stackId="s" stroke="#eab308" fill="url(#gcGeb)"     strokeWidth={1.5} connectNulls />
+          <Area type="monotone" dataKey="Verkehr"        stackId="s" stroke="#f97316" fill="url(#gcVerkehr)" strokeWidth={1.5} connectNulls />
+          <Area type="monotone" dataKey="Landwirtschaft" stackId="s" stroke="#16a34a" fill="url(#gcAgri)"    strokeWidth={1.5} connectNulls />
+          <Area type="monotone" dataKey="Abfall"         stackId="s" stroke="#0891b2" fill="url(#gcAbfall)"  strokeWidth={1.5} connectNulls />
+        </AreaChart>
+      </ResponsiveContainer>
+    </ChartCard>
+  )
+}
+
+function EeAnteilProjectionChart() {
+  const { data, loading, error } = useData(async () => {
+    const csv = await fetchCsvSeries('DF_CROSS_PROJECTION_REPORT_CORE_INDICATORS_26', '1.0')
+    const EE_ANTEIL_ID = 'THPR_DTNTBL_ENRGWRTSCHFT_56241560' // Anteil EE am Bruttostromverbrauch (PZ)
+    const EPKW_ID      = 'THPR_DTNTBL_VRKHR_71151484'        // E-PKW Bestand (Mio.)
+    const years = new Set<string>()
+    const ee: Record<string, number> = {}
+    const epkw: Record<string, number> = {}
+    for (const { codes, colIds, obs } of Object.values(csv)) {
+      const indIdx  = colIds.indexOf('D_INDICATOR_PROJECTION_REPORT')
+      const scenIdx = colIds.indexOf('D_SCENARIO_TYPE')
+      if (indIdx === -1) continue
+      if (scenIdx !== -1 && codes[scenIdx] !== 'MMS') continue
+      const ind = codes[indIdx]
+      for (const [yr, val] of Object.entries(obs)) {
+        if (val == null) continue
+        years.add(yr)
+        if (ind === EE_ANTEIL_ID) ee[yr]   = val
+        if (ind === EPKW_ID)      epkw[yr] = val
+      }
+    }
+    return Array.from(years).sort().map(yr => ({
+      year: yr,
+      'EE-Anteil Strom (%)':  ee[yr]   != null ? +ee[yr].toFixed(1)   : null,
+      'E-PKW Bestand (Mio.)': epkw[yr] != null ? +epkw[yr].toFixed(2) : null,
+    }))
+  })
+
+  const latest = data?.filter(d => d['EE-Anteil Strom (%)'] != null).at(-1)
+
+  return (
+    <ChartCard
+      title="Strom & Mobilität: Hochlauf der Elektrifizierung"
+      subtitle="Projektion 2026 · MMS-Szenario · EE-Anteil & E-PKW Bestand"
+      kpi={latest?.['EE-Anteil Strom (%)']} kpiUnit="% EE-Strom" kpiYear={latest?.year}
+      color="#16a34a" loading={loading} error={error} height={220}
+      flowId="DF_CROSS_PROJECTION_REPORT_CORE_INDICATORS_26"
+      source="Quelle: Umweltbundesamt / Projektion 2026"
+    >
+      <ResponsiveContainer width="100%" height="100%">
+        <ComposedChart data={data ?? []} margin={{ top: 16, right: 36, left: 0, bottom: 0 }}>
+          <Grad id="gcEe" color="#16a34a" />
+          <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+          <XAxis dataKey="year" tick={{ fontSize: 10, fill: '#64748b' }} interval={3} />
+          <YAxis yAxisId="left"  tick={{ fontSize: 10, fill: '#64748b' }} unit=" %" domain={[0, 100]} width={36} />
+          <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 10, fill: '#64748b' }} unit=" Mio." width={42} />
+          <Tooltip content={<TT />} />
+          <Legend wrapperStyle={{ fontSize: 10 }} />
+          <Area yAxisId="left"  type="monotone" dataKey="EE-Anteil Strom (%)"  stroke="#16a34a" fill="url(#gcEe)" strokeWidth={2} connectNulls />
+          <Line yAxisId="right" type="monotone" dataKey="E-PKW Bestand (Mio.)" stroke="#f59e0b" strokeWidth={2} dot={false} connectNulls />
+          <ReferenceLine yAxisId="left" y={80} stroke="#16a34a" strokeDasharray="4 2"
+            label={{ value: '80 %', position: 'insideTopRight', fontSize: 10, fill: '#16a34a' }} />
+        </ComposedChart>
+      </ResponsiveContainer>
+    </ChartCard>
+  )
+}
+
+function WaermepumpenProjectionChart() {
+  const { data, loading, error } = useData(async () => {
+    const csv = await fetchCsvSeries('DF_CROSS_PROJECTION_REPORT_CORE_INDICATORS_26', '1.0')
+    const WP_BESTAND_ID  = 'THPR_DTNTBL_GBD_44869581' // Anzahl Bestandsgebäude mit Wärmepumpe
+    const GAS_BESTAND_ID = 'THPR_DTNTBL_GBD_19628695' // Anzahl Bestandsgebäude mit fossilen Gasheizungen
+    const years = new Set<string>()
+    const wp: Record<string, number> = {}
+    const gas: Record<string, number> = {}
+    for (const { codes, colIds, obs } of Object.values(csv)) {
+      const indIdx  = colIds.indexOf('D_INDICATOR_PROJECTION_REPORT')
+      const scenIdx = colIds.indexOf('D_SCENARIO_TYPE')
+      if (indIdx === -1) continue
+      if (scenIdx !== -1 && codes[scenIdx] !== 'MMS') continue
+      const ind = codes[indIdx]
+      for (const [yr, val] of Object.entries(obs)) {
+        if (val == null) continue
+        years.add(yr)
+        if (ind === WP_BESTAND_ID)  wp[yr]  = val
+        if (ind === GAS_BESTAND_ID) gas[yr] = val
+      }
+    }
+    return Array.from(years).sort().map(yr => ({
+      year: yr,
+      'Wärmepumpen (Mio.)':  wp[yr]  != null ? +(wp[yr]  / 1_000_000).toFixed(2) : null,
+      'Gasheizungen (Mio.)': gas[yr] != null ? +(gas[yr] / 1_000_000).toFixed(2) : null,
+    }))
+  })
+
+  const latest = data?.filter(d => d['Wärmepumpen (Mio.)'] != null).at(-1)
+
+  return (
+    <ChartCard
+      title="Wärmewende im Gebäudebestand bis 2045"
+      subtitle="Projektion 2026 · MMS-Szenario · Mio. Gebäude"
+      kpi={latest?.['Wärmepumpen (Mio.)']} kpiUnit="Mio. WP" kpiYear={latest?.year}
+      color="#f59e0b" loading={loading} error={error} height={220}
+      flowId="DF_CROSS_PROJECTION_REPORT_CORE_INDICATORS_26"
+      source="Quelle: Umweltbundesamt / Projektion 2026"
+    >
+      <ResponsiveContainer width="100%" height="100%">
+        <LineChart data={data ?? []} margin={{ top: 16, right: 12, left: 0, bottom: 0 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+          <XAxis dataKey="year" tick={{ fontSize: 10, fill: '#64748b' }} interval={4} />
+          <YAxis tick={{ fontSize: 10, fill: '#64748b' }} unit=" Mio." width={44} />
+          <Tooltip content={<TT unit="Mio. Gebäude" />} />
+          <Legend wrapperStyle={{ fontSize: 10 }} />
+          <Line type="monotone" dataKey="Wärmepumpen (Mio.)"  stroke="#f59e0b" strokeWidth={2.5} dot={false} connectNulls />
+          <Line type="monotone" dataKey="Gasheizungen (Mio.)" stroke="#6b7280" strokeWidth={2} strokeDasharray="5 3" dot={false} connectNulls />
+        </LineChart>
+      </ResponsiveContainer>
+    </ChartCard>
+  )
+}
+
+function EnergiepreisProjectionChart() {
+  const { data, loading, error } = useData(async () => {
+    const csv = await fetchCsvSeries('DF_CROSS_PROJECTION_REPORT_FINAL_CONSUMER_PRICES', '1.0')
+    // Strom Haushalte (EUR/MWh), Erdgas Haushalte inkl MwSt (EUR/MWh HI), Diesel inkl MwSt (EUR/l → ×1000 → EUR/MWh)
+    const STROM_ID  = 'STROMPREIS_HAUSHALTE_2_ENDVERBRAUCHERPREIS_INKL_MWST'
+    const GAS_ID    = 'ERDGAS_HAUSHALTE_ENDVERBRAUCHERPREIS_MIT_MWST'
+    const DIESEL_ID = 'ERDOELPRODUKTE_DIESEL_ENDVERBRAUCHERPREIS_MIT_MWST'
+    const years = new Set<string>()
+    const strom: Record<string, number> = {}
+    const gas:   Record<string, number> = {}
+    const diesel: Record<string, number> = {}
+    for (const { codes, colIds, obs } of Object.values(csv)) {
+      const indIdx = colIds.indexOf('D_INDICATOR_PROJECTION_REPORT')
+      if (indIdx === -1) continue
+      const ind = codes[indIdx]
+      for (const [yr, val] of Object.entries(obs)) {
+        if (val == null) continue
+        years.add(yr)
+        if (ind === STROM_ID)  strom[yr]  = val
+        if (ind === GAS_ID)    gas[yr]    = val
+        if (ind === DIESEL_ID) diesel[yr] = val
+      }
+    }
+    return Array.from(years).sort().map(yr => ({
+      year: yr,
+      'Strom HH (€/MWh)':  strom[yr]  != null ? +strom[yr].toFixed(1)  : null,
+      'Erdgas HH (€/MWh)': gas[yr]    != null ? +gas[yr].toFixed(1)    : null,
+      'Diesel (€/L × 100)':diesel[yr] != null ? +(diesel[yr] * 100).toFixed(1) : null,
+    }))
+  })
+
+  const latestStrom = data?.filter(d => d['Strom HH (€/MWh)'] != null).at(-1)
+
+  return (
+    <ChartCard
+      title="Energiepreise bis 2045 (Bundesregierung)"
+      subtitle="Projektion 2025 · Endverbraucherpreise inkl. MwSt."
+      kpi={latestStrom?.['Strom HH (€/MWh)']} kpiUnit="€/MWh Strom" kpiYear={latestStrom?.year}
+      color="#7c3aed" loading={loading} error={error} height={220}
+      flowId="DF_CROSS_PROJECTION_REPORT_FINAL_CONSUMER_PRICES"
+      source="Quelle: Umweltbundesamt / Prognos · Projektion 2025"
+    >
+      <ResponsiveContainer width="100%" height="100%">
+        <LineChart data={data ?? []} margin={{ top: 16, right: 12, left: 0, bottom: 0 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+          <XAxis dataKey="year" tick={{ fontSize: 10, fill: '#64748b' }} interval={3} />
+          <YAxis tick={{ fontSize: 10, fill: '#64748b' }} width={40} />
+          <Tooltip content={<TT />} />
+          <Legend wrapperStyle={{ fontSize: 10 }} />
+          <Line type="monotone" dataKey="Strom HH (€/MWh)"  stroke="#7c3aed" strokeWidth={2} dot={false} connectNulls />
+          <Line type="monotone" dataKey="Erdgas HH (€/MWh)" stroke="#f97316" strokeWidth={2} dot={false} connectNulls />
+          <Line type="monotone" dataKey="Diesel (€/L × 100)" stroke="#6b7280" strokeWidth={1.5} strokeDasharray="4 2" dot={false} connectNulls />
+        </LineChart>
+      </ResponsiveContainer>
+    </ChartCard>
+  )
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // PAGE
 // ═══════════════════════════════════════════════════════════════════════════════
 
@@ -937,6 +1203,41 @@ export default function AnalysePage() {
       <p style={{ color: '#64748b', marginBottom: 36, fontSize: 14 }}>
         Ausgewählte Umwelttrends auf Basis der Daten des Umweltbundesamts – direkt aus der SDMX REST API.
       </p>
+
+      {/* ── Feature: Klimaprojektionen ─────────────────────────────────────────── */}
+      <div style={{
+        marginBottom: 52,
+        borderRadius: 14,
+        border: '2px solid #fecdd3',
+        background: 'linear-gradient(135deg, #fff7f7 0%, #f0fdf4 100%)',
+        padding: '20px 20px 8px',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16, borderBottom: '3px solid #dc2626', paddingBottom: 10 }}>
+          <span style={{ fontSize: 24 }}>🔭</span>
+          <div>
+            <h2 style={{ fontSize: 20, fontWeight: 800, color: '#1e293b', margin: 0 }}>Klimaprojektionen 2026</h2>
+            <p style={{ fontSize: 12, color: '#64748b', margin: 0 }}>
+              Offizielle Projektionsdaten der Bundesregierung — wie sieht Deutschlands Klimapfad bis 2045 aus?
+            </p>
+          </div>
+          <span style={{
+            marginLeft: 'auto', fontSize: 10, fontWeight: 700,
+            background: '#dc2626', color: '#fff',
+            borderRadius: 6, padding: '3px 8px', letterSpacing: '0.05em',
+            whiteSpace: 'nowrap',
+          }}>NEU</span>
+        </div>
+        {/* Feature chart: volle Breite */}
+        <div style={{ marginBottom: 12 }}>
+          <GhgSectorProjectionChart />
+        </div>
+        {/* 3 weitere Charts in Grid */}
+        <div className="grid gap-4 grid-cols-1 md:grid-cols-3" style={{ marginBottom: 4 }}>
+          <EeAnteilProjectionChart />
+          <WaermepumpenProjectionChart />
+          <EnergiepreisProjectionChart />
+        </div>
+      </div>
 
       <Section title="Klima" icon="🌡️" color="#dc2626">
         <TemperatureChart />

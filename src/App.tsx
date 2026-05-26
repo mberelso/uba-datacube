@@ -5,6 +5,7 @@ import CatalogPage from './pages/CatalogPage'
 import DatasetPage from './pages/DatasetPage'
 import AnalysePage from './pages/AnalysePage'
 import AboutPage from './pages/AboutPage'
+import SocialPreviewPage from './pages/SocialPreviewPage'
 
 export default function App() {
   return (
@@ -17,6 +18,7 @@ export default function App() {
           <Route path="/catalog" element={<CatalogPage />} />
           <Route path="/dataset/:id" element={<DatasetPage />} />
           <Route path="/about" element={<AboutPage />} />
+          <Route path="/social-preview" element={<SocialPreviewPage />} />
         </Routes>
       </div>
     </BrowserRouter>

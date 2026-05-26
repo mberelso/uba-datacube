@@ -30,3 +30,7 @@ scratch/
 .claude/
 .agents/
 skills-lock.json
+
+# Local Python test scripts
+scripts/*.py
+

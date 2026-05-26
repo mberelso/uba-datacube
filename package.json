@@ -10,9 +10,11 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "generate-descriptions": "npx tsx scripts/generate-descriptions.ts",
-    "fetch-metadata": "npx tsx scripts/fetch-metadata.ts"
+    "fetch-metadata": "npx tsx scripts/fetch-metadata.ts",
+    "generate-backgrounds": "npx tsx scripts/generate-backgrounds.ts"
   },
   "dependencies": {
+    "@google/genai": "^2.6.0",
     "@phosphor-icons/react": "^2.1.10",
     "@types/d3-geo": "^3.1.0",
     "d3-geo": "^3.1.1",

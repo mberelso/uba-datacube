@@ -1,6 +1,8 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { SEO } from '../components/SEO'
+import { SocialCardModal } from '../components/social/SocialCardModal'
+import type { SocialCardData } from '../components/social/types'
 import {
   AreaChart, Area, BarChart, Bar, LineChart, Line,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -148,13 +150,13 @@ function datasetLink(flowId: string, lazyFilters?: Record<string, string>): stri
   return `${base}?lazy=${encodeURIComponent(JSON.stringify(lazyFilters))}`
 }
 
-function ChartCard({ title, subtitle, kpi, kpiUnit, kpiYear, trend, color, loading, error, height = 220, flowId, lazyFilters, source, children }: {
+function ChartCard({ title, subtitle, kpi, kpiUnit, kpiYear, trend, color, loading, error, height = 220, flowId, lazyFilters, source, socialCard, onShare, children }: {
   title: string; subtitle: string
   kpi?: number; kpiUnit?: string; kpiYear?: string; trend?: number
   color: string; loading: boolean; error?: boolean; height?: number
-  flowId?: string
-  lazyFilters?: Record<string, string>
-  source?: string
+  flowId?: string; lazyFilters?: Record<string, string>; source?: string
+  socialCard?: SocialCardData
+  onShare?: (d: SocialCardData) => void
   children: ReactNode
 }) {
   return (
@@ -188,14 +190,29 @@ function ChartCard({ title, subtitle, kpi, kpiUnit, kpiYear, trend, color, loadi
         {source
           ? <span style={{ fontSize: 10, color: '#94a3b8', lineHeight: 1.4 }}>{source}</span>
           : <span />}
-        {flowId && (
-          <Link
-            to={datasetLink(flowId, lazyFilters)}
-            style={{ fontSize: 11, color: '#1e3a5f', textDecoration: 'none', fontWeight: 500, opacity: 0.8, whiteSpace: 'nowrap' }}
-          >
-            → Rohdaten erkunden
-          </Link>
-        )}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          {socialCard && onShare && !loading && !error && (
+            <button
+              onClick={() => onShare(socialCard)}
+              style={{
+                fontSize: 11, fontWeight: 600, color: '#fff',
+                background: '#1B2B3A', border: 'none', borderRadius: 6,
+                padding: '4px 10px', cursor: 'pointer', whiteSpace: 'nowrap',
+                fontFamily: 'Geist, sans-serif',
+              }}
+            >
+              ↑ Teilen
+            </button>
+          )}
+          {flowId && (
+            <Link
+              to={datasetLink(flowId, lazyFilters)}
+              style={{ fontSize: 11, color: '#1e3a5f', textDecoration: 'none', fontWeight: 500, opacity: 0.8, whiteSpace: 'nowrap' }}
+            >
+              → Rohdaten erkunden
+            </Link>
+          )}
+        </div>
       </div>
     </div>
   )
@@ -235,7 +252,7 @@ function Grad({ id, color }: { id: string; color: string }) {
 
 const TEMP_BASELINE = 8.2
 
-function TemperatureChart() {
+function TemperatureChart({ onShare }: { onShare: (d: SocialCardData) => void }) {
   const { data, loading, error } = useData(() =>
     fetchAveragedSeries('UBA,DF_CLIMATE_GERMANY_TEMPERATURE_MEAN,1.0', 'DE.A.DEGC.JM.'))
   const pts = data as TimePoint[] | null
@@ -244,6 +261,17 @@ function TemperatureChart() {
   const prevAnomaly = pts && pts.length >= 2 ? pts[pts.length - 2].value - TEMP_BASELINE : undefined
   const chartData = pts?.map(p => ({ year: p.year, anomaly: +(p.value - TEMP_BASELINE).toFixed(2) }))
   const xInterval = chartData ? Math.max(1, Math.floor(chartData.length / 7)) : 19
+
+  const socialCard: SocialCardData | undefined = pts && latest && anomaly != null ? {
+    category: 'klima',
+    metric: `${anomaly >= 0 ? '+' : ''}${fmt(anomaly, 1)} °C`,
+    metricLabel: 'Anomalie zum Referenzmittel 1961–90',
+    headline: 'Temperaturanomalie Deutschland',
+    story: 'Seit 1881 steigt die Durchschnittstemperatur in Deutschland. Jüngste Jahre liegen deutlich über dem Referenzmittel von 8,2 °C.',
+    sparkline: pts.map(p => +(p.value - TEMP_BASELINE).toFixed(2)),
+    yearRange: `${pts[0].year} – ${latest.year}`,
+    datasetId: 'DF_CLIMATE_GERMANY_TEMPERATURE_MEAN',
+  } : undefined
 
   return (
     <ChartCard
@@ -254,6 +282,7 @@ function TemperatureChart() {
       color="#dc2626" loading={loading} error={error}
       flowId="DF_CLIMATE_GERMANY_TEMPERATURE_MEAN"
       source="Quelle: Umweltbundesamt / Deutscher Wetterdienst"
+      socialCard={socialCard} onShare={onShare}
     >
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart data={chartData} margin={{ top: 8, right: 12, left: 8, bottom: 4 }}>
@@ -349,17 +378,29 @@ function PrecipitationChart() {
 // ENERGIEWENDE
 // ═══════════════════════════════════════════════════════════════════════════════
 
-function RenewableShareChart() {
+function RenewableShareChart({ onShare }: { onShare: (d: SocialCardData) => void }) {
   const { data, loading, error } = useData(() =>
     fetchSingleSeries('UBA,DF_ENERGY_AGEE_SHARE,1.0', 'DE.A.PZ.SHARE_EE_GFEC_RED.EE'))
   const pts = data as TimePoint[] | null
   const latest = pts?.[pts.length - 1]
 
+  const socialCard: SocialCardData | undefined = pts && latest ? {
+    category: 'energie',
+    metric: `${fmt(latest.value, 1)} %`,
+    metricLabel: 'am Bruttoendenergieverbrauch',
+    headline: 'Erneuerbare auf Rekordhoch',
+    story: 'Der Anteil Erneuerbarer Energien am Brutto-Endenergieverbrauch wächst kontinuierlich. Das EU-Ziel 2030 von 42,5 % rückt näher.',
+    sparkline: pts.map(p => p.value),
+    yearRange: `${pts[0].year} – ${latest.year}`,
+    datasetId: 'DF_ENERGY_AGEE_SHARE',
+  } : undefined
+
   return (
     <ChartCard title="Anteil Erneuerbarer Energien" subtitle="Am Brutto-Endenergieverbrauch (RED-Methodik)"
       kpi={latest?.value} kpiUnit="%" kpiYear={latest?.year}
       color="#16a34a" loading={loading} error={error}
-      flowId="DF_ENERGY_AGEE_SHARE" source="Quelle: Umweltbundesamt / AGEE-Stat">
+      flowId="DF_ENERGY_AGEE_SHARE" source="Quelle: Umweltbundesamt / AGEE-Stat"
+      socialCard={socialCard} onShare={onShare}>
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={pts ?? []} margin={{ top: 16, right: 12, left: 0, bottom: 0 }}>
           <Grad id="eeGrad" color="#16a34a" />
@@ -456,7 +497,7 @@ const POLLUTANT_COLORS: Record<string, string> = {
   'NH₃': '#16a34a', 'NMVOC': '#0284c7',
 }
 
-function AirPollutantsChart() {
+function AirPollutantsChart({ onShare }: { onShare: (d: SocialCardData) => void }) {
   const { data, loading, error } = useData(async () => {
     const named = await fetchDataSeries('DF_AIR_EMISSIONS_INDEX', '2026.0', {
       'NH₃':   { D_SUBSTANCES: 'NH3' },
@@ -477,10 +518,24 @@ function AirPollutantsChart() {
     })
   })
 
+  const latest = data?.[data.length - 1]
+  const first = data?.[0]
+  const socialCard: SocialCardData | undefined = data && latest && first ? {
+    category: 'luft',
+    metric: `−${fmt(100 - (latest['NOₓ'] ?? 100), 0)} %`,
+    metricLabel: 'NOₓ-Reduktion seit 2005',
+    headline: 'Luftqualität deutlich verbessert',
+    story: 'Stickoxid-, Feinstaub- und Schwefeldioxid-Emissionen sind seit 2005 deutlich gesunken. Deutschland macht bei der Luftreinhaltung sichtbare Fortschritte.',
+    sparkline: data.map(p => p['NOₓ'] ?? 100),
+    yearRange: `${first.year} – ${latest.year}`,
+    datasetId: 'DF_AIR_EMISSIONS_INDEX',
+  } : undefined
+
   return (
     <ChartCard title="Luftschadstoff-Emissionsindex" subtitle="Index 2005 = 100 · alle Schadstoffe klar rückläufig"
       color="#7c3aed" loading={loading} error={error}
-      flowId="DF_AIR_EMISSIONS_INDEX" source="Quelle: Umweltbundesamt">
+      flowId="DF_AIR_EMISSIONS_INDEX" source="Quelle: Umweltbundesamt"
+      socialCard={socialCard} onShare={onShare}>
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data ?? []} margin={{ top: 16, right: 12, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
@@ -1205,8 +1260,11 @@ function EnergiepreisProjectionChart() {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 export default function AnalysePage() {
+  const [modalCard, setModalCard] = useState<SocialCardData | null>(null)
+
   return (
     <div className="max-w-[1600px] mx-auto px-4 py-6 md:px-5 md:py-7">
+      {modalCard && <SocialCardModal data={modalCard} onClose={() => setModalCard(null)} />}
       <SEO
         title="Analysen"
         description="Ausgewählte Umwelttrends auf Umweltpuls — Temperaturentwicklung, Treibhausgase, Erneuerbare Energien und mehr, basierend auf Daten des Umweltbundesamts."
@@ -1253,20 +1311,20 @@ export default function AnalysePage() {
       </div>
 
       <Section title="Klima" icon="🌡️" color="#dc2626">
-        <TemperatureChart />
+        <TemperatureChart onShare={setModalCard} />
         <HotDaysChart />
         <PrecipitationChart />
       </Section>
 
       <Section title="Energiewende & Verkehr" icon="⚡" color="#16a34a">
-        <RenewableShareChart />
+        <RenewableShareChart onShare={setModalCard} />
         <ElectricCarChart />
         <FuelConsumptionChart />
         <GreenMobilityChart />
       </Section>
 
       <Section title="Luft" icon="💨" color="#7c3aed">
-        <AirPollutantsChart />
+        <AirPollutantsChart onShare={setModalCard} />
         <FuelPricesChart />
       </Section>
 

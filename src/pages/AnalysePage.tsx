@@ -150,13 +150,14 @@ function datasetLink(flowId: string, lazyFilters?: Record<string, string>): stri
   return `${base}?lazy=${encodeURIComponent(JSON.stringify(lazyFilters))}`
 }
 
-function ChartCard({ title, subtitle, kpi, kpiUnit, kpiYear, trend, color, loading, error, height = 220, flowId, lazyFilters, source, socialCard, onShare, children }: {
+function ChartCard({ title, subtitle, kpi, kpiUnit, kpiYear, trend, color, loading, error, height = 220, flowId, lazyFilters, source, socialCard, onShare, controls, children }: {
   title: string; subtitle: string
   kpi?: number; kpiUnit?: string; kpiYear?: string; trend?: number
   color: string; loading: boolean; error?: boolean; height?: number
   flowId?: string; lazyFilters?: Record<string, string>; source?: string
   socialCard?: SocialCardData
   onShare?: (d: SocialCardData) => void
+  controls?: ReactNode
   children: ReactNode
 }) {
   return (
@@ -179,6 +180,9 @@ function ChartCard({ title, subtitle, kpi, kpiUnit, kpiYear, trend, color, loadi
           </div>
         )}
       </div>
+      {controls && !loading && !error && (
+        <div className="px-4 pb-1 flex justify-end">{controls}</div>
+      )}
       <div style={{ height, padding: '0 6px 10px' }}>
         {loading
           ? <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#94a3b8', fontSize: 13 }}>Lade Daten…</div>
@@ -246,6 +250,52 @@ function Grad({ id, color }: { id: string; color: string }) {
   )
 }
 
+// ── Zeitraum-Auswahl ───────────────────────────────────────────────────────────
+
+type RangeOption = { label: string; from: number | null }
+
+const CLIMATE_RANGES: RangeOption[] = [
+  { label: 'Alle', from: null },
+  { label: 'ab 1950', from: 1950 },
+  { label: 'ab 1990', from: 1990 },
+  { label: 'ab 2010', from: 2010 },
+]
+
+function RangeToggle({ value, onChange, options }: {
+  value: number | null
+  onChange: (from: number | null) => void
+  options: RangeOption[]
+}) {
+  return (
+    <div style={{ display: 'flex', gap: 5 }}>
+      {options.map(o => {
+        const active = value === o.from
+        return (
+          <button
+            key={o.label}
+            onClick={() => onChange(o.from)}
+            style={{
+              fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 5,
+              cursor: 'pointer', whiteSpace: 'nowrap',
+              border: active ? '1px solid #1e293b' : '1px solid #e2e8f0',
+              background: active ? '#1e293b' : '#fff',
+              color: active ? '#fff' : '#64748b',
+            }}
+          >
+            {o.label}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
+/** Filtert eine Zeitreihe ab einem Startjahr (null = alle). */
+function filterFrom<T extends { year: string }>(pts: T[] | null | undefined, from: number | null): T[] | null | undefined {
+  if (!pts || from == null) return pts
+  return pts.filter(p => +p.year >= from)
+}
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // KLIMA
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -253,13 +303,14 @@ function Grad({ id, color }: { id: string; color: string }) {
 const TEMP_BASELINE = 8.2
 
 function TemperatureChart({ onShare }: { onShare: (d: SocialCardData) => void }) {
+  const [from, setFrom] = useState<number | null>(null)
   const { data, loading, error } = useData(() =>
     fetchAveragedSeries('UBA,DF_CLIMATE_GERMANY_TEMPERATURE_MEAN,1.0', 'DE.A.DEGC.JM.'))
   const pts = data as TimePoint[] | null
   const latest = pts?.[pts.length - 1]
   const anomaly = latest ? latest.value - TEMP_BASELINE : undefined
   const prevAnomaly = pts && pts.length >= 2 ? pts[pts.length - 2].value - TEMP_BASELINE : undefined
-  const chartData = pts?.map(p => ({ year: p.year, anomaly: +(p.value - TEMP_BASELINE).toFixed(2) }))
+  const chartData = filterFrom(pts, from)?.map(p => ({ year: p.year, anomaly: +(p.value - TEMP_BASELINE).toFixed(2) }))
   const xInterval = chartData ? Math.max(1, Math.floor(chartData.length / 7)) : 19
 
   const socialCard: SocialCardData | undefined = pts && latest && anomaly != null ? {
@@ -283,6 +334,7 @@ function TemperatureChart({ onShare }: { onShare: (d: SocialCardData) => void })
       flowId="DF_CLIMATE_GERMANY_TEMPERATURE_MEAN"
       source="Quelle: Umweltbundesamt / Deutscher Wetterdienst"
       socialCard={socialCard} onShare={onShare}
+      controls={<RangeToggle value={from} onChange={setFrom} options={CLIMATE_RANGES} />}
     >
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart data={chartData} margin={{ top: 8, right: 12, left: 8, bottom: 4 }}>
@@ -311,6 +363,7 @@ function TemperatureChart({ onShare }: { onShare: (d: SocialCardData) => void })
 }
 
 function HotDaysChart() {
+  const [from, setFrom] = useState<number | null>(null)
   const { data, loading, error } = useData(() =>
     fetchAveragedSeries('UBA,DF_CLIMATE_GERMANY_HOT_DAYS,1.0', 'DE.A.DAYS.JW.'))
   const pts = data as TimePoint[] | null
@@ -320,14 +373,16 @@ function HotDaysChart() {
   const color = (v: number) =>
     v >= 20 ? '#7f1d1d' : v >= 15 ? '#dc2626' : v >= 10 ? '#ef4444' : v >= 6 ? '#f97316' : v >= 3 ? '#fb923c' : '#fbbf24'
 
-  const xInterval = pts ? Math.max(1, Math.floor(pts.length / 7)) : 4
+  const view = filterFrom(pts, from)
+  const xInterval = view ? Math.max(1, Math.floor(view.length / 7)) : 4
   return (
     <ChartCard title="Heißtage pro Jahr" subtitle="Tage mit Tmax > 30 °C · Ø aller Bundesländer · farbkodiert nach Intensität"
       kpi={latest?.value} kpiUnit="Tage" kpiYear={latest?.year}
       color="#d97706" loading={loading} error={error}
-      flowId="DF_CLIMATE_GERMANY_HOT_DAYS" source="Quelle: Umweltbundesamt / Deutscher Wetterdienst">
+      flowId="DF_CLIMATE_GERMANY_HOT_DAYS" source="Quelle: Umweltbundesamt / Deutscher Wetterdienst"
+      controls={<RangeToggle value={from} onChange={setFrom} options={CLIMATE_RANGES} />}>
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={pts ?? []} margin={{ top: 16, right: 12, left: 0, bottom: 0 }}>
+        <BarChart data={view ?? []} margin={{ top: 16, right: 12, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
           <XAxis dataKey="year" tick={{ fontSize: 11, fill: '#64748b' }} interval={xInterval} />
           <YAxis tick={{ fontSize: 11, fill: '#64748b' }} unit=" d" width={36} />
@@ -335,7 +390,7 @@ function HotDaysChart() {
           {baseline != null && <ReferenceLine y={baseline} stroke="#94a3b8" strokeDasharray="4 2"
             label={{ value: `Ø 1951–80: ${fmt(baseline, 1)} d`, position: 'insideTopRight', fontSize: 10, fill: '#94a3b8' }} />}
           <Bar dataKey="value" radius={[2, 2, 0, 0]} name="Heißtage">
-            {pts?.map(e => <Cell key={e.year} fill={color(e.value)} />)}
+            {view?.map(e => <Cell key={e.year} fill={color(e.value)} />)}
           </Bar>
         </BarChart>
       </ResponsiveContainer>
@@ -344,6 +399,7 @@ function HotDaysChart() {
 }
 
 function PrecipitationChart() {
+  const [from, setFrom] = useState<number | null>(null)
   const { data, loading, error } = useData(() =>
     fetchAveragedSeries('UBA,DF_CLIMATE_GERMANY_PRECIPATION,1.0', 'DE.A.MM.JW.'))
   const pts = data as TimePoint[] | null
@@ -351,14 +407,16 @@ function PrecipitationChart() {
   const baseline = pts?.filter(p => +p.year >= 1961 && +p.year <= 1990)
     .reduce((s, p, _, arr) => s + p.value / arr.length, 0)
 
-  const xInterval = pts ? Math.max(1, Math.floor(pts.length / 7)) : 19
+  const view = filterFrom(pts, from)
+  const xInterval = view ? Math.max(1, Math.floor(view.length / 7)) : 19
   return (
     <ChartCard title="Jahresniederschlag Deutschland" subtitle="Ø aller Bundesländer (mm) · 1881–2025"
       kpi={latest?.value} kpiUnit="mm" kpiYear={latest?.year}
       color="#0369a1" loading={loading} error={error}
-      flowId="DF_CLIMATE_GERMANY_PRECIPATION" source="Quelle: Umweltbundesamt / Deutscher Wetterdienst">
+      flowId="DF_CLIMATE_GERMANY_PRECIPATION" source="Quelle: Umweltbundesamt / Deutscher Wetterdienst"
+      controls={<RangeToggle value={from} onChange={setFrom} options={CLIMATE_RANGES} />}>
       <ResponsiveContainer width="100%" height="100%">
-        <ComposedChart data={pts ?? []} margin={{ top: 16, right: 12, left: 0, bottom: 0 }}>
+        <ComposedChart data={view ?? []} margin={{ top: 16, right: 12, left: 0, bottom: 0 }}>
           <Grad id="pGrad" color="#0369a1" />
           <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
           <XAxis dataKey="year" tick={{ fontSize: 11, fill: '#64748b' }} interval={xInterval} />
@@ -450,9 +508,9 @@ function ElectricCarChart() {
           <YAxis tick={{ fontSize: 11, fill: '#64748b' }} unit=" Mio." width={40} />
           <Tooltip content={<TT unit="Mio." />} />
           <Legend wrapperStyle={{ fontSize: 11 }} />
-          <Line type="monotone" dataKey="BEV" stroke="#0284c7" strokeWidth={2.5} dot={{ r: 3 }} connectNulls />
-          <Line type="monotone" dataKey="PHEV" stroke="#7c3aed" strokeWidth={2} dot={{ r: 3 }} connectNulls />
-          <Line type="monotone" dataKey="Hybrid" stroke="#0891b2" strokeWidth={1.5} strokeDasharray="4 2" dot={false} connectNulls />
+          <Line type="monotone" dataKey="BEV" name="BEV – rein elektrisch" stroke="#0284c7" strokeWidth={2.5} dot={{ r: 3 }} connectNulls />
+          <Line type="monotone" dataKey="PHEV" name="PHEV – Plug-in-Hybrid" stroke="#7c3aed" strokeWidth={2} dot={{ r: 3 }} connectNulls />
+          <Line type="monotone" dataKey="Hybrid" name="Hybrid (ohne Stecker)" stroke="#0891b2" strokeWidth={2} dot={{ r: 3 }} connectNulls />
         </LineChart>
       </ResponsiveContainer>
     </ChartCard>

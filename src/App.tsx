@@ -6,6 +6,7 @@ import DatasetPage from './pages/DatasetPage'
 import AnalysePage from './pages/AnalysePage'
 import AboutPage from './pages/AboutPage'
 import SocialPreviewPage from './pages/SocialPreviewPage'
+import VegetationPage from './pages/VegetationPage'
 
 export default function App() {
   return (
@@ -14,6 +15,7 @@ export default function App() {
         <Navbar />
         <Routes>
           <Route path="/" element={<DashboardPage />} />
+          <Route path="/vegetation" element={<VegetationPage />} />
           <Route path="/analysen" element={<AnalysePage />} />
           <Route path="/catalog" element={<CatalogPage />} />
           <Route path="/dataset/:id" element={<DatasetPage />} />

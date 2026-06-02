@@ -9,6 +9,7 @@ export default function Navbar() {
 
   const links = [
     { to: '/', label: 'Dashboard' },
+    { to: '/vegetation', label: 'Vegetation' },
     { to: '/analysen', label: 'Analysen' },
     { to: '/catalog', label: 'Datenkatalog' },
     { to: '/about', label: 'Über das Projekt' },

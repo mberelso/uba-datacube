@@ -34,3 +34,8 @@ skills-lock.json
 # Local Python test scripts
 scripts/*.py
 
+
+# Satelliten-Prototyp (Phase 0)
+.venv-sat/
+scripts/satellite/output/
+scripts/satellite/__pycache__/

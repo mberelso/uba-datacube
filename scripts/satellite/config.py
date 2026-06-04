@@ -14,6 +14,7 @@ REGION_NAME = "Landkreis Ebersberg"
 REGION_SLUG = "ebersberg"
 
 _HERE = os.path.dirname(__file__)
+REPO_ROOT = os.path.abspath(os.path.join(_HERE, "..", ".."))
 GEOJSON_PATH = os.path.join(_HERE, "ebersberg.geojson")
 
 with open(GEOJSON_PATH, encoding="utf-8") as _f:
@@ -66,6 +67,18 @@ MAX_SCENE_CLOUD_COVER = 70
 #   3 = Cloud Shadows, 8 = Cloud medium prob, 9 = Cloud high prob,
 #   10 = Thin cirrus, 11 = Snow/Ice
 SCL_MASK_CLASSES = [3, 8, 9, 10, 11]
+
+# --- Deutschland-Choropleth (Proof: 16 Bundesländer) ---
+# Grobe Auflösung + Aggregation über Polygone → eine Zahlentabelle statt Raster.
+DE_BBOX = {"west": 5.8, "south": 47.2, "east": 15.1, "north": 55.1}
+CHORO_RES_M = 200          # Zielauflösung vor der Aggregation (für Regionsmittel reicht grob)
+CHORO_PROJECTION = 3035    # ETRS89-LAEA Europa (gleichflächig, Meter)
+# Je Monat ein eigener Job — ganz DE × 1 Monat × 10 m ≈ 6e10 Pixel, unter dem
+# OpenEO-Free-Tier-Limit von 1e11. Mehrere Monate = mehrere Jobs (so wie der
+# spätere Cron monatlich appendet). Für den Proof bewusst klein halten.
+CHORO_MONTHS = 3
+# Vorhandenes Bundesland-GeoJSON der Website (key = properties.id, z. B. "DE-BW").
+CHORO_GEOJSON_PATH = os.path.join(REPO_ROOT, "public", "bundeslaender.geo.json")
 
 # --- OpenEO ---
 OPENEO_BACKEND = "openeo.dataspace.copernicus.eu"

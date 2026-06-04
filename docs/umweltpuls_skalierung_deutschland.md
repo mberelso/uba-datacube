@@ -26,6 +26,25 @@ Kernfehler des naiven Ansatzes: Wir rechnen 10 m, obwohl die Web-Karte ohnehin
 auf ~1000 px runterskaliert — **99 % der Auflösung werfen wir sofort weg.**
 Außerdem hieße „pro Landkreis ein Raster" = **401 Jobs**.
 
+> ⚠️ **Erkenntnis aus dem Proof (Juni 2026):** Ein **großflächiges Raster** (ganz
+> DE als Bild) ist auf dem OpenEO-Free-Tier praktisch nicht erzeugbar — zwei
+> Versuche (400 m und 1000 m) liefen je **>2 h ohne Ergebnis und wurden abgebrochen**.
+> Die Ausgabe-Auflösung ist dabei **egal**; teuer ist der Raster-Ausgabe-Pfad
+> selbst (großflächig mosaikieren + reprojizieren + schreiben). Zum Vergleich,
+> jeweils gleicher Input (DE, 1 Monat, 10 m Szenen):
+>
+> | Job | Fläche | Ausgabe | Dauer |
+> |---|---|---|---|
+> | `aggregate_spatial` (Choropleth) | ganz DE | 16 Zahlen | ~8 Min ✅ |
+> | Raster-Komposit | Landkreis Ebersberg | Bild | ~9–26 Min ✅ |
+> | Raster-Komposit | **ganz DE** | Bild | **>2 h ❌** |
+>
+> **Folgerung:** Raster nur für **kleine** Flächen (Landkreis/Event), Aggregation
+> für die **große** Fläche. Das „Satellitenbild durch ganz Deutschland
+> durchscheinen lassen" ist genau die nicht-machbare Kombination und wurde
+> verworfen. Das „Durchscheinen" gehört an die Detail-/Event-Ebene (kleine AOIs),
+> wo Raster billig sind.
+
 ---
 
 ## 2 — Die zwei Schichten

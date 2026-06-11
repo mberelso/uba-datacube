@@ -34,3 +34,8 @@ skills-lock.json
 # Local Python test scripts
 scripts/*.py
 
+
+# Python-Artefakte (MaStR/Satelliten-Pipelines)
+__pycache__/
+scripts/satellite/output/
+.venv-mastr/

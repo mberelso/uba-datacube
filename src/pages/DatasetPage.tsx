@@ -254,16 +254,17 @@ export default function DatasetPage() {
       const { seriesMap: sm, timeValues: tv, seriesDimensions } = await fetchData(flow, key || 'all')
       setSeriesMap(sm)
       setTimeValues(tv)
-      // Im Lazy-Modus mit kuratierter Dim-Config: dims nicht überschreiben,
-      // damit die Filter-Dropdowns erhalten bleiben
-      if (!lazyDimConfig && seriesDimensions.length > 0) setDims(seriesDimensions)
+      // Im Lazy-Modus dims nie überschreiben: Die Antwort enthält nur die
+      // gerade geladenen Werte — die Dropdowns sollen aber weiterhin alle
+      // wählbaren Werte aus der DSD anbieten
+      if (!lazyMode && !lazyDimConfig && seriesDimensions.length > 0) setDims(seriesDimensions)
       autoSelectTopSeries(sm)
     } catch (e: any) {
       setError(e.message ?? 'Fehler beim Laden der gefilterten Daten')
     } finally {
       setDataLoading(false)
     }
-  }, [flow, dims, filters, lazyDimConfig, buildSdmxKey, autoSelectTopSeries])
+  }, [flow, dims, filters, lazyMode, lazyDimConfig, buildSdmxKey, autoSelectTopSeries])
 
   const content = id ? getDatasetContent(decodeURIComponent(id)) : null
   const labelOverrides = content?.labelOverrides ?? {}
@@ -337,8 +338,10 @@ export default function DatasetPage() {
 
   const filteredSeries = useMemo(() => {
     return Object.entries(seriesMap).filter(([_, s]) =>
-      // Im Lazy-Modus: API hat bereits durch den Key gefiltert — alle geladenen Serien sind relevant
-      lazyDimConfig ? true : Object.entries(filters).every(([dimKey, targetVal]) => {
+      // Im Lazy-Modus: API hat bereits durch den Key gefiltert — alle geladenen
+      // Serien sind relevant. (Clientseitiger Vergleich würde scheitern, weil
+      // die Filter Code-IDs enthalten, dimValues aber Klartextnamen.)
+      lazyMode || lazyDimConfig ? true : Object.entries(filters).every(([dimKey, targetVal]) => {
         if (!targetVal) return true
         const dimIdx = dims.findIndex(d => d.name === dimKey || d.id === dimKey)
         return dimIdx === -1 || s.dimValues[dimIdx] === targetVal
@@ -350,7 +353,7 @@ export default function DatasetPage() {
       const label = shortVals.map(applyLabelOverride).join(' · ') || s.dimValues.map(applyLabelOverride).join(' · ') || key
       return { key, label, dimValues: s.dimValues }
     })
-  }, [seriesMap, filters, dims, lazyDimConfig, varyingDimIndices, applyLabelOverride])
+  }, [seriesMap, filters, dims, lazyMode, lazyDimConfig, varyingDimIndices, applyLabelOverride])
 
   const filteredSeriesRef = useRef(filteredSeries)
   filteredSeriesRef.current = filteredSeries
@@ -541,11 +544,18 @@ export default function DatasetPage() {
                   // Im Lazy-Modus: Code-IDs als Values, Labels als Anzeigetext
                   // Nach dem Load: Werte aus geladenen Daten
                   const isLazyDim = lazyMode && d.values.length > 0
-                  const options = isLazyDim
+                  const options = (isLazyDim
                     ? d.values.map(v => ({ id: v.id, label: v.name || v.id }))
                     : Array.from(new Set(Object.values(seriesMap).map(s => s.dimValues[i])))
-                        .sort().map(v => ({ id: v, label: applyLabelOverride(v) }))
+                        .map(v => ({ id: v, label: applyLabelOverride(v) }))
+                  ).sort((a, b) => a.label.localeCompare(b.label, 'de'))
                   if (options.length <= 1) return null
+                  // Filterwert kann Code-ID (Dropdown) oder Klartextname (Preset/URL) sein —
+                  // auf die Options-ID normalisieren, damit das Dropdown die Auswahl anzeigt
+                  const rawSelected = filters[d.name] || filters[d.id] || ''
+                  const selectedId = options.find(o => o.id === rawSelected)?.id
+                    ?? options.find(o => o.label === rawSelected)?.id
+                    ?? ''
                   return (
                     <div key={d.name}>
                       <div className="text-[9px] font-bold text-slate-400 tracking-widest uppercase mb-1.5 flex items-center gap-1">
@@ -554,7 +564,7 @@ export default function DatasetPage() {
                       </div>
                       <div className="relative">
                         <select
-                          value={filters[d.name] || filters[d.id] || ''}
+                          value={selectedId}
                           onChange={(e) => setFilters(prev => ({ ...prev, [d.name]: e.target.value }))}
                           className="w-full text-[11px] py-1.5 pl-2.5 pr-7 rounded-lg border border-slate-200 bg-slate-50 text-slate-600 appearance-none focus:outline-none focus:border-slate-400 focus:bg-white transition-colors cursor-pointer"
                         >

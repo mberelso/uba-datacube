@@ -39,13 +39,12 @@ export default function CatalogPage() {
   const [error, setError]               = useState('')
   const [search, setSearch]             = useState('')
   const [searchParams, setSearchParams] = useSearchParams()
-  const [activeCategory, setActiveCategory] = useState<string | null>(
-    searchParams.get('category')
-  )
+  // Direkt aus der URL ableiten — so funktionieren auch Browser-Zurück
+  // und Links wie /catalog?category=X, während die Seite bereits offen ist
+  const activeCategory = searchParams.get('category')
 
   const handleCategoryClick = (catId: string | null) => {
-    setActiveCategory(catId)
-    catId ? setSearchParams({ category: catId }) : setSearchParams({})
+    setSearchParams(catId ? { category: catId } : {})
   }
 
   useEffect(() => {

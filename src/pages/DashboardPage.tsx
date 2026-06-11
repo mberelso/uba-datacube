@@ -7,7 +7,7 @@ import {
 } from 'recharts'
 import {
   Thermometer, Factory, Lightning, Fire,
-  BookOpen, Translate, ChartBar, ArrowRight, Warning,
+  BookOpen, Translate, ChartBar, ArrowRight, Warning, Wind,
 } from '@phosphor-icons/react'
 import { fetchData, fetchSingleDataflow } from '../api/sdmx'
 import { CubeMark } from '../components/CubeMark'
@@ -296,6 +296,79 @@ function HighlightCard({ config }: { config: HighlightConfig }) {
   )
 }
 
+interface WindSummary { years: number[]; cumGw: number[]; cumCount: number[] }
+
+function WindMapTeaser() {
+  const [summary, setSummary] = useState<WindSummary | null>(null)
+
+  useEffect(() => {
+    fetch('/wind_summary.json').then(r => r.json()).then(setSummary).catch(() => {})
+  }, [])
+
+  const chartData = summary
+    ? summary.years.map((y, i) => ({ year: String(y), value: summary.cumGw[i] }))
+    : []
+  const latest = summary ? summary.cumCount[summary.cumCount.length - 1] : null
+  const latestGw = summary ? summary.cumGw[summary.cumGw.length - 1] : null
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-40px' }}
+      transition={{ type: 'spring', stiffness: 120, damping: 22 }}
+      className="mb-12"
+    >
+      <Link to="/wind" className="block no-underline group">
+        <div
+          className="relative rounded-[1.5rem] overflow-hidden border border-slate-200/60 shadow-[0_4px_24px_-8px_rgba(0,0,0,0.06)]"
+          style={{ background: 'linear-gradient(110deg, #1B2B3A 0%, #24455c 55%, #0284c7 130%)' }}
+        >
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_280px] gap-2 items-center">
+            <div className="p-7 md:p-8">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.12)' }}>
+                  <Wind size={17} weight="duotone" color="#7dd3fc" />
+                </div>
+                <span className="text-[10px] font-bold tracking-[0.12em] uppercase" style={{ color: '#7dd3fc' }}>
+                  Interaktive Karte
+                </span>
+              </div>
+              <h3 className="text-[20px] font-extrabold text-white tracking-tight leading-snug m-0 mb-2">
+                Der Windkraft-Ausbau seit 1990 — Anlage für Anlage
+              </h3>
+              <p className="text-[13px] leading-relaxed m-0 mb-4" style={{ color: 'rgba(255,255,255,0.7)' }}>
+                {latest != null
+                  ? `${latest.toLocaleString('de-DE')} Windenergieanlagen mit ${latestGw?.toLocaleString('de-DE', { maximumFractionDigits: 1 })} GW Leistung — sieh zu, wie sie sich Jahr für Jahr über Deutschland ausbreiten.`
+                  : 'Alle Windenergieanlagen aus dem Marktstammdatenregister, animiert auf der Deutschlandkarte.'}
+              </p>
+              <span className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-white group-hover:gap-2.5 transition-all">
+                Karte erkunden <ArrowRight size={14} weight="bold" />
+              </span>
+            </div>
+            <div className="hidden md:block h-[120px] self-end pr-6">
+              {chartData.length > 0 && (
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={chartData} margin={{ top: 6, right: 0, left: 0, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="windTeaserGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#7dd3fc" stopOpacity={0.45} />
+                        <stop offset="95%" stopColor="#7dd3fc" stopOpacity={0.02} />
+                      </linearGradient>
+                    </defs>
+                    <Area type="monotone" dataKey="value" stroke="#7dd3fc" strokeWidth={2}
+                      fill="url(#windTeaserGrad)" dot={false} isAnimationActive={false} />
+                  </AreaChart>
+                </ResponsiveContainer>
+              )}
+            </div>
+          </div>
+        </div>
+      </Link>
+    </motion.div>
+  )
+}
+
 function CategoryTile({ cat, count }: { cat: typeof CATEGORIES[0]; count: number }) {
   return (
     <motion.div variants={fadeUp}>
@@ -510,6 +583,9 @@ export default function DashboardPage() {
             ))}
           </motion.div>
       </AnimatePresence>
+
+      {/* ── Windkraft-Karten-Teaser ──────────────────────────────────────── */}
+      <WindMapTeaser />
 
       {/* ── Category tiles ───────────────────────────────────────────────── */}
       <div className="mb-4 mt-12">

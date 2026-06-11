@@ -6,6 +6,22 @@ import { CATEGORIES, getCategoryMeta } from '../utils/categories'
 import { getDatasetContent, DATASET_CONTENT } from '../data/datasetContent'
 
 const STATIC_DATASET_COUNT = Object.values(DATASET_CONTENT).filter(c => !c.excludeFromCatalog).length
+
+// Eigene interaktive Angebote, die nicht aus der UBA-API kommen,
+// aber im Katalog auffindbar sein sollen
+type CatalogFlow = Dataflow & { route?: string; badge?: string }
+const SPECIAL_FLOWS: CatalogFlow[] = [
+  {
+    id: 'MASTR_WIND_MAP',
+    name: 'Windkraft-Ausbau in Deutschland seit 1990',
+    description: 'Animierte Karte aller 41.000+ Windenergieanlagen aus dem Marktstammdatenregister der Bundesnetzagentur — Jahr für Jahr, an Land und auf See, inklusive geplanter Anlagen.',
+    agencyID: 'BNetzA',
+    version: 'MaStR',
+    category: 'ENERGY',
+    route: '/wind',
+    badge: '🗺️ Interaktive Karte',
+  },
+]
 import { GuidedTip } from '../components/GuidedTip'
 import { SEO } from '../components/SEO'
 
@@ -54,7 +70,9 @@ export default function CatalogPage() {
       .finally(() => setLoading(false))
   }, [])
 
-  const filtered = flows.filter((f) => {
+  const allFlows: CatalogFlow[] = [...flows, ...SPECIAL_FLOWS]
+
+  const filtered = allFlows.filter((f) => {
     if (getDatasetContent(f.id)?.excludeFromCatalog) return false
     const matchCat    = activeCategory ? f.category === activeCategory : true
     const matchSearch = search
@@ -64,9 +82,9 @@ export default function CatalogPage() {
     return matchCat && matchSearch
   })
 
-  const visibleFlows = flows.filter((f) => !getDatasetContent(f.id)?.excludeFromCatalog)
+  const visibleFlows = allFlows.filter((f) => !getDatasetContent(f.id)?.excludeFromCatalog)
 
-  const byCategory: Record<string, Dataflow[]> = {}
+  const byCategory: Record<string, CatalogFlow[]> = {}
   for (const f of filtered) {
     ;(byCategory[f.category] ??= []).push(f)
   }
@@ -333,15 +351,16 @@ function FilterPill({ label, active, color, bg, onClick }: {
   )
 }
 
-function DatasetCard({ flow, color }: { flow: Dataflow; color: string }) {
+function DatasetCard({ flow, color }: { flow: CatalogFlow; color: string }) {
   const [hovered, setHovered] = useState(false)
   const content = getDatasetContent(flow.id)
   const displayDesc = content?.lead ?? flow.description
   const displayName = content?.displayName ?? flow.name
   const hasCuratedInsights = !!(content?.lazyDimensions || content?.defaultChartConfig)
+  const badge = flow.badge ?? (hasCuratedInsights ? '✦ Einblicke' : null)
 
   return (
-    <Link to={`/dataset/${encodeURIComponent(flow.id)}`} style={{ textDecoration: 'none', display: 'block' }}>
+    <Link to={flow.route ?? `/dataset/${encodeURIComponent(flow.id)}`} style={{ textDecoration: 'none', display: 'block' }}>
       <motion.div
         onHoverStart={() => setHovered(true)}
         onHoverEnd={() => setHovered(false)}
@@ -367,7 +386,7 @@ function DatasetCard({ flow, color }: { flow: Dataflow; color: string }) {
           <div style={{ fontSize: 13, fontWeight: 600, color: NORDIC.navy, lineHeight: 1.4 }}>
             {displayName}
           </div>
-          {hasCuratedInsights && (
+          {badge && (
             <span style={{
               flexShrink: 0,
               fontSize: 10, fontWeight: 600,
@@ -379,7 +398,7 @@ function DatasetCard({ flow, color }: { flow: Dataflow; color: string }) {
               letterSpacing: '0.02em',
               lineHeight: 1.4,
             }}>
-              ✦ Einblicke
+              {badge}
             </span>
           )}
         </div>

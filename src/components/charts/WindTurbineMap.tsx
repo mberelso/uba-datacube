@@ -75,27 +75,34 @@ export function WindTurbineMap() {
     return { x, y, r }
   }, [projection, data])
 
-  // Kumulative Statistik pro Jahr (Stilllegungen werden abgezogen)
+  // Kumulative Statistik pro Jahr (Stilllegungen werden abgezogen),
+  // getrennt nach An Land / Auf See fürs Stapeldiagramm
   const yearStats = useMemo(() => {
     if (!data) return null
     const u = data.units
     const span = END_YEAR - START_YEAR + 1
-    const addCount = new Array(span).fill(0)
+    const addOn = new Array(span).fill(0)
+    const addOff = new Array(span).fill(0)
     const addMw = new Array(span).fill(0)
     for (let i = 0; i < data.count; i++) {
       if (u.status[i] === 2 || u.year[i] === 0) continue
       const a = Math.max(0, Math.min(span - 1, u.year[i] - START_YEAR))
-      addCount[a]++
+      ;(u.offshore[i] ? addOff : addOn)[a]++
       addMw[a] += u.kw[i] / 1000
       if (u.endYear[i] > 0) {
-        const e = u.endYear[i] - START_YEAR
-        if (e < span) { addCount[e < 0 ? 0 : e]--; addMw[e < 0 ? 0 : e] -= u.kw[i] / 1000 }
+        const e = Math.max(0, u.endYear[i] - START_YEAR)
+        if (e < span) { (u.offshore[i] ? addOff : addOn)[e]--; addMw[e] -= u.kw[i] / 1000 }
       }
     }
+    const cumOn: number[] = []
+    const cumOff: number[] = []
     const cumCount: number[] = []
     const cumMw: number[] = []
-    let c = 0, m = 0
-    for (let i = 0; i < span; i++) { c += addCount[i]; m += addMw[i]; cumCount.push(c); cumMw.push(m) }
+    let on = 0, off = 0, m = 0
+    for (let i = 0; i < span; i++) {
+      on += addOn[i]; off += addOff[i]; m += addMw[i]
+      cumOn.push(on); cumOff.push(off); cumCount.push(on + off); cumMw.push(m)
+    }
     // Brutto-Zubau pro Jahr fürs Balkendiagramm (ohne Stilllegungsabzug)
     const grossCount = new Array(span).fill(0)
     for (let i = 0; i < data.count; i++) {
@@ -103,7 +110,7 @@ export function WindTurbineMap() {
       const a = u.year[i] - START_YEAR
       if (a >= 0 && a < span) grossCount[a]++
     }
-    return { cumCount, cumMw, grossCount }
+    return { cumOn, cumOff, cumCount, cumMw, grossCount }
   }, [data])
 
   const draw = useCallback(() => {
@@ -296,6 +303,66 @@ export function WindTurbineMap() {
           <div className="flex justify-between text-[10px] text-slate-400 mt-1 tabular-nums">
             <span>{START_YEAR}</span>
             <span>{END_YEAR}</span>
+          </div>
+        </div>
+
+        {/* Bestand (Stapelfläche An Land/Auf See) + installierte Leistung (Linie) */}
+        <div>
+          <div className="text-[11px] text-slate-400 uppercase tracking-wider font-semibold mb-2">
+            Bestand gesamt &amp; installierte Leistung
+          </div>
+          {(() => {
+            const CW = 320, CH = 96
+            const span = yearStats.cumCount.length
+            const maxCount = Math.max(...yearStats.cumCount)
+            const maxMw = Math.max(...yearStats.cumMw)
+            const xs = (i: number) => (i / (span - 1)) * CW
+            const yc = (v: number) => CH - (v / maxCount) * (CH - 8)
+            const ym = (v: number) => CH - (v / maxMw) * (CH - 8)
+            const areaPath = (upper: number[], lower: (i: number) => number) =>
+              'M' + upper.map((v, i) => `${xs(i).toFixed(1)},${yc(v).toFixed(1)}`).join('L') +
+              'L' + upper.map((_, i, a) => {
+                const j = a.length - 1 - i
+                return `${xs(j).toFixed(1)},${lower(j).toFixed(1)}`
+              }).join('L') + 'Z'
+            const onshoreArea = areaPath(yearStats.cumOn, () => CH)
+            const totalArea = areaPath(yearStats.cumCount, (i) => yc(yearStats.cumOn[i]))
+            const mwLine = 'M' + yearStats.cumMw.map((v, i) => `${xs(i).toFixed(1)},${ym(v).toFixed(1)}`).join('L')
+            const xCur = xs(idx)
+            return (
+              <svg
+                viewBox={`0 0 ${CW} ${CH}`}
+                className="w-full cursor-pointer"
+                style={{ height: 96 }}
+                role="img"
+                aria-label="Kumulierter Anlagenbestand und installierte Leistung pro Jahr"
+                onClick={(e) => {
+                  const r = e.currentTarget.getBoundingClientRect()
+                  const t = Math.min(Math.max((e.clientX - r.left) / r.width, 0), 1)
+                  handleSlider(START_YEAR + Math.round(t * (span - 1)))
+                }}
+              >
+                <path d={onshoreArea} fill={COLORS.onshore} opacity={0.35} />
+                <path d={totalArea} fill={COLORS.offshore} opacity={0.45} />
+                <path d={mwLine} fill="none" stroke={COLORS.fresh} strokeWidth={2} strokeLinejoin="round" />
+                <line x1={xCur} y1={0} x2={xCur} y2={CH} stroke="#1B2B3A" strokeWidth={1} strokeDasharray="3 3" opacity={0.6} />
+                <circle cx={xCur} cy={ym(yearStats.cumMw[idx])} r={3.5} fill={COLORS.fresh} stroke="#fff" strokeWidth={1.5} />
+              </svg>
+            )
+          })()}
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-slate-500 mt-1.5">
+            <span className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-sm" style={{ background: COLORS.onshore, opacity: 0.5 }} />
+              Anlagen an Land
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-sm" style={{ background: COLORS.offshore, opacity: 0.6 }} />
+              Anlagen auf See
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="w-4 h-[2px] rounded-full" style={{ background: COLORS.fresh }} />
+              Leistung (GW)
+            </span>
           </div>
         </div>
 

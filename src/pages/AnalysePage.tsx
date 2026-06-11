@@ -10,15 +10,41 @@ import {
 } from 'recharts'
 import { fetchAveragedSeries, fetchSingleSeries, type TimePoint } from '../api/sdmx'
 
+/** Mehrere Charts nutzen denselben Datensatz (z. B. 3× CORE_INDICATORS_26).
+ *  Promise-Cache stellt sicher, dass jede CSV nur einmal geladen wird —
+ *  parallele identische Requests haben den UBA-Server sporadisch überfordert
+ *  (Fehlerantworten ohne CORS-Header → Chart blieb leer). */
+const csvCache = new Map<string, Promise<string>>()
+
+function fetchCsvText(url: string): Promise<string> {
+  const cached = csvCache.get(url)
+  if (cached) return cached
+  const load = async (attempt = 0): Promise<string> => {
+    try {
+      const r = await fetch(url, { headers: { Accept: 'text/csv' } })
+      if (!r.ok) throw new Error(`CSV fetch failed ${r.status}`)
+      return await r.text()
+    } catch (e) {
+      if (attempt >= 1) throw e
+      // einmaliger Retry nach kurzer Pause — fängt transiente Server-/Netzfehler ab
+      await new Promise(res => setTimeout(res, 800))
+      return load(attempt + 1)
+    }
+  }
+  const p = load()
+  // Fehlgeschlagene Promises nicht cachen, sonst bleibt der Chart dauerhaft leer
+  p.catch(() => csvCache.delete(url))
+  csvCache.set(url, p)
+  return p
+}
+
 /** Fetch CSV data for a dataset and return raw series keyed by dim-code string.
  *  Always uses CSV (skips the sparse JSON path entirely for these charts). */
 async function fetchCsvSeries(flowId: string, version: string): Promise<
   Record<string, { codes: string[]; colIds: string[]; obs: Record<string, number | null> }>
 > {
   const url = `https://daten.uba.de/release/rest/data/UBA,${flowId},${version}/all?format=csv`
-  const r = await fetch(url, { headers: { Accept: 'text/csv' } })
-  if (!r.ok) throw new Error(`CSV fetch failed ${r.status}`)
-  const text = await r.text()
+  const text = await fetchCsvText(url)
   const lines = text.trim().split('\n')
   const sep = lines[0].includes(';') ? ';' : ','
   const header = lines[0].split(sep).map(h => h.trim().replace(/\r/g, ''))

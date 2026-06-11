@@ -59,6 +59,47 @@ out = {
 
 OUT.write_text(json.dumps(out, separators=(",", ":"), ensure_ascii=False), encoding="utf-8")
 
+# Kompakte Jahres-Summary für Dashboard-Teaser und Analysen-Chart
+SUMMARY_OUT = OUT.parent / "wind_summary.json"
+start_year = 1990
+end_year = date.today().year
+span = end_year - start_year + 1
+new_count = [0] * span
+delta_count = [0] * span
+delta_mw = [0.0] * span
+for i in range(n):
+    if cols["status"][i] == 2 or cols["year"][i] == 0:
+        continue
+    a = min(max(cols["year"][i] - start_year, 0), span - 1)
+    yi = cols["year"][i] - start_year
+    if 0 <= yi < span:
+        new_count[yi] += 1
+    delta_count[a] += 1
+    delta_mw[a] += cols["kw"][i] / 1000
+    if cols["endYear"][i] > 0:
+        e = min(max(cols["endYear"][i] - start_year, 0), span - 1)
+        delta_count[e] -= 1
+        delta_mw[e] -= cols["kw"][i] / 1000
+
+cum_count, cum_gw = [], []
+c, m = 0, 0.0
+for i in range(span):
+    c += delta_count[i]
+    m += delta_mw[i]
+    cum_count.append(c)
+    cum_gw.append(round(m / 1000, 2))
+
+summary = {
+    "generated": date.today().isoformat(),
+    "source": out["source"],
+    "years": list(range(start_year, end_year + 1)),
+    "newCount": new_count,
+    "cumCount": cum_count,
+    "cumGw": cum_gw,
+}
+SUMMARY_OUT.write_text(json.dumps(summary, separators=(",", ":"), ensure_ascii=False), encoding="utf-8")
+print(f"{SUMMARY_OUT.name}: {SUMMARY_OUT.stat().st_size / 1e3:.1f} kB")
+
 import gzip
 gz = len(gzip.compress(OUT.read_bytes()))
 print(f"{n} Einheiten geschrieben ({skipped} übersprungen)")

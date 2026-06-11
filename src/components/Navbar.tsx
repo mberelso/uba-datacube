@@ -10,7 +10,6 @@ export default function Navbar() {
   const links = [
     { to: '/', label: 'Dashboard' },
     { to: '/analysen', label: 'Analysen' },
-    { to: '/wind', label: 'Windkraft' },
     { to: '/catalog', label: 'Datenkatalog' },
     { to: '/about', label: 'Über das Projekt' },
   ]

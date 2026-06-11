@@ -150,11 +150,12 @@ function datasetLink(flowId: string, lazyFilters?: Record<string, string>): stri
   return `${base}?lazy=${encodeURIComponent(JSON.stringify(lazyFilters))}`
 }
 
-function ChartCard({ title, subtitle, kpi, kpiUnit, kpiYear, trend, color, loading, error, height = 220, flowId, lazyFilters, source, socialCard, onShare, controls, children }: {
+function ChartCard({ title, subtitle, kpi, kpiUnit, kpiYear, trend, color, loading, error, height = 220, flowId, lazyFilters, linkTo, linkLabel, source, socialCard, onShare, controls, children }: {
   title: string; subtitle: string
   kpi?: number; kpiUnit?: string; kpiYear?: string; trend?: number
   color: string; loading: boolean; error?: boolean; height?: number
   flowId?: string; lazyFilters?: Record<string, string>; source?: string
+  linkTo?: string; linkLabel?: string
   socialCard?: SocialCardData
   onShare?: (d: SocialCardData) => void
   controls?: ReactNode
@@ -208,12 +209,12 @@ function ChartCard({ title, subtitle, kpi, kpiUnit, kpiYear, trend, color, loadi
               ↑ Teilen
             </button>
           )}
-          {flowId && (
+          {(flowId || linkTo) && (
             <Link
-              to={datasetLink(flowId, lazyFilters)}
+              to={linkTo ?? datasetLink(flowId!, lazyFilters)}
               style={{ fontSize: 11, color: '#1e3a5f', textDecoration: 'none', fontWeight: 500, opacity: 0.8, whiteSpace: 'nowrap' }}
             >
-              → Rohdaten erkunden
+              {linkLabel ?? '→ Rohdaten erkunden'}
             </Link>
           )}
         </div>
@@ -471,6 +472,36 @@ function RenewableShareChart({ onShare }: { onShare: (d: SocialCardData) => void
           <Area type="monotone" dataKey="value" stroke="#16a34a" strokeWidth={2}
             fill="url(#eeGrad)" dot={{ r: 3, fill: '#16a34a' }} connectNulls name="EE-Anteil" />
         </AreaChart>
+      </ResponsiveContainer>
+    </ChartCard>
+  )
+}
+
+function WindExpansionChart() {
+  const { data, loading, error } = useData(async () => {
+    const r = await fetch('/wind_summary.json')
+    if (!r.ok) throw new Error('wind_summary fehlt')
+    const s = await r.json() as { years: number[]; newCount: number[]; cumGw: number[] }
+    return s.years.map((y, i) => ({ year: String(y), neu: s.newCount[i], gw: s.cumGw[i] }))
+  })
+  const latest = data?.[data.length - 1]
+
+  return (
+    <ChartCard title="Windkraft-Ausbau" subtitle="Neue Anlagen pro Jahr & installierte Gesamtleistung (GW)"
+      kpi={latest?.gw} kpiUnit="GW" kpiYear={latest?.year}
+      color="#0284c7" loading={loading} error={error}
+      linkTo="/wind" linkLabel="→ Zur animierten Karte"
+      source="Quelle: Marktstammdatenregister (BNetzA)">
+      <ResponsiveContainer width="100%" height="100%">
+        <ComposedChart data={data ?? []} margin={{ top: 16, right: 0, left: 0, bottom: 0 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+          <XAxis dataKey="year" tick={{ fontSize: 11, fill: '#64748b' }} interval="preserveStartEnd" />
+          <YAxis yAxisId="l" tick={{ fontSize: 11, fill: '#64748b' }} width={40} />
+          <YAxis yAxisId="r" orientation="right" tick={{ fontSize: 11, fill: '#d97706' }} unit=" GW" width={52} />
+          <Tooltip content={<TT />} />
+          <Bar yAxisId="l" dataKey="neu" fill="#3D5A6E" opacity={0.75} name="Neue Anlagen" radius={[2, 2, 0, 0]} />
+          <Line yAxisId="r" type="monotone" dataKey="gw" stroke="#d97706" strokeWidth={2} dot={false} name="Leistung (GW)" />
+        </ComposedChart>
       </ResponsiveContainer>
     </ChartCard>
   )
@@ -1376,6 +1407,7 @@ export default function AnalysePage() {
 
       <Section title="Energiewende & Verkehr" icon="⚡" color="#16a34a">
         <RenewableShareChart onShare={setModalCard} />
+        <WindExpansionChart />
         <ElectricCarChart />
         <FuelConsumptionChart />
         <GreenMobilityChart />

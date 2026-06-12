@@ -165,7 +165,7 @@ export function WindParkStories() {
         Punkte sind Kranstellflächen und Fundamente, die feinen Linien neue Zuwegungen. Jedes Bild
         ist ein wolkenfreier Sommer-Median (Echtfarben, 10 m Auflösung).
       </p>
-      <div className="grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-6 grid-cols-1 md:grid-cols-2">
         {parks.map(p => <ParkCard key={p.slug} park={p} />)}
       </div>
       <p className="text-[11px] text-slate-400 mt-4">

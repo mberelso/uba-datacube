@@ -1,0 +1,119 @@
+{
+ "afterYear": 2025,
+ "parks": [
+  {
+   "slug": "marsberg",
+   "name": "Marsberg",
+   "state": "Nordrhein-Westfalen",
+   "lat": 51.5256,
+   "lon": 8.8259,
+   "year": 2020,
+   "units": 22,
+   "mw": 90.8,
+   "type": "repowering",
+   "oldUnits": 27,
+   "extentKm": 3.2,
+   "halfKm": 2.4,
+   "phases": {
+    "vorher": 2018,
+    "bauphase": 2019,
+    "betrieb": 2025
+   }
+  },
+  {
+   "slug": "zahna-elster",
+   "name": "Zahna-Elster",
+   "state": "Sachsen-Anhalt",
+   "lat": 51.8334,
+   "lon": 12.8746,
+   "year": 2025,
+   "units": 16,
+   "mw": 105.6,
+   "type": "repowering",
+   "oldUnits": 50,
+   "extentKm": 2.7,
+   "halfKm": 2.2,
+   "phases": {
+    "vorher": 2023,
+    "bauphase": 2024,
+    "betrieb": 2025
+   }
+  },
+  {
+   "slug": "haren-ems",
+   "name": "Haren (Ems)",
+   "state": "Niedersachsen",
+   "lat": 52.7913,
+   "lon": 7.0842,
+   "year": 2021,
+   "units": 16,
+   "mw": 67.2,
+   "type": "neubau",
+   "oldUnits": 0,
+   "extentKm": 1.9,
+   "halfKm": 1.8,
+   "phases": {
+    "vorher": 2019,
+    "bauphase": 2020,
+    "betrieb": 2025
+   }
+  },
+  {
+   "slug": "kreien",
+   "name": "Kreien",
+   "state": "Mecklenburg-Vorpommern",
+   "lat": 53.3869,
+   "lon": 12.0847,
+   "year": 2025,
+   "units": 14,
+   "mw": 79.8,
+   "type": "neubau",
+   "oldUnits": 0,
+   "extentKm": 2.5,
+   "halfKm": 2.0,
+   "phases": {
+    "vorher": 2023,
+    "bauphase": 2024,
+    "betrieb": 2025
+   }
+  },
+  {
+   "slug": "reussenkoege",
+   "name": "Reußenköge",
+   "state": "Schleswig-Holstein",
+   "lat": 54.615,
+   "lon": 8.9128,
+   "year": 2022,
+   "units": 14,
+   "mw": 50.2,
+   "type": "repowering",
+   "oldUnits": 21,
+   "extentKm": 3.8,
+   "halfKm": 2.7,
+   "phases": {
+    "vorher": 2020,
+    "bauphase": 2021,
+    "betrieb": 2025
+   }
+  },
+  {
+   "slug": "uehrde",
+   "name": "Uehrde",
+   "state": "Niedersachsen",
+   "lat": 52.0781,
+   "lon": 10.7899,
+   "year": 2024,
+   "units": 12,
+   "mw": 81.6,
+   "type": "repowering",
+   "oldUnits": 10,
+   "extentKm": 3.0,
+   "halfKm": 2.3,
+   "phases": {
+    "vorher": 2022,
+    "bauphase": 2023,
+    "betrieb": 2025
+   }
+  }
+ ]
+}

@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import { WindTurbineMap } from '../components/charts/WindTurbineMap'
+import { WindParkStories } from '../components/charts/WindParkStories'
 import { SEO } from '../components/SEO'
 
 const NORDIC = {
@@ -57,6 +58,15 @@ export default function WindPage() {
         className="bg-white rounded-2xl border border-slate-200/80 shadow-[0_2px_16px_-4px_rgba(0,0,0,0.06)] p-6 md:p-8"
       >
         <WindTurbineMap />
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-60px' }}
+        transition={{ duration: 0.4 }}
+      >
+        <WindParkStories />
       </motion.div>
     </div>
   )

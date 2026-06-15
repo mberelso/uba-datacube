@@ -533,6 +533,38 @@ function WindExpansionChart() {
   )
 }
 
+function SolarExpansionChart() {
+  const { data, loading, error } = useData(async () => {
+    const r = await fetch('/pv_summary.json')
+    if (!r.ok) throw new Error('pv_summary fehlt')
+    const s = await r.json() as { years: number[]; newCount: number[]; cumGw: number[] }
+    return s.years
+      .map((y, i) => ({ year: String(y), neu: s.newCount[i], gw: s.cumGw[i] }))
+      .filter(d => Number(d.year) >= 2000)
+  })
+  const latest = data?.[data.length - 1]
+
+  return (
+    <ChartCard title="Solar-Ausbau" subtitle="Neue PV-Anlagen pro Jahr & installierte Gesamtleistung (GW)"
+      kpi={latest?.gw} kpiUnit="GW" kpiYear={latest?.year}
+      color="#f59e0b" loading={loading} error={error}
+      linkTo="/solar" linkLabel="→ Zur animierten Karte"
+      source="Quelle: Marktstammdatenregister (BNetzA)">
+      <ResponsiveContainer width="100%" height="100%">
+        <ComposedChart data={data ?? []} margin={{ top: 16, right: 0, left: 0, bottom: 0 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+          <XAxis dataKey="year" tick={{ fontSize: 11, fill: '#64748b' }} interval="preserveStartEnd" />
+          <YAxis yAxisId="l" tick={{ fontSize: 11, fill: '#64748b' }} width={40} />
+          <YAxis yAxisId="r" orientation="right" tick={{ fontSize: 11, fill: '#ea580c' }} unit=" GW" width={52} />
+          <Tooltip content={<TT />} />
+          <Bar yAxisId="l" dataKey="neu" fill="#f59e0b" opacity={0.75} name="Neue Anlagen" radius={[2, 2, 0, 0]} />
+          <Line yAxisId="r" type="monotone" dataKey="gw" stroke="#ea580c" strokeWidth={2} dot={false} name="Leistung (GW)" />
+        </ComposedChart>
+      </ResponsiveContainer>
+    </ChartCard>
+  )
+}
+
 function ElectricCarChart() {
   const { data, loading, error } = useData(async () => {
     const named = await fetchDataSeries('DF_TRANSPORT_VEHICLE_STOCK_TREND_FUEL', '1.0', {
@@ -1434,6 +1466,7 @@ export default function AnalysePage() {
       <Section title="Energiewende & Verkehr" icon="⚡" color="#16a34a">
         <RenewableShareChart onShare={setModalCard} />
         <WindExpansionChart />
+        <SolarExpansionChart />
         <ElectricCarChart />
         <FuelConsumptionChart />
         <GreenMobilityChart />

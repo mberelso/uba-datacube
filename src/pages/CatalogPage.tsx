@@ -21,6 +21,16 @@ const SPECIAL_FLOWS: CatalogFlow[] = [
     route: '/wind',
     badge: '🗺️ Interaktive Karte',
   },
+  {
+    id: 'MASTR_SOLAR_MAP',
+    name: 'Solar-Ausbau in Deutschland seit 2000',
+    description: 'Animierte Karte aller 4 Millionen Photovoltaik-Anlagen aus dem Marktstammdatenregister — installierte Leistung je Landkreis und die großen Freiflächen-Solarparks, Jahr für Jahr.',
+    agencyID: 'BNetzA',
+    version: 'MaStR',
+    category: 'ENERGY',
+    route: '/solar',
+    badge: '🗺️ Interaktive Karte',
+  },
 ]
 import { GuidedTip } from '../components/GuidedTip'
 import { SEO } from '../components/SEO'

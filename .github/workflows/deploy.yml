@@ -21,11 +21,16 @@ jobs:
           node-version: 24
           cache: npm
 
-      - name: Install Chromium for prerender
+      - name: Install Chrome for prerender
         run: |
+          # Das apt-Paket "chromium-browser" ist auf ubuntu-latest nur ein
+          # Snap-Übergangsstub und schlägt in CI fehl. Stattdessen Google
+          # Chrome Stable aus dem offiziellen .deb installieren.
+          wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
           sudo apt-get update -qq
-          sudo apt-get install -y chromium-browser
-          echo "CHROMIUM_PATH=$(which chromium-browser)" >> $GITHUB_ENV
+          sudo apt-get install -y ./google-chrome-stable_current_amd64.deb
+          rm google-chrome-stable_current_amd64.deb
+          echo "CHROMIUM_PATH=$(which google-chrome-stable)" >> $GITHUB_ENV
 
       - run: npm ci
       - run: npm run build

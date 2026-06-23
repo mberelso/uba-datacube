@@ -17,6 +17,7 @@ export default function WindPage() {
         title="Windkraft-Ausbau in Deutschland"
         description="Animierte Karte: Wie sich die Windenergieanlagen in Deutschland seit 1990 entwickelt haben — alle Anlagen aus dem Marktstammdatenregister, Jahr für Jahr."
         path="/wind"
+        image="https://www.umweltpuls.de/og-wind.png"
       />
 
       {/* ── Page header ─────────────────────────────────────────────────── */}

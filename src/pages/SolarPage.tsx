@@ -16,6 +16,7 @@ export default function SolarPage() {
         title="Solar-Ausbau in Deutschland"
         description="Animierte Karte: Wie sich die Photovoltaik in Deutschland seit 2000 ausgebreitet hat — über 4 Millionen Anlagen aus dem Marktstammdatenregister, Landkreis für Landkreis."
         path="/solar"
+        image="https://www.umweltpuls.de/og-solar.png"
       />
 
       <motion.div

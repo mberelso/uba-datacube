@@ -84,6 +84,25 @@ function buildJsonLd(route: string): string | null {
     })
   }
 
+  if (route === '/hitze') {
+    return JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'Dataset',
+      name: 'Hitze in Deutschland seit 1951',
+      description: 'Heiße Tage (Tmax ≥ 30 °C) und Sommertage (Tmax ≥ 25 °C) je Landkreis in Deutschland von 1951 bis heute, aggregiert aus den gegitterten 1-km-Jahresrastern des Deutschen Wetterdiensts und als animierte Karte dargestellt.',
+      url: `${siteUrl}/hitze`,
+      inLanguage: 'de-DE',
+      keywords: ['Hitze', 'Heiße Tage', 'Sommertage', 'Klimawandel', 'Hitzewellen', 'DWD', 'Deutschland', 'Klimadaten'],
+      creator: { '@type': 'GovernmentOrganization', name: 'Deutscher Wetterdienst', url: 'https://www.dwd.de' },
+      publisher: { '@type': 'Organization', name: 'Umweltpuls', url: siteUrl },
+      license: 'https://www.govdata.de/dl-de/by-2-0',
+      isAccessibleForFree: true,
+      dateModified: BUILD_DATE,
+      spatialCoverage: { '@type': 'Place', name: 'Deutschland', geo: { '@type': 'GeoShape', box: '47.27 5.87 55.06 15.04' } },
+      temporalCoverage: '1951/2025',
+    })
+  }
+
   if (route === '/wind' || route === '/solar') {
     const isWind = route === '/wind'
     const mastrCreator = {
@@ -168,7 +187,7 @@ const DIST = join(ROOT, 'dist')
 const PORT = 4173
 const SITE_URL = 'https://www.umweltpuls.de'
 
-const STATIC_ROUTES = ['/', '/catalog', '/analysen', '/wind', '/solar', '/about']
+const STATIC_ROUTES = ['/', '/catalog', '/analysen', '/wind', '/solar', '/hitze', '/about']
 
 const STATIC_DESCRIPTIONS: Record<string, string> = {
   '/': 'Klimadaten, Emissionstrends und Umweltindikatoren des Umweltbundesamts — interaktiv erkunden, filtern und exportieren. Kostenlos und offen.',
@@ -176,6 +195,7 @@ const STATIC_DESCRIPTIONS: Record<string, string> = {
   '/analysen': 'Ausgewählte Umwelttrends: Temperaturentwicklung, Treibhausgase, Erneuerbare Energien und mehr — basierend auf Daten des Umweltbundesamts.',
   '/wind': 'Animierte Deutschlandkarte des Windkraft-Ausbaus seit 1990: alle Windenergieanlagen aus dem Marktstammdatenregister, Jahr für Jahr — an Land und auf See, mit Satellitenbildern vom Bau einzelner Windparks.',
   '/solar': 'Animierte Deutschlandkarte des Solar-Ausbaus seit 2000: über 4 Millionen Photovoltaik-Anlagen aus dem Marktstammdatenregister — installierte Leistung je Landkreis und die großen Freiflächen-Solarparks, Jahr für Jahr.',
+  '/hitze': 'Animierte Landkreis-Karte der Hitze in Deutschland seit 1951: Heiße Tage (Tmax ≥ 30 °C) und Sommertage je Landkreis, aus den 1-km-Rasterdaten des Deutschen Wetterdiensts — der Klimawandel, Jahr für Jahr sichtbar.',
   '/about': 'Hintergründe, FAQ und Impressum zu Umweltpuls — einem privaten, nicht-kommerziellen Aufbereitungsprojekt für Umweltdaten des Umweltbundesamts.',
 }
 
@@ -183,6 +203,7 @@ const STATIC_DESCRIPTIONS: Record<string, string> = {
 const ROUTE_IMAGES: Record<string, string> = {
   '/wind': `${SITE_URL}/og-wind.png`,
   '/solar': `${SITE_URL}/og-solar.png`,
+  '/hitze': `${SITE_URL}/og-hitze.png`,
 }
 const DATASET_ROUTES = Object.keys(DATASET_CONTENT).map(
   id => `/dataset/${encodeURIComponent(id)}`

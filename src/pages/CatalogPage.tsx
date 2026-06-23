@@ -31,6 +31,16 @@ const SPECIAL_FLOWS: CatalogFlow[] = [
     route: '/solar',
     badge: '🗺️ Interaktive Karte',
   },
+  {
+    id: 'DWD_HEAT_MAP',
+    name: 'Hitze in Deutschland seit 1951',
+    description: 'Animierte Landkreis-Karte der Heißen Tage und Sommertage seit 1951 — aus den 1-km-Rasterdaten des Deutschen Wetterdiensts. Wie sich die Hitze über Deutschland ausbreitet, Jahr für Jahr.',
+    agencyID: 'DWD',
+    version: 'CDC',
+    category: 'CLIMATE',
+    route: '/hitze',
+    badge: '🗺️ Interaktive Karte',
+  },
 ]
 import { GuidedTip } from '../components/GuidedTip'
 import { SEO } from '../components/SEO'

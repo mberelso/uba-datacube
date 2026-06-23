@@ -407,6 +407,7 @@ function HotDaysChart() {
       kpi={latest?.value} kpiUnit="Tage" kpiYear={latest?.year}
       color="#d97706" loading={loading} error={error}
       flowId="DF_CLIMATE_GERMANY_HOT_DAYS" source="Quelle: Umweltbundesamt / Deutscher Wetterdienst"
+      linkTo="/hitze" linkLabel="→ Zur animierten Landkreis-Karte"
       controls={<RangeToggle value={from} onChange={setFrom} options={CLIMATE_RANGES} />}>
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={view ?? []} margin={{ top: 16, right: 12, left: 0, bottom: 0 }}>

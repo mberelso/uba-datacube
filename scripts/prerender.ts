@@ -379,21 +379,8 @@ async function run() {
   await browser.close()
   previewServer.httpServer.close()
 
-  // sitemap.xml aus allen prerenderten Routen schreiben.
-  // Statische Seiten priorisiert, Karten höher als Datensätze.
-  const priority = (route: string) => {
-    if (route === '/') return '1.0'
-    if (route === '/wind' || route === '/solar' || route === '/catalog' || route === '/analysen') return '0.9'
-    if (route === '/about') return '0.5'
-    return '0.7'
-  }
-  const urls = ALL_ROUTES.map(route => {
-    const loc = `${SITE_URL}${route}`.replace(/&/g, '&amp;')
-    return `  <url>\n    <loc>${loc}</loc>\n    <lastmod>${BUILD_DATE}</lastmod>\n    <priority>${priority(route)}</priority>\n  </url>`
-  }).join('\n')
-  const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`
-  writeFileSync(join(DIST, 'sitemap.xml'), sitemap, 'utf-8')
-  console.log(`sitemap.xml written (${ALL_ROUTES.length} URLs).`)
+  // Hinweis: sitemap.xml wird vom generate-sitemap-Plugin in vite.config.ts
+  // erzeugt (respektiert excludeFromCatalog) — hier bewusst nichts schreiben.
 
   console.log(`\nPrerender complete: ${ok} OK, ${fail} failed.`)
   if (ok === 0) process.exit(1)

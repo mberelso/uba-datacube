@@ -299,15 +299,24 @@ export async function fetchData(flow: Dataflow, key = 'all'): Promise<{
   // Always sort timeValues chronologically — the API does not guarantee order
   timeValues.sort((a, b) => a.localeCompare(b))
 
-  // Sparse data fallback: if JSON only returned ≤2 observations per series, try CSV
-  const totalObs = Object.values(seriesMap).reduce((n, s) => n + Object.keys(s.observations).length, 0)
-  const seriesCount = Object.keys(seriesMap).length
-  const isSparse = totalObs <= seriesCount * 2
+  // Sparse data fallback: try CSV if the JSON observations look incomplete.
+  // Two cases — both sind bekannte UBA-SDMX-JSON-Fehler:
+  //  (a) global sparse: praktisch jede Serie hat ≤2 Beobachtungen.
+  //  (b) partiell sparse: manche Serien sind volle Zeitreihen, andere haben
+  //      nur 1–2 Punkte (einzelne Serien verlieren ihre Beobachtungen).
+  const obsCounts = Object.values(seriesMap).map(s => Object.keys(s.observations).length)
+  const seriesCount = obsCounts.length
+  const totalObs = obsCounts.reduce((n, c) => n + c, 0)
+  const maxObs = seriesCount ? Math.max(...obsCounts) : 0
+  const minObs = seriesCount ? Math.min(...obsCounts) : 0
+  const isSparse = totalObs <= seriesCount * 2 || (maxObs >= 10 && minObs <= 2)
 
   if (isSparse && Object.keys(seriesMap).length > 0) {
     try {
       const csvUrl = `${BASE}/data/${flow.agencyID},${flow.id},${flow.version}/${key}?format=csv`
-      const csvR = await fetch(csvUrl, { headers: { Accept: 'text/csv' } })
+      // Accept-Language ist Pflicht — ohne ihn antwortet die UBA-API mit
+      // HTTP 500 ("languageTag1"). Mit ihm kommt eine Semikolon-CSV.
+      const csvR = await fetch(csvUrl, { headers: { Accept: 'text/csv', 'Accept-Language': 'de' } })
       if (csvR.ok) {
         const text = await csvR.text()
         const lines = text.trim().split('\n')

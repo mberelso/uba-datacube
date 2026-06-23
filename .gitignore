@@ -39,3 +39,6 @@ scripts/*.py
 __pycache__/
 scripts/satellite/output/
 .venv-mastr/
+
+# DWD-Rastercache (Hitze-Pipeline)
+scripts/dwd/cache/

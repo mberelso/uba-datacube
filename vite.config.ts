@@ -15,6 +15,7 @@ function generateSitemap(): string {
     { path: '/analysen', priority: '0.7', changefreq: 'monthly' },
     { path: '/wind', priority: '0.9', changefreq: 'weekly' },
     { path: '/solar', priority: '0.9', changefreq: 'weekly' },
+    { path: '/hitze', priority: '0.9', changefreq: 'weekly' },
     { path: '/about', priority: '0.5', changefreq: 'monthly' },
   ]
 

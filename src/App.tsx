@@ -6,6 +6,7 @@ import DatasetPage from './pages/DatasetPage'
 import AnalysePage from './pages/AnalysePage'
 import WindPage from './pages/WindPage'
 import SolarPage from './pages/SolarPage'
+import HeatPage from './pages/HeatPage'
 import AboutPage from './pages/AboutPage'
 import SocialPreviewPage from './pages/SocialPreviewPage'
 
@@ -19,6 +20,7 @@ export default function App() {
           <Route path="/analysen" element={<AnalysePage />} />
           <Route path="/wind" element={<WindPage />} />
           <Route path="/solar" element={<SolarPage />} />
+          <Route path="/hitze" element={<HeatPage />} />
           <Route path="/catalog" element={<CatalogPage />} />
           <Route path="/dataset/:id" element={<DatasetPage />} />
           <Route path="/about" element={<AboutPage />} />

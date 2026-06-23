@@ -440,6 +440,77 @@ function SolarMapTeaser() {
   )
 }
 
+function HeatMapTeaser() {
+  const [summary, setSummary] = useState<{ years: number[]; hotDays: number[] } | null>(null)
+
+  useEffect(() => {
+    fetch('/heat_summary.json').then(r => r.json()).then(setSummary).catch(() => {})
+  }, [])
+
+  const chartData = summary
+    ? summary.years.map((y, i) => ({ year: String(y), value: summary.hotDays[i] }))
+    : []
+  const first = summary ? summary.hotDays[0] : null
+  const last = summary ? summary.hotDays[summary.hotDays.length - 1] : null
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-40px' }}
+      transition={{ type: 'spring', stiffness: 120, damping: 22 }}
+      className="mb-12"
+    >
+      <Link to="/hitze" className="block no-underline group">
+        <div
+          className="relative rounded-[1.5rem] overflow-hidden border border-slate-200/60 shadow-[0_4px_24px_-8px_rgba(0,0,0,0.06)]"
+          style={{ background: 'linear-gradient(110deg, #1B2B3A 0%, #7c2d2d 60%, #dc2626 135%)' }}
+        >
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_280px] gap-2 items-center">
+            <div className="p-7 md:p-8">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.12)' }}>
+                  <Thermometer size={17} weight="duotone" color="#fca5a5" />
+                </div>
+                <span className="text-[10px] font-bold tracking-[0.12em] uppercase" style={{ color: '#fca5a5' }}>
+                  Interaktive Karte
+                </span>
+              </div>
+              <h3 className="text-[20px] font-extrabold text-white tracking-tight leading-snug m-0 mb-2">
+                Hitze in Deutschland seit 1951 — Landkreis für Landkreis
+              </h3>
+              <p className="text-[13px] leading-relaxed m-0 mb-4" style={{ color: 'rgba(255,255,255,0.7)' }}>
+                {first != null && last != null
+                  ? `Von ${first.toLocaleString('de-DE', { maximumFractionDigits: 1 })} auf ${last.toLocaleString('de-DE', { maximumFractionDigits: 1 })} Heiße Tage im Jahresmittel — sieh zu, wie die Karte über die Jahrzehnte nachdunkelt.`
+                  : 'Heiße Tage und Sommertage seit 1951, animiert auf der Landkreis-Karte — aus DWD-Rasterdaten.'}
+              </p>
+              <span className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-white group-hover:gap-2.5 transition-all">
+                Karte erkunden <ArrowRight size={14} weight="bold" />
+              </span>
+            </div>
+            <div className="hidden md:block h-[120px] self-end pr-6">
+              {chartData.length > 0 && (
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={chartData} margin={{ top: 6, right: 0, left: 0, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="heatTeaserGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#fca5a5" stopOpacity={0.5} />
+                        <stop offset="95%" stopColor="#fca5a5" stopOpacity={0.02} />
+                      </linearGradient>
+                    </defs>
+                    <Area type="monotone" dataKey="value" stroke="#fca5a5" strokeWidth={2}
+                      fill="url(#heatTeaserGrad)" dot={false} isAnimationActive={false} />
+                  </AreaChart>
+                </ResponsiveContainer>
+              )}
+            </div>
+          </div>
+        </div>
+      </Link>
+    </motion.div>
+  )
+}
+
 function CategoryTile({ cat, count }: { cat: typeof CATEGORIES[0]; count: number }) {
   return (
     <motion.div variants={fadeUp}>
@@ -660,6 +731,9 @@ export default function DashboardPage() {
 
       {/* ── Solar-Karten-Teaser ──────────────────────────────────────────── */}
       <SolarMapTeaser />
+
+      {/* ── Hitze-Karten-Teaser ──────────────────────────────────────────── */}
+      <HeatMapTeaser />
 
       {/* ── Category tiles ───────────────────────────────────────────────── */}
       <div className="mb-4 mt-12">

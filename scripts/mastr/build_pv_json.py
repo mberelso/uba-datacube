@@ -21,7 +21,11 @@ from xml.etree import ElementTree as ET
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace", line_buffering=True)
 
-ZIP = Path.home() / ".open-MaStR" / "data" / "xml_download" / "Gesamtdatenexport_20260615.zip"
+# Neuesten Gesamtdatenexport automatisch wählen (Dateiname enthält Download-Datum).
+# Wichtig: ein veralteter Export kann einzelne Sparten abgeschnitten enthalten —
+# immer den jüngsten nehmen.
+_XML_DIR = Path.home() / ".open-MaStR" / "data" / "xml_download"
+ZIP = max(_XML_DIR.glob("Gesamtdatenexport_*.zip"), key=lambda p: p.name)
 PUB = Path(__file__).resolve().parents[2] / "public"
 SOURCE = "Marktstammdatenregister (MaStR), Bundesnetzagentur — Datenlizenz Deutschland dl-de/by-2-0"
 
@@ -29,6 +33,10 @@ SOURCE = "Marktstammdatenregister (MaStR), Bundesnetzagentur — Datenlizenz Deu
 # 38 endgültig stillgelegt, 31 In Planung.
 STATUS = {"35": 0, "37": 0, "38": 1, "31": 2}
 FREIFLAECHE = "852"  # ArtDerSolaranlage — die großen Solarparks
+
+# Veraltete Kreisschlüssel → aktuelle (Göttingen-Reform 2016: 03152/03156 → 03159).
+# So bleibt die Choropleth lückenlos zur Geometrie (public/kreise.geo.json).
+AGS_REMAP = {"03152": "03159", "03156": "03159"}
 
 START_YEAR = 1990
 END_YEAR = date.today().year
@@ -96,6 +104,7 @@ for fi, name in enumerate(files, 1):
         if status == 2:
             continue
         ags5 = (d.get("Gemeindeschluessel") or "")[:5]
+        ags5 = AGS_REMAP.get(ags5, ags5)  # veraltete Kreisschlüssel auf aktuelle mappen
         if year:
             nat_new[yi(year)] += 1
         a = yi(year)

@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#13202c"/>
+      <stop offset="60%" stop-color="#1B2B3A"/>
+      <stop offset="100%" stop-color="#0284c7" stop-opacity="0.45"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- Left accent bar -->
+  <rect x="80" y="150" width="4" height="300" rx="2" fill="#0284c7"/>
+
+  <!-- Eyebrow -->
+  <text x="110" y="168" font-family="system-ui, -apple-system, sans-serif"
+    font-size="22" font-weight="700" fill="#7dd3fc" letter-spacing="3">ENERGIEWENDE · INTERAKTIVE KARTE</text>
+
+  <!-- Title -->
+  <text x="108" y="262" font-family="system-ui, -apple-system, sans-serif"
+    font-size="74" font-weight="800" fill="white" letter-spacing="-2">Der Windkraft-Ausbau</text>
+  <text x="108" y="344" font-family="system-ui, -apple-system, sans-serif"
+    font-size="74" font-weight="800" fill="white" letter-spacing="-2">in Deutschland seit 1990</text>
+
+  <!-- Subtitle -->
+  <text x="110" y="408" font-family="system-ui, -apple-system, sans-serif"
+    font-size="28" font-weight="400" fill="rgba(255,255,255,0.65)" letter-spacing="0.5">41.000+ Windenergieanlagen · Jahr für Jahr · Daten aus dem Marktstammdatenregister</text>
+
+  <!-- Wind turbine motif (right) -->
+  <g transform="translate(980,250)" stroke="#7dd3fc" stroke-width="11" stroke-linecap="round">
+    <line x1="0" y1="0" x2="0" y2="150" stroke="rgba(255,255,255,0.45)"/>
+    <line x1="0" y1="0" x2="0" y2="-92"/>
+    <line x1="0" y1="0" x2="80" y2="46"/>
+    <line x1="0" y1="0" x2="-80" y2="46"/>
+    <circle cx="0" cy="0" r="9" fill="#7dd3fc" stroke="none"/>
+  </g>
+
+  <!-- Wordmark + domain -->
+  <text x="110" y="560" font-family="system-ui, -apple-system, sans-serif"
+    font-size="30" font-weight="800" fill="white" letter-spacing="-1">Umwelt<tspan fill="#6B9A5E">puls</tspan><tspan font-weight="600" fill="rgba(255,255,255,0.4)" letter-spacing="1.5">   ·   WWW.UMWELTPULS.DE</tspan></text>
+</svg>

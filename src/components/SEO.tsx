@@ -44,6 +44,9 @@ export function SEO({ title, description = DEFAULT_DESCRIPTION, path = '', image
       <meta property="og:title" content={fullTitle} />
       <meta property="og:description" content={description} />
       <meta property="og:image" content={image} />
+      <meta property="og:image:width" content="1200" />
+      <meta property="og:image:height" content="630" />
+      <meta property="og:image:alt" content={title ?? SITE_NAME} />
       <meta property="og:site_name" content={SITE_NAME} />
       <meta property="og:locale" content="de_DE" />
 

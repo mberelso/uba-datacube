@@ -84,6 +84,41 @@ function buildJsonLd(route: string): string | null {
     })
   }
 
+  if (route === '/wind' || route === '/solar') {
+    const isWind = route === '/wind'
+    const mastrCreator = {
+      '@type': 'GovernmentOrganization',
+      name: 'Bundesnetzagentur',
+      url: 'https://www.marktstammdatenregister.de',
+    }
+    return JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'Dataset',
+      name: isWind
+        ? 'Windkraft-Ausbau in Deutschland seit 1990'
+        : 'Solar-Ausbau in Deutschland seit 2000',
+      description: isWind
+        ? 'Standort, Leistung und Inbetriebnahmejahr aller Windenergieanlagen in Deutschland seit 1990, aufbereitet aus dem Marktstammdatenregister der Bundesnetzagentur und als animierte Karte dargestellt.'
+        : 'Installierte Photovoltaik-Leistung je Landkreis und Standorte der Freiflächen-Solarparks in Deutschland seit 2000, aufbereitet aus dem Marktstammdatenregister der Bundesnetzagentur und als animierte Karte dargestellt.',
+      url: `${siteUrl}${route}`,
+      inLanguage: 'de-DE',
+      keywords: isWind
+        ? ['Windkraft', 'Windenergie', 'Windkraftanlagen', 'Energiewende', 'Marktstammdatenregister', 'Deutschland', 'Erneuerbare Energien']
+        : ['Photovoltaik', 'Solarenergie', 'Solaranlagen', 'Freiflächenanlagen', 'Energiewende', 'Marktstammdatenregister', 'Deutschland', 'Erneuerbare Energien'],
+      creator: mastrCreator,
+      publisher: { '@type': 'Organization', name: 'Umweltpuls', url: siteUrl },
+      license: 'https://www.govdata.de/dl-de/by-2-0',
+      isAccessibleForFree: true,
+      dateModified: BUILD_DATE,
+      spatialCoverage: {
+        '@type': 'Place',
+        name: 'Deutschland',
+        geo: { '@type': 'GeoShape', box: '47.27 5.87 55.06 15.04' },
+      },
+      temporalCoverage: isWind ? '1990/2026' : '2000/2026',
+    })
+  }
+
   const dsMatch = route.match(/^\/dataset\/(.+)$/)
   if (dsMatch) {
     const id = decodeURIComponent(dsMatch[1])
@@ -133,13 +168,21 @@ const DIST = join(ROOT, 'dist')
 const PORT = 4173
 const SITE_URL = 'https://www.umweltpuls.de'
 
-const STATIC_ROUTES = ['/', '/catalog', '/analysen', '/about']
+const STATIC_ROUTES = ['/', '/catalog', '/analysen', '/wind', '/solar', '/about']
 
 const STATIC_DESCRIPTIONS: Record<string, string> = {
   '/': 'Klimadaten, Emissionstrends und Umweltindikatoren des Umweltbundesamts — interaktiv erkunden, filtern und exportieren. Kostenlos und offen.',
   '/catalog': 'Alle Umweltdatensätze des Umweltbundesamts auf einen Blick — durchsuchen, filtern und interaktiv erkunden.',
   '/analysen': 'Ausgewählte Umwelttrends: Temperaturentwicklung, Treibhausgase, Erneuerbare Energien und mehr — basierend auf Daten des Umweltbundesamts.',
+  '/wind': 'Animierte Deutschlandkarte des Windkraft-Ausbaus seit 1990: alle Windenergieanlagen aus dem Marktstammdatenregister, Jahr für Jahr — an Land und auf See, mit Satellitenbildern vom Bau einzelner Windparks.',
+  '/solar': 'Animierte Deutschlandkarte des Solar-Ausbaus seit 2000: über 4 Millionen Photovoltaik-Anlagen aus dem Marktstammdatenregister — installierte Leistung je Landkreis und die großen Freiflächen-Solarparks, Jahr für Jahr.',
   '/about': 'Hintergründe, FAQ und Impressum zu Umweltpuls — einem privaten, nicht-kommerziellen Aufbereitungsprojekt für Umweltdaten des Umweltbundesamts.',
+}
+
+/** Routen mit eigenem OG-Bild (sonst Default og-image.png). */
+const ROUTE_IMAGES: Record<string, string> = {
+  '/wind': `${SITE_URL}/og-wind.png`,
+  '/solar': `${SITE_URL}/og-solar.png`,
 }
 const DATASET_ROUTES = Object.keys(DATASET_CONTENT).map(
   id => `/dataset/${encodeURIComponent(id)}`
@@ -186,6 +229,13 @@ function patchRouteMeta(html: string, route: string): string {
       .replace(/(<meta[^>]*name="description"[^>]*content=")[^"]*(")/gi, `$1${staticDesc}$2`)
       .replace(/(<meta[^>]*property="og:description"[^>]*content=")[^"]*(")/gi, `$1${staticDesc}$2`)
       .replace(/(<meta[^>]*name="twitter:description"[^>]*content=")[^"]*(")/gi, `$1${staticDesc}$2`)
+  }
+
+  const routeImage = ROUTE_IMAGES[route]
+  if (routeImage) {
+    out = out
+      .replace(/(<meta[^>]*property="og:image"[^>]*content=")[^"]*(")/gi, `$1${routeImage}$2`)
+      .replace(/(<meta[^>]*name="twitter:image"[^>]*content=")[^"]*(")/gi, `$1${routeImage}$2`)
   }
 
   return out
@@ -328,6 +378,22 @@ async function run() {
 
   await browser.close()
   previewServer.httpServer.close()
+
+  // sitemap.xml aus allen prerenderten Routen schreiben.
+  // Statische Seiten priorisiert, Karten höher als Datensätze.
+  const priority = (route: string) => {
+    if (route === '/') return '1.0'
+    if (route === '/wind' || route === '/solar' || route === '/catalog' || route === '/analysen') return '0.9'
+    if (route === '/about') return '0.5'
+    return '0.7'
+  }
+  const urls = ALL_ROUTES.map(route => {
+    const loc = `${SITE_URL}${route}`.replace(/&/g, '&amp;')
+    return `  <url>\n    <loc>${loc}</loc>\n    <lastmod>${BUILD_DATE}</lastmod>\n    <priority>${priority(route)}</priority>\n  </url>`
+  }).join('\n')
+  const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`
+  writeFileSync(join(DIST, 'sitemap.xml'), sitemap, 'utf-8')
+  console.log(`sitemap.xml written (${ALL_ROUTES.length} URLs).`)
 
   console.log(`\nPrerender complete: ${ok} OK, ${fail} failed.`)
   if (ok === 0) process.exit(1)

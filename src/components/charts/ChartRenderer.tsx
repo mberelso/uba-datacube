@@ -4,6 +4,7 @@ import { ClimateChart } from './ClimateChart'
 import { EconomyChart } from './EconomyChart'
 import { StackedAreaChart, type StackedSeriesConfig } from './StackedAreaChart'
 import { GermanyMap } from './GermanyMap'
+import { getDatasetContent } from '../../data/datasetContent'
 
 export interface ChartRendererProps extends ChartProps {
   flow: Dataflow
@@ -23,6 +24,14 @@ export function ChartRenderer(props: ChartRendererProps) {
 
   if (MAP_DATASETS.has(flow.id)) {
     return <GermanyMap />
+  }
+
+  // Datensätze mit defaultChartConfig.type === 'line' brechen aus dem
+  // Kategorie-Default (z.B. Klima-Flächendarstellung) aus und nutzen die
+  // normale Linien-/Balken-Ansicht — sinnvoll z.B. für Phänologie
+  // (Tag-im-Jahr lässt sich nicht stapeln).
+  if (getDatasetContent(flow.id)?.defaultChartConfig?.type === 'line') {
+    return <FallbackChart chartData={chartData} activeSeriesList={activeSeriesList} chartType={chartType} exportMode={exportMode} />
   }
 
   if (CLIMATE_CATEGORIES.has(flow.category)) {

@@ -22,12 +22,17 @@ export interface StackedSeriesSpec {
 }
 
 export interface DefaultChartConfig {
-  /** Use stacked area chart instead of line/bar */
-  type: 'stacked'
-  /** Pre-apply these dimension filters on load (key = dim ID from API, value = raw code value) */
+  /**
+   * 'stacked' = gestapelte Fläche mit fixen stackedSeries.
+   * 'line'    = normale Linien-/Balken-Ansicht, aber mit kuratierter
+   *             Default-Auswahl über defaultFilters (umgeht ungeeignete
+   *             Kategorie-Defaults wie die Klima-Flächendarstellung).
+   */
+  type: 'stacked' | 'line'
+  /** Pre-apply these dimension filters on load (key = dim ID from API, value = display name) */
   defaultFilters?: Record<string, string>
-  /** Ordered series with fixed colors — only these are shown in stacked mode */
-  stackedSeries: StackedSeriesSpec[]
+  /** Ordered series with fixed colors — required for 'stacked', ignored for 'line' */
+  stackedSeries?: StackedSeriesSpec[]
 }
 
 export interface LazyDimension {
@@ -454,8 +459,12 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
     lead: 'Dieser Datensatz des Deutschen Wetterdienstes erfasst, wann Pflanzen wie der Apfelbaum blühen, die Salweide austreibt oder das Schneeglöckchen erscheint – und wie sich diese Zeitpunkte über Jahrzehnte verschoben haben. Wer wissen will, ob der Klimawandel in Deutschland tatsächlich ankommt, bekommt hier eine der direktesten Antworten: Die Natur selbst zeigt es.',
     trend: 'Frühlingsboten wie das Schneeglöckchen und die Salweide blühen heute im Schnitt zwei bis vier Wochen früher als noch in den 1960er Jahren. Der Blattfall der Stieleiche dagegen setzt sich tendenziell nach hinten, was den Sommer biologisch verlängert. Diese Verschiebungen beschleunigen sich mit jedem weiteren Wärmerekord.',
     context: 'Phänologische Daten fließen in Klimaberichte der Bundesregierung ein und belegen, dass Deutschland die EU-Klimaziele nicht als abstraktes Problem behandeln kann – die Folgen verändern bereits Ökosysteme, Landwirtschaft und Allergiesaisons. Entscheidungen über Aussaatzeiten, Schädlingsbekämpfung und Naturschutzmaßnahmen hängen direkt davon ab, wie verlässlich diese Verschiebungen vorhergesagt werden können.',
-    methodology: 'Gemessen wird der kalendarische Eintrittszeitpunkt bestimmter Entwicklungsphasen bei ausgewählten Pflanzenarten an einem deutschlandweiten Netz von Beobachtungsstationen des DWD. Die Trends basieren auf eigenen Berechnungen der UBA und spiegeln Mittelwerte wider – lokale Abweichungen durch Höhenlage oder Stadtklima können erheblich sein.',
+    methodology: 'Gemessen wird der kalendarische Eintrittszeitpunkt bestimmter Entwicklungsphasen bei ausgewählten Pflanzenarten an einem deutschlandweiten Netz von Beobachtungsstationen des DWD. Die Y-Achse zeigt den Tag im Jahr (1 = 1. Januar, 100 ≈ 10. April). Standardmäßig sind die deutschlandweiten Gebietsmittel aller fünf Phasen dargestellt; über den Datentyp-Filter lassen sich linearer Trend und gleitendes 30-Jahres-Mittel ergänzen. Lokale Abweichungen durch Höhenlage oder Stadtklima können erheblich sein.',
     status: 'draft',
+    defaultChartConfig: {
+      type: 'line',
+      defaultFilters: { D_TYPE: 'Gebietsmittel von Deutschland' },
+    },
   },
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'

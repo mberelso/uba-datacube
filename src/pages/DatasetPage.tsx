@@ -131,14 +131,22 @@ export default function DatasetPage() {
   }, [])
 
   const autoSelectTopSeries = useCallback((sm: typeof seriesMap) => {
-    const ranked = Object.entries(sm).map(([key, s]) => {
-      const vals = Object.values(s.observations).filter((v) => v !== null) as number[]
-      const avg = vals.length ? vals.reduce((a, v) => a + Math.abs(v), 0) / vals.length : -Infinity
-      return { key, avg }
-    })
+    // Falls ein defaultChartConfig.defaultFilters gesetzt ist, nur Serien
+    // ranken, die diese Filterwerte erfüllen — sonst kuratiert die Auswahl
+    // nichts und die größten (oft uninteressanten) Serien gewinnen.
+    const requiredVals = id
+      ? Object.values(getDatasetContent(decodeURIComponent(id))?.defaultChartConfig?.defaultFilters ?? {})
+      : []
+    const ranked = Object.entries(sm)
+      .filter(([, s]) => requiredVals.every((v) => s.dimValues.includes(v)))
+      .map(([key, s]) => {
+        const vals = Object.values(s.observations).filter((v) => v !== null) as number[]
+        const avg = vals.length ? vals.reduce((a, v) => a + Math.abs(v), 0) / vals.length : -Infinity
+        return { key, avg }
+      })
     ranked.sort((a, b) => b.avg - a.avg)
     setSelectedSeries(new Set(ranked.slice(0, 5).map((s) => s.key)))
-  }, [])
+  }, [id])
 
   // Initialer Load: Struktur + Daten parallel — Struktur entscheidet ob Lazy-Modus nötig
   useEffect(() => {
@@ -285,7 +293,7 @@ export default function DatasetPage() {
   }, [seriesMap])
 
   const stackedLabels = useMemo(
-    () => new Set(defaultChartConfig?.stackedSeries.map(s => s.label) ?? []),
+    () => new Set(defaultChartConfig?.stackedSeries?.map(s => s.label) ?? []),
     [defaultChartConfig]
   )
 

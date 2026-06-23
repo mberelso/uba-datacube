@@ -315,7 +315,7 @@ export default function DatasetPage() {
       return timeValues.map(year => {
         const point: Record<string, any> = { year }
         let hasData = false
-        for (const { label } of defaultChartConfig!.stackedSeries) {
+        for (const { label } of defaultChartConfig!.stackedSeries!) {
           const key = labelToKey[label]
           const val = key ? (seriesMap[key].observations[year] ?? null) : null
           point[label] = val
@@ -615,7 +615,7 @@ export default function DatasetPage() {
 
             {isStacked && defaultChartConfig && (
               <div className="flex flex-col gap-1.5 pt-1">
-                {defaultChartConfig.stackedSeries.map(({ label, color }) => (
+                {defaultChartConfig.stackedSeries!.map(({ label, color }) => (
                   <div key={label} className="flex items-center gap-2">
                     <div className="w-2.5 h-2.5 rounded-sm flex-shrink-0" style={{ background: color }} />
                     <span className="text-[11px] text-slate-600">{label}</span>
@@ -893,7 +893,7 @@ export default function DatasetPage() {
                       <th className="px-4 py-2.5 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">
                         Jahr
                       </th>
-                      {(isStacked ? defaultChartConfig!.stackedSeries.map(s => ({ label: s.label })) : activeSeriesList).map(({ label }) => (
+                      {(isStacked ? defaultChartConfig!.stackedSeries!.map(s => ({ label: s.label })) : activeSeriesList).map(({ label }) => (
                         <th key={label} className="px-4 py-2.5 text-right text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">
                           {label}
                         </th>
@@ -907,7 +907,7 @@ export default function DatasetPage() {
                         className="border-b border-slate-50 hover:bg-slate-50/60 transition-colors"
                       >
                         <td className="px-4 py-2 font-semibold text-[#1B2B3A] tabular-nums">{row.year}</td>
-                        {(isStacked ? defaultChartConfig!.stackedSeries.map(s => ({ label: s.label })) : activeSeriesList).map(({ label }) => (
+                        {(isStacked ? defaultChartConfig!.stackedSeries!.map(s => ({ label: s.label })) : activeSeriesList).map(({ label }) => (
                           <td key={label} className="px-4 py-2 text-right text-slate-500 tabular-nums">
                             {row[label] != null
                               ? Number(row[label]).toLocaleString('de-DE', { maximumFractionDigits: 3 })

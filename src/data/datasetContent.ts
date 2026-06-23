@@ -1519,13 +1519,21 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
   DF_TRANSPORT_TRAFFIC_AREA_LONG_TIMESERIES: {
-    displayName: 'Verkehrsfläche Deutschland Langzeitreihe',
-    headline: 'Deutschlands Verkehrsfläche wächst seit drei Jahrzehnten ungebremst.',
-    lead: 'Dieser Datensatz erfasst, wie viel Fläche in Deutschland für Straßen, Wege, Parkplätze und andere Verkehrsinfrastruktur genutzt wird — gemessen in Quadratkilometern, jährlich seit 1992. Wer verstehen will, wie stark der Autoverkehr die Landschaft verändert, findet hier eine der wenigen langfristigen Messreihen dazu.',
-    trend: 'Seit 1992 steigt die Verkehrsfläche in Deutschland kontinuierlich an, ohne erkennbare Trendwende — auch in Jahren, in denen die Politik Flächensparziele ausgegeben hat. Der Zuwachs summiert sich über drei Jahrzehnte auf mehrere hundert Quadratkilometer, was einer Fläche größer als Berlin entspricht.',
-    context: 'Die Bundesregierung hat sich im Rahmen der Nachhaltigkeitsstrategie verpflichtet, den täglichen Flächenverbrauch auf unter 30 Hektar pro Tag zu senken — dieses Ziel gilt bis 2030. Verkehrsflächen sind dabei ein zentraler Treiber, über den Entscheidungen zu Straßenneubauten, Siedlungsentwicklung und ÖPNV-Ausbau direkt entscheiden.',
-    methodology: 'Gemessen wird die tatsächliche Nutzungsart der Fläche zum Stichtag 31. Dezember jeden Jahres, erhoben vom Statistischen Bundesamt. Die Kategorie Siedlungs- und Verkehrsfläche umfasst auch unversiegelte Bereiche wie Grünanlagen — sie ist daher kein direktes Maß für Bodenversiegelung.',
+    displayName: 'Siedlungs- und Verkehrsfläche Deutschland',
+    headline: 'Deutschlands Siedlungs- und Verkehrsfläche wächst seit drei Jahrzehnten ungebremst.',
+    lead: 'Dieser Datensatz erfasst, wie viel Fläche in Deutschland für Siedlungen und Verkehr genutzt wird — für Gebäude, Gewerbe, Erholungsflächen sowie Straßen, Wege und Parkplätze. Gemessen in Quadratkilometern, jährlich seit 1992. Wer verstehen will, wie stark Siedlung und Verkehr die Landschaft verändern, findet hier eine der wenigen langfristigen Messreihen dazu.',
+    trend: 'Seit 1992 steigt die Siedlungs- und Verkehrsfläche kontinuierlich an, ohne erkennbare Trendwende — auch in Jahren, in denen die Politik Flächensparziele ausgegeben hat. Allein zwischen 1992 und 2015 wuchs sie um rund 8.800 Quadratkilometer, also etwa das Zehnfache der Fläche Berlins. Den größten Anteil daran hat die Siedlungsfläche; die reine Verkehrsfläche wächst langsamer. Der tägliche Flächenverbrauch hat sich zwar von rund 95 auf etwa 45 Hektar pro Tag verlangsamt, liegt aber weiter klar über dem politischen Ziel.',
+    context: 'Die Bundesregierung hat sich im Rahmen der Nachhaltigkeitsstrategie verpflichtet, den täglichen Flächenverbrauch auf unter 30 Hektar pro Tag zu senken — dieses Ziel gilt bis 2030. Siedlungs- und Verkehrsflächen sind dabei der zentrale Treiber, über den Entscheidungen zu Straßenneubauten, Siedlungsentwicklung und ÖPNV-Ausbau direkt entscheiden.',
+    methodology: 'Gemessen wird die tatsächliche Nutzungsart der Fläche zum Stichtag 31. Dezember jeden Jahres, erhoben vom Statistischen Bundesamt. Die Kategorie Siedlungs- und Verkehrsfläche umfasst auch unversiegelte Bereiche wie Grünanlagen — sie ist daher kein direktes Maß für Bodenversiegelung. Die Grafik stapelt Siedlungs- und Verkehrsfläche (in km²) zur gesamten Siedlungs- und Verkehrsfläche; der Datensatz enthält außerdem die jährliche Veränderung in Hektar pro Tag und die Anteile an der Gesamtfläche.',
     status: 'draft',
+    defaultChartConfig: {
+      type: 'stacked',
+      defaultFilters: { D_UNIT: 'Quadratkilometer', D_TYPE: 'Jahressumme' },
+      stackedSeries: [
+        { label: 'Siedlung', color: '#b45309' },
+        { label: 'Verkehr', color: '#334155' },
+      ],
+    },
   },
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'

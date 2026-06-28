@@ -83,6 +83,12 @@ export interface DatasetContent {
   excludeFromCatalog?: boolean
   /** Curated filter dimensions for lazy-load mode (used when DSD is unavailable from API) */
   lazyDimensions?: LazyDimensionConfig
+  /**
+   * Dimension-ID (z. B. 'D_COMPANY_NAME_PRTR'), deren Wert als alleiniges
+   * Serien-Label verwendet wird — statt aller variierenden Dimensionen. Nützlich
+   * für anlagenscharfe Datensätze, wo der Firmenname das aussagekräftige Label ist.
+   */
+  labelDimensionId?: string
   /** Quick-access presets shown above the explorer */
   presets?: PresetConfig[]
 }
@@ -1032,6 +1038,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
     context: 'Die EU-PRTR-Verordnung von 2006 verpflichtet Betreiber großer Anlagen zur jährlichen Meldung — diese Daten fließen direkt in Entscheidungen über Betriebsgenehmigungen, Klagen von Umweltverbänden und die Überprüfung nationaler Klimaziele ein. Mit dem European Green Deal und verschärften Industrieemissionsrichtlinien steigt der politische Druck, die gemeldeten Mengen weiter zu senken.',
     methodology: 'Erfasst werden Freisetzungen von rund 90 Schadstoffen aus Anlagen, die festgelegte Kapazitätsschwellen überschreiten — kleinere Betriebe fehlen damit systematisch im Register. Die Daten beruhen auf Selbstmeldungen der Unternehmen und werden von den Behörden geprüft, aber nicht flächendeckend messtechnisch verifiziert.',
     status: 'draft',
+    labelDimensionId: 'D_COMPANY_NAME_PRTR',
     lazyDimensions: {
       // Echte DSD: 11 Serien-Dimensionen. Positionen (0-basiert):
       // 0 D_COUNTRY · 1 D_FEDERAL_STATES · 2 D_DISTRICT · 3 FREQUENCY · 4 D_UNIT ·
@@ -1107,11 +1114,21 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
     context: 'Die EU-PRTR-Verordnung von 2006 verpflichtet Industrieanlagen ab bestimmten Schwellenwerten zur jährlichen Meldung ihrer Emissionen – das Ziel ist öffentliche Transparenz und politischer Druck zur Reduktion. Diese Daten fließen direkt in die Bewertung ein, ob Deutschland die Ziele der EU-Wasserrahmenrichtlinie erreicht, die einen guten Gewässerzustand vorschreibt.',
     methodology: 'Gemessen werden die jährlich gemeldeten Schadstoffmengen in Kilogramm oder Tonnen, die Industriebetriebe aus definierten Sektoren über Abwasser in Gewässer oder Kläranlagen einleiten. Erfasst sind nur Anlagen oberhalb gesetzlicher Meldeschwellen – kleinere Betriebe und diffuse Quellen wie Landwirtschaft bleiben außen vor.',
     status: 'draft',
+    labelDimensionId: 'D_COMPANY_NAME_PRTR',
     lazyDimensions: {
+      // Echte DSD (Version 1.0!): 14 Serien-Dimensionen. Positionen (0-basiert):
+      // 0 D_FEDERAL_STATES · 1 D_COMMUNITIES · 2 FREQUENCY · 3 D_UNIT · 4 D_SUBSTANCES ·
+      // 5 D_DETERMINATION · 6 D_SECTOR · 7 D_RELEASE · 8 D_ACTIVITY · 9 D_CONFIDENTIAL_FACILITY ·
+      // 10 D_CONFIDENTIAL_RELEASE · 11 D_COMPANY_NAME_PRTR · 12 D_IDENTIFICATION_NUMBER · 13 D_RIVER_BASINS
       totalDimensions: 14,
+      // Frequenz=jährlich (Pos 2) und Einheit=kg (Pos 3) sind einwertig und müssen
+      // immer gesetzt sein, sonst liefert die UBA-API für gefilterte Abfragen leer.
+      fixedSlots: { 2: 'A', 3: 'KG' },
       dimensions: [
         {
           id: 'D_FEDERAL_STATES', name: 'Bundesland', position: 0,
+          // Kein "Deutschland gesamt" (Code DE): in den Daten nicht vorhanden,
+          // die generische "Alle"-Option (Wildcard) ist die bundesweite Sicht.
           values: [
             { id: 'NW', name: 'Nordrhein-Westfalen' }, { id: 'BW', name: 'Baden-Württemberg' },
             { id: 'BY', name: 'Bayern' }, { id: 'HE', name: 'Hessen' },
@@ -1120,7 +1137,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
             { id: 'SN', name: 'Sachsen' }, { id: 'SH', name: 'Schleswig-Holstein' },
             { id: 'HH', name: 'Hamburg' }, { id: 'NI', name: 'Niedersachsen' },
             { id: 'HB', name: 'Bremen' }, { id: 'TH', name: 'Thüringen' },
-            { id: 'MV', name: 'Mecklenburg-Vorpommern' }, { id: 'DE', name: 'Deutschland gesamt' },
+            { id: 'MV', name: 'Mecklenburg-Vorpommern' }, { id: 'SL', name: 'Saarland' },
           ],
         },
         {
@@ -1132,7 +1149,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
             { id: 'Pb', name: 'Blei' }, { id: 'TOC', name: 'Gesamter organ. Kohlenstoff' },
             { id: 'TP', name: 'Gesamtphosphor' }, { id: 'TS', name: 'Gesamtstickstoff' },
             { id: 'Zn', name: 'Zink' }, { id: 'As', name: 'Arsen' },
-            { id: 'HM', name: 'Schwermetalle gesamt' }, { id: 'PHENOLE', name: 'Phenole' },
+            { id: 'Cl', name: 'Chloride' }, { id: 'PHENOLE', name: 'Phenole' },
             { id: 'PAH', name: 'Polyzyklische arom. Kohlenwasserstoffe' },
           ],
         },
@@ -1142,7 +1159,14 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
             { id: 'WASTE', name: 'Abfall & Abwasser' }, { id: 'MINERAL', name: 'Mineralindustrie' },
             { id: 'METAL', name: 'Metallindustrie' }, { id: 'CHEM', name: 'Chemieindustrie' },
             { id: 'PAPER', name: 'Papier- & Holzindustrie' }, { id: 'EN', name: 'Energiesektor' },
-            { id: 'FOOD', name: 'Lebensmittelindustrie' }, { id: 'OTHER', name: 'Sonstige' },
+            { id: 'FOOD', name: 'Lebensmittelindustrie' }, { id: 'AQUA', name: 'Intensivtierhaltung & Aquakultur' },
+            { id: 'OTHER', name: 'Sonstige' },
+          ],
+        },
+        {
+          id: 'D_RELEASE', name: 'Freisetzungsart', position: 7,
+          values: [
+            { id: 'WW', name: 'Abwasser' }, { id: 'EC', name: 'Umweltkompartiment' },
           ],
         },
       ],

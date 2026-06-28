@@ -41,6 +41,25 @@ const KNOWN_LARGE_DATASETS = new Set([
 
 type ChartType = 'line' | 'bar'
 
+// Einheitliche Serien-Label-Bildung: bei labelDimIdx >= 0 nur dieser eine
+// Wert (z. B. Firmenname), sonst alle variierenden Dimensionen verkettet.
+function buildSeriesLabel(
+  s: { dimValues: string[] },
+  key: string,
+  labelDimIdx: number,
+  varyingDimIndices: number[],
+  applyLabelOverride: (v: string) => string,
+): string {
+  if (labelDimIdx >= 0) {
+    const v = s.dimValues[labelDimIdx]
+    if (v) return applyLabelOverride(v)
+  }
+  const shortVals = varyingDimIndices.length > 0
+    ? varyingDimIndices.map(i => s.dimValues[i]).filter(Boolean)
+    : s.dimValues
+  return shortVals.map(applyLabelOverride).join(' · ') || s.dimValues.map(applyLabelOverride).join(' · ') || key
+}
+
 // ─── Loading skeleton ─────────────────────────────────────────────────────────
 
 function PageSkeleton() {
@@ -100,6 +119,9 @@ export default function DatasetPage() {
   const [dataLoading, setDataLoading] = useState(false)
   // Kuratierte Dim-Konfiguration für Lazy-Modus (wenn DSD nicht verfügbar)
   const [lazyDimConfig, setLazyDimConfig] = useState<LazyDimensionConfig | null>(null)
+  // Dimensions-IDs der zuletzt geladenen Daten (volle Reihenfolge aus der API-Antwort) —
+  // für labelDimensionId, um den Index der Label-Dimension in dimValues zu finden
+  const [respDimIds, setRespDimIds] = useState<string[]>([])
 
   // Baut SDMX-Key aus aktiven Filtern.
   // Bei lazyDimConfig: Key hat genau totalDimensions Positionen, nur konfigurierte Dims werden gesetzt.
@@ -194,9 +216,10 @@ export default function DatasetPage() {
             const key = buildSdmxKey(dimsForKey, initFilters, resolvedDimCfg)
             setDataLoading(true)
             fetchData(f, key || 'all')
-              .then(({ seriesMap: sm, timeValues: tv }) => {
+              .then(({ seriesMap: sm, timeValues: tv, seriesDimensions }) => {
                 setSeriesMap(sm)
                 setTimeValues(tv)
+                if (seriesDimensions.length > 0) setRespDimIds(seriesDimensions.map(d => d.id))
                 autoSelectTopSeries(sm)
               })
               .catch(() => {})
@@ -269,6 +292,7 @@ export default function DatasetPage() {
       const { seriesMap: sm, timeValues: tv, seriesDimensions } = await fetchData(flow, key || 'all')
       setSeriesMap(sm)
       setTimeValues(tv)
+      if (seriesDimensions.length > 0) setRespDimIds(seriesDimensions.map(d => d.id))
       // Im Lazy-Modus dims nie überschreiben: Die Antwort enthält nur die
       // gerade geladenen Werte — die Dropdowns sollen aber weiterhin alle
       // wählbaren Werte aus der DSD anbieten
@@ -302,6 +326,13 @@ export default function DatasetPage() {
   const stackedLabels = useMemo(
     () => new Set(defaultChartConfig?.stackedSeries?.map(s => s.label) ?? []),
     [defaultChartConfig]
+  )
+
+  // Index der Label-Dimension (z. B. Firmenname) in den Antwort-Dimensionen
+  const labelDimId = content?.labelDimensionId
+  const labelDimIdx = useMemo(
+    () => (labelDimId ? respDimIds.indexOf(labelDimId) : -1),
+    [labelDimId, respDimIds],
   )
 
   const chartData = useMemo(() => {
@@ -338,10 +369,7 @@ export default function DatasetPage() {
       for (const key of selectedSeries) {
         const s = seriesMap[key]
         if (s) {
-          const shortVals = varyingDimIndices.length > 0
-            ? varyingDimIndices.map(i => s.dimValues[i]).filter(Boolean)
-            : s.dimValues
-          const label = shortVals.map(applyLabelOverride).join(' · ') || s.dimValues.map(applyLabelOverride).join(' · ') || key
+          const label = buildSeriesLabel(s, key, labelDimIdx, varyingDimIndices, applyLabelOverride)
           const val = s.observations[year] ?? null
           point[label] = val
           if (val !== null) hasData = true
@@ -349,7 +377,7 @@ export default function DatasetPage() {
       }
       return { point, hasData }
     }).filter(d => d.hasData).map(d => d.point)
-  }, [timeValues, selectedSeries, seriesMap, varyingDimIndices, applyLabelOverride, isStacked, defaultChartConfig, stackedLabels])
+  }, [timeValues, selectedSeries, seriesMap, labelDimIdx, varyingDimIndices, applyLabelOverride, isStacked, defaultChartConfig, stackedLabels])
 
   const filteredSeries = useMemo(() => {
     return Object.entries(seriesMap).filter(([_, s]) =>
@@ -362,13 +390,10 @@ export default function DatasetPage() {
         return dimIdx === -1 || s.dimValues[dimIdx] === targetVal
       })
     ).map(([key, s]) => {
-      const shortVals = varyingDimIndices.length > 0
-        ? varyingDimIndices.map(i => s.dimValues[i]).filter(Boolean)
-        : s.dimValues
-      const label = shortVals.map(applyLabelOverride).join(' · ') || s.dimValues.map(applyLabelOverride).join(' · ') || key
+      const label = buildSeriesLabel(s, key, labelDimIdx, varyingDimIndices, applyLabelOverride)
       return { key, label, dimValues: s.dimValues }
     })
-  }, [seriesMap, filters, dims, lazyMode, lazyDimConfig, varyingDimIndices, applyLabelOverride])
+  }, [seriesMap, filters, dims, lazyMode, lazyDimConfig, labelDimIdx, varyingDimIndices, applyLabelOverride])
 
   const filteredSeriesRef = useRef(filteredSeries)
   filteredSeriesRef.current = filteredSeries

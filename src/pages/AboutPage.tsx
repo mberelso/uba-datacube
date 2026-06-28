@@ -171,7 +171,7 @@ export default function AboutPage() {
 
           <div>
             <div className="font-semibold text-slate-600 mb-1">Datenschutz</div>
-            Diese Seite verarbeitet keine personenbezogenen Daten. Alle Datenabrufe erfolgen direkt im Browser des Nutzers gegen die öffentliche API des Umweltbundesamts. Es werden keine Nutzerdaten gespeichert, übertragen oder an Dritte weitergegeben.
+            Diese Seite setzt keine Cookies und legt keine Nutzerprofile an. Schriftarten und Bilder werden ausschließlich vom eigenen Server ausgeliefert (kein Google Fonts, keine externen CDNs). Umweltdaten werden direkt im Browser von der öffentlichen API des Umweltbundesamts (daten.uba.de) abgerufen; dabei wird Ihre IP-Adresse technisch bedingt an das Umweltbundesamt übermittelt. Zur anonymen Reichweitenmessung wird <a href="https://www.goatcounter.com/" className="hover:text-slate-700 transition-colors" rel="noopener">GoatCounter</a> eingesetzt, das ohne Cookies arbeitet und keine personenbezogenen Daten (insbesondere keine IP-Adressen) dauerhaft speichert. Es findet kein Tracking über Dienste wie Google Analytics statt.
           </div>
 
           <div>

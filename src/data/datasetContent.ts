@@ -61,6 +61,7 @@ export interface LazyDimensionConfig {
 
 export interface PresetConfig {
   title: string
+  icon?: string
   description: string
   filters: Record<string, string>
   lazyFilters?: Record<string, string>
@@ -1037,7 +1038,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
     lead: 'Dieses Register zeigt, welche Industrieanlagen in Deutschland Schadstoffe in Luft, Wasser und Boden entlassen — und in welchen Mengen. Wer wissen will, was aus dem Schlot seines Nachbarwerks kommt oder welche Flüsse industriell belastet sind, findet hier konkrete Zahlen statt Versprechen.',
     trend: 'Über den Berichtszeitraum von 2007 bis 2022 sind die gemeldeten Schadstoffmengen bei mehreren klassischen Luftschadstoffen wie Schwefeldioxid und Stickoxiden deutlich gesunken, was den Rückgang schwerer Industrie und strengeren Grenzwerten widerspiegelt. Bei bestimmten Chemikalien und Treibhausgasen aus spezifischen Sektoren stagnieren die Werte oder zeigen nur langsame Rückgänge.',
     context: 'Die EU-PRTR-Verordnung von 2006 verpflichtet Betreiber großer Anlagen zur jährlichen Meldung — diese Daten fließen direkt in Entscheidungen über Betriebsgenehmigungen, Klagen von Umweltverbänden und die Überprüfung nationaler Klimaziele ein. Mit dem European Green Deal und verschärften Industrieemissionsrichtlinien steigt der politische Druck, die gemeldeten Mengen weiter zu senken.',
-    methodology: 'Erfasst werden Freisetzungen von rund 90 Schadstoffen aus Anlagen, die festgelegte Kapazitätsschwellen überschreiten — kleinere Betriebe fehlen damit systematisch im Register. Die Daten beruhen auf Selbstmeldungen der Unternehmen und werden von den Behörden geprüft, aber nicht flächendeckend messtechnisch verifiziert.',
+    methodology: 'Erfasst werden Freisetzungen von rund 90 Schadstoffen aus Anlagen, die festgelegte Kapazitätsschwellen überschreiten — kleinere Betriebe fehlen damit systematisch im Register. Die Daten beruhen auf Selbstmeldungen der Unternehmen und werden von den Behörden geprüft, aber nicht flächendeckend messtechnisch verifiziert. Wichtig: Jede Linie ist eine einzelne Anlage. Die Zahlen lassen sich nicht einfach über die Jahre aufsummieren, weil sich der Kreis der meldepflichtigen Anlagen ändert — aussagekräftig sind vor allem einzelne Standorte und der Vergleich der größten Emittenten je Schadstoff.',
     status: 'draft',
     labelDimensionIds: ['D_SUBSTANCES', 'D_COMPANY_NAME_PRTR', 'D_RELEASE'],
     lazyDimensions: {
@@ -1098,12 +1099,42 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
           id: 'D_RELEASE', name: 'Freisetzungsart', position: 7,
           values: [
             { id: 'AIR_YR', name: 'Luft (Jahresfracht)' }, { id: 'WAT_YR', name: 'Wasser (Jahresfracht)' },
-            { id: 'SOI_YR', name: 'Boden (Jahresfracht)' }, { id: 'AIR', name: 'Luft' },
-            { id: 'WAT', name: 'Wasser' }, { id: 'SOI', name: 'Boden' },
+            { id: 'SOI_YR', name: 'Boden (Jahresfracht)' }, { id: 'AIR_NB', name: 'Luft (fossil, nicht-biologisch)' },
+            { id: 'AIR', name: 'Luft' }, { id: 'WAT', name: 'Wasser' }, { id: 'SOI', name: 'Boden' },
           ],
         },
       ],
     },
+    presets: [
+      {
+        title: 'Quecksilber: das Erbe der Kohle',
+        icon: '☠️',
+        description: 'Industrielles Quecksilber stammt fast komplett aus Braunkohle-Kraftwerken — RWE und LEAG führen die Liste an. Das Nervengift reichert sich in Fischen an.',
+        filters: { Schadstoff: 'Quecksilber', Sektor: 'Energiesektor', Freisetzungsart: 'Luft (Jahresfracht)' },
+        lazyFilters: { D_SUBSTANCES: 'Hg', D_SECTOR: 'EN', D_RELEASE: 'AIR_YR' },
+      },
+      {
+        title: 'Blei: Stahl- und Kupferhütten',
+        icon: '⚙️',
+        description: 'Beim Blei dominieren Stahlwerke (thyssenkrupp Duisburg) und Kupferhütten (Aurubis, u. a. Hamburg). Wenige Schmelzen, ein Großteil der Emissionen.',
+        filters: { Schadstoff: 'Blei', Sektor: 'Metallindustrie', Freisetzungsart: 'Luft (Jahresfracht)' },
+        lazyFilters: { D_SUBSTANCES: 'Pb', D_SECTOR: 'METAL', D_RELEASE: 'AIR_YR' },
+      },
+      {
+        title: 'Schwefeldioxid: die Lausitz-Meiler',
+        icon: '🏭',
+        description: 'SO₂ (Versauerung, Feinstaub) konzentriert sich auf wenige Braunkohle-Blöcke — vor allem Jänschwalde, Boxberg und Lippendorf in der Lausitz.',
+        filters: { Schadstoff: 'Schwefeloxide', Sektor: 'Energiesektor', Freisetzungsart: 'Luft (Jahresfracht)' },
+        lazyFilters: { D_SUBSTANCES: 'SOx_SO2', D_SECTOR: 'EN', D_RELEASE: 'AIR_YR' },
+      },
+      {
+        title: 'CO₂: Deutschlands größte Punktquellen',
+        icon: '🌍',
+        description: 'Die größten gemeldeten CO₂-Einzelquellen: Braunkohlekraftwerke (RWE Neurath/Niederaußem) und Stahlwerke (Salzgitter, Boxberg).',
+        filters: { Schadstoff: 'Kohlendioxid', Freisetzungsart: 'Luft (fossil, nicht-biologisch)' },
+        lazyFilters: { D_SUBSTANCES: 'CO2', D_RELEASE: 'AIR_NB' },
+      },
+    ],
   },
 
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'

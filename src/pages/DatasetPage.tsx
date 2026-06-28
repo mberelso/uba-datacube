@@ -111,6 +111,13 @@ export default function DatasetPage() {
   ) => {
     if (dimConfig) {
       const slots = Array(dimConfig.totalDimensions).fill('')
+      // Einwertige Dimensionen (Land/Frequenz/Einheit) immer fest belegen —
+      // sonst liefert die UBA-API bei gefilterten Abfragen leere Ergebnisse.
+      if (dimConfig.fixedSlots) {
+        for (const [pos, code] of Object.entries(dimConfig.fixedSlots)) {
+          slots[Number(pos)] = code
+        }
+      }
       for (const d of dimConfig.dimensions) {
         const val = activeFilters[d.name] || activeFilters[d.id] || ''
         if (val) {

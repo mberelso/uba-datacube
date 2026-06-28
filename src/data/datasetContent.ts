@@ -50,6 +50,13 @@ export interface LazyDimensionConfig {
   totalDimensions: number
   /** Only the curated, filterable dimensions — others default to empty (=all) */
   dimensions: LazyDimension[]
+  /**
+   * Einwertige Dimensionen, die im SDMX-Key immer mit einem festen Code belegt
+   * werden müssen (Position → Code-ID). Nötig, weil die UBA-API bei manchen
+   * Datensätzen (z. B. PRTR) für gefilterte Abfragen leere Ergebnisse liefert,
+   * wenn einwertige Dimensionen wie Frequenz/Einheit als Wildcard offen bleiben.
+   */
+  fixedSlots?: Record<number, string>
 }
 
 export interface PresetConfig {
@@ -1026,10 +1033,18 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
     methodology: 'Erfasst werden Freisetzungen von rund 90 Schadstoffen aus Anlagen, die festgelegte Kapazitätsschwellen überschreiten — kleinere Betriebe fehlen damit systematisch im Register. Die Daten beruhen auf Selbstmeldungen der Unternehmen und werden von den Behörden geprüft, aber nicht flächendeckend messtechnisch verifiziert.',
     status: 'draft',
     lazyDimensions: {
-      totalDimensions: 14,
+      // Echte DSD: 11 Serien-Dimensionen. Positionen (0-basiert):
+      // 0 D_COUNTRY · 1 D_FEDERAL_STATES · 2 D_DISTRICT · 3 FREQUENCY · 4 D_UNIT ·
+      // 5 D_SUBSTANCES · 6 D_SECTOR · 7 D_RELEASE · 8 D_ACTIVITY · 9 D_COMPANY · 10 D_RIVER_BASINS
+      totalDimensions: 11,
+      // Land=Deutschland, Frequenz=jährlich, Einheit=kg sind einwertig und müssen
+      // immer gesetzt sein, sonst liefert die UBA-API für gefilterte Abfragen leer.
+      fixedSlots: { 0: 'DE', 3: 'A', 4: 'KG' },
       dimensions: [
         {
-          id: 'D_FEDERAL_STATES', name: 'Bundesland', position: 0,
+          id: 'D_FEDERAL_STATES', name: 'Bundesland', position: 1,
+          // Kein "Deutschland gesamt": dieser Code existiert in den Daten nicht.
+          // Die generische "Alle"-Option (Wildcard) liefert die bundesweite Sicht.
           values: [
             { id: 'NW', name: 'Nordrhein-Westfalen' }, { id: 'BW', name: 'Baden-Württemberg' },
             { id: 'BY', name: 'Bayern' }, { id: 'HE', name: 'Hessen' },
@@ -1038,11 +1053,11 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
             { id: 'SN', name: 'Sachsen' }, { id: 'SH', name: 'Schleswig-Holstein' },
             { id: 'HH', name: 'Hamburg' }, { id: 'NI', name: 'Niedersachsen' },
             { id: 'HB', name: 'Bremen' }, { id: 'TH', name: 'Thüringen' },
-            { id: 'MV', name: 'Mecklenburg-Vorpommern' }, { id: 'DE', name: 'Deutschland gesamt' },
+            { id: 'MV', name: 'Mecklenburg-Vorpommern' }, { id: 'SL', name: 'Saarland' },
           ],
         },
         {
-          id: 'D_SUBSTANCES', name: 'Schadstoff', position: 4,
+          id: 'D_SUBSTANCES', name: 'Schadstoff', position: 5,
           values: [
             { id: 'NOx_NO2', name: 'Stickoxide' }, { id: 'CO2', name: 'Kohlendioxid' },
             { id: 'CH4', name: 'Methan' }, { id: 'NH3', name: 'Ammoniak' },
@@ -1055,7 +1070,7 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
             { id: 'Ni', name: 'Nickel' }, { id: 'Zn', name: 'Zink' },
             { id: 'As', name: 'Arsen' }, { id: 'TOC', name: 'Gesamter organ. Kohlenstoff' },
             { id: 'TP', name: 'Gesamtphosphor' }, { id: 'TS', name: 'Gesamtstickstoff' },
-            { id: 'AOX', name: 'Halogenierte org. Verbindungen' }, { id: 'THG', name: 'Treibhausgase gesamt' },
+            { id: '1226', name: 'Halogenierte org. Verbindungen (AOX)' }, { id: 'THG', name: 'Treibhausgase gesamt' },
             { id: 'HM', name: 'Schwermetalle gesamt' }, { id: 'PCB', name: 'Polychlorierte Biphenyle' },
             { id: 'DCM', name: 'Dichlormethan' }, { id: 'CFC', name: 'Fluorchlorkohlenwasserstoffe' },
             { id: 'HCFC', name: 'Teilhalogenierte FCKW' },
@@ -1067,14 +1082,15 @@ DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
             { id: 'WASTE', name: 'Abfall & Abwasser' }, { id: 'MINERAL', name: 'Mineralindustrie' },
             { id: 'METAL', name: 'Metallindustrie' }, { id: 'CHEM', name: 'Chemieindustrie' },
             { id: 'PAPER', name: 'Papier- & Holzindustrie' }, { id: 'EN', name: 'Energiesektor' },
-            { id: 'FOOD', name: 'Lebensmittelindustrie' }, { id: 'OTHER', name: 'Sonstige' },
+            { id: 'FOOD', name: 'Lebensmittelindustrie' }, { id: 'AQUA', name: 'Intensivtierhaltung & Aquakultur' },
+            { id: 'OTHER', name: 'Sonstige' },
           ],
         },
         {
           id: 'D_RELEASE', name: 'Freisetzungsart', position: 7,
           values: [
-            { id: 'YR_AIR', name: 'Luft (jährlich)' }, { id: 'YR_WAT', name: 'Wasser (jährlich)' },
-            { id: 'YR_SOI', name: 'Boden (jährlich)' }, { id: 'AIR', name: 'Luft' },
+            { id: 'AIR_YR', name: 'Luft (Jahresfracht)' }, { id: 'WAT_YR', name: 'Wasser (Jahresfracht)' },
+            { id: 'SOI_YR', name: 'Boden (Jahresfracht)' }, { id: 'AIR', name: 'Luft' },
             { id: 'WAT', name: 'Wasser' }, { id: 'SOI', name: 'Boden' },
           ],
         },

@@ -148,7 +148,7 @@ export default function AboutPage() {
       </div>
 
       {/* Impressum */}
-      <div className="mt-16 pt-8 border-t border-slate-100">
+      <div id="impressum" className="mt-16 pt-8 border-t border-slate-100 scroll-mt-24">
         <h2 className="text-xs font-semibold tracking-widest uppercase text-slate-400 mb-6">Impressum</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 text-xs text-slate-500 leading-relaxed">
 
@@ -169,7 +169,7 @@ export default function AboutPage() {
             Als Diensteanbieter bin ich gemäß § 7 Abs. 1 TMG für eigene Inhalte nach den allgemeinen Gesetzen verantwortlich. Dieses Angebot stellt keine Rechts- oder Fachberatung dar und übernimmt keine Gewähr für die Richtigkeit, Vollständigkeit oder Aktualität der dargestellten Daten. Alle Inhalte dienen der unverbindlichen Information.
           </div>
 
-          <div>
+          <div id="datenschutz" className="scroll-mt-24">
             <div className="font-semibold text-slate-600 mb-1">Datenschutz</div>
             Diese Seite setzt keine Cookies und legt keine Nutzerprofile an. Schriftarten und Bilder werden ausschließlich vom eigenen Server ausgeliefert (kein Google Fonts, keine externen CDNs). Umweltdaten werden direkt im Browser von der öffentlichen API des Umweltbundesamts (daten.uba.de) abgerufen; dabei wird Ihre IP-Adresse technisch bedingt an das Umweltbundesamt übermittelt. Zur anonymen Reichweitenmessung wird <a href="https://www.goatcounter.com/" className="hover:text-slate-700 transition-colors" rel="noopener">GoatCounter</a> eingesetzt, das ohne Cookies arbeitet und keine personenbezogenen Daten (insbesondere keine IP-Adressen) dauerhaft speichert. Es findet kein Tracking über Dienste wie Google Analytics statt.
           </div>

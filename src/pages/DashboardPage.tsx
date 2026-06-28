@@ -753,27 +753,6 @@ export default function DashboardPage() {
         ))}
       </motion.div>
 
-      {/* ── Footer ───────────────────────────────────────────────────────── */}
-      <div className="mt-12 pt-5 border-t border-slate-200/80 text-[11px] text-slate-400 text-center">
-        Datenquelle:{' '}
-        <a
-          href="https://datacube.uba.de"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-slate-500 hover:text-slate-700 transition-colors"
-        >
-          Umweltbundesamt Datacube
-        </a>
-        {' · '}SDMX REST API: daten.uba.de
-        {' · '}
-        <Link to="/about#impressum" className="text-slate-400 hover:text-slate-600 transition-colors">
-          Impressum
-        </Link>
-        {' · '}
-        <Link to="/about" className="text-slate-400 hover:text-slate-600 transition-colors">
-          Kein UBA-Angebot
-        </Link>
-      </div>
     </div>
   )
 }

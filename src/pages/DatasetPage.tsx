@@ -41,6 +41,14 @@ const KNOWN_LARGE_DATASETS = new Set([
 
 type ChartType = 'line' | 'bar'
 
+// Entfernt am Ende angehängte technische Codes (z. B. " (06-02-BERZ003800)") und
+// Registry-URLs (z. B. " (https://registry.gdi-de.org/…)") aus Label-Werten —
+// greift nur bei Klammern mit Ziffern-Code oder URL, lässt sinnvolle
+// Klammerzusätze ohne Ziffern (z. B. "Jahresfracht (Luft)") unangetastet.
+function cleanLabelValue(v: string): string {
+  return v.replace(/\s*\((?:https?:\/\/[^)]+|[\w.\-/]*\d[\w.\-/]*)\)\s*$/i, '').trim() || v
+}
+
 // Einheitliche Serien-Label-Bildung: bei labelDimIndices (eine geordnete Liste
 // von Dimensions-Positionen, z. B. Schadstoff · Firma · Freisetzungsart) genau
 // diese Werte verketten, sonst alle variierenden Dimensionen.
@@ -56,6 +64,7 @@ function buildSeriesLabel(
       .map(i => s.dimValues[i])
       .filter(Boolean)
       .map(applyLabelOverride)
+      .map(cleanLabelValue)
     if (parts.length > 0) return parts.join(' · ')
   }
   const shortVals = varyingDimIndices.length > 0

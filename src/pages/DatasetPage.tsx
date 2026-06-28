@@ -41,18 +41,31 @@ const KNOWN_LARGE_DATASETS = new Set([
 
 type ChartType = 'line' | 'bar'
 
-// Einheitliche Serien-Label-Bildung: bei labelDimIdx >= 0 nur dieser eine
-// Wert (z. B. Firmenname), sonst alle variierenden Dimensionen verkettet.
+// Entfernt am Ende angehängte technische Codes (z. B. " (06-02-BERZ003800)") und
+// Registry-URLs (z. B. " (https://registry.gdi-de.org/…)") aus Label-Werten —
+// greift nur bei Klammern mit Ziffern-Code oder URL, lässt sinnvolle
+// Klammerzusätze ohne Ziffern (z. B. "Jahresfracht (Luft)") unangetastet.
+function cleanLabelValue(v: string): string {
+  return v.replace(/\s*\((?:https?:\/\/[^)]+|[\w.\-/]*\d[\w.\-/]*)\)\s*$/i, '').trim() || v
+}
+
+// Einheitliche Serien-Label-Bildung: bei labelDimIndices (eine geordnete Liste
+// von Dimensions-Positionen, z. B. Schadstoff · Firma · Freisetzungsart) genau
+// diese Werte verketten, sonst alle variierenden Dimensionen.
 function buildSeriesLabel(
   s: { dimValues: string[] },
   key: string,
-  labelDimIdx: number,
+  labelDimIndices: number[],
   varyingDimIndices: number[],
   applyLabelOverride: (v: string) => string,
 ): string {
-  if (labelDimIdx >= 0) {
-    const v = s.dimValues[labelDimIdx]
-    if (v) return applyLabelOverride(v)
+  if (labelDimIndices.length > 0) {
+    const parts = labelDimIndices
+      .map(i => s.dimValues[i])
+      .filter(Boolean)
+      .map(applyLabelOverride)
+      .map(cleanLabelValue)
+    if (parts.length > 0) return parts.join(' · ')
   }
   const shortVals = varyingDimIndices.length > 0
     ? varyingDimIndices.map(i => s.dimValues[i]).filter(Boolean)
@@ -328,11 +341,12 @@ export default function DatasetPage() {
     [defaultChartConfig]
   )
 
-  // Index der Label-Dimension (z. B. Firmenname) in den Antwort-Dimensionen
-  const labelDimId = content?.labelDimensionId
-  const labelDimIdx = useMemo(
-    () => (labelDimId ? respDimIds.indexOf(labelDimId) : -1),
-    [labelDimId, respDimIds],
+  // Positionen der Label-Dimensionen (z. B. Schadstoff · Firma · Freisetzungsart)
+  // in den Antwort-Dimensionen — nur vorhandene werden übernommen.
+  const labelDimIds = content?.labelDimensionIds
+  const labelDimIndices = useMemo(
+    () => (labelDimIds ?? []).map(id => respDimIds.indexOf(id)).filter(i => i >= 0),
+    [labelDimIds, respDimIds],
   )
 
   const chartData = useMemo(() => {
@@ -369,7 +383,7 @@ export default function DatasetPage() {
       for (const key of selectedSeries) {
         const s = seriesMap[key]
         if (s) {
-          const label = buildSeriesLabel(s, key, labelDimIdx, varyingDimIndices, applyLabelOverride)
+          const label = buildSeriesLabel(s, key, labelDimIndices, varyingDimIndices, applyLabelOverride)
           const val = s.observations[year] ?? null
           point[label] = val
           if (val !== null) hasData = true
@@ -377,7 +391,7 @@ export default function DatasetPage() {
       }
       return { point, hasData }
     }).filter(d => d.hasData).map(d => d.point)
-  }, [timeValues, selectedSeries, seriesMap, labelDimIdx, varyingDimIndices, applyLabelOverride, isStacked, defaultChartConfig, stackedLabels])
+  }, [timeValues, selectedSeries, seriesMap, labelDimIndices, varyingDimIndices, applyLabelOverride, isStacked, defaultChartConfig, stackedLabels])
 
   const filteredSeries = useMemo(() => {
     return Object.entries(seriesMap).filter(([_, s]) =>
@@ -390,10 +404,10 @@ export default function DatasetPage() {
         return dimIdx === -1 || s.dimValues[dimIdx] === targetVal
       })
     ).map(([key, s]) => {
-      const label = buildSeriesLabel(s, key, labelDimIdx, varyingDimIndices, applyLabelOverride)
+      const label = buildSeriesLabel(s, key, labelDimIndices, varyingDimIndices, applyLabelOverride)
       return { key, label, dimValues: s.dimValues }
     })
-  }, [seriesMap, filters, dims, lazyMode, lazyDimConfig, labelDimIdx, varyingDimIndices, applyLabelOverride])
+  }, [seriesMap, filters, dims, lazyMode, lazyDimConfig, labelDimIndices, varyingDimIndices, applyLabelOverride])
 
   const filteredSeriesRef = useRef(filteredSeries)
   filteredSeriesRef.current = filteredSeries

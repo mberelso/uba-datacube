@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import { HeatMap } from '../components/charts/HeatMap'
+import { HeatRecords } from '../components/charts/HeatRecords'
 import { SEO } from '../components/SEO'
 
 const NORDIC = {
@@ -56,6 +57,24 @@ export default function HeatPage() {
         className="bg-white rounded-2xl border border-slate-200/80 shadow-[0_2px_16px_-4px_rgba(0,0,0,0.06)] p-6 md:p-8"
       >
         <HeatMap />
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-80px' }}
+        transition={{ duration: 0.4 }}
+        className="bg-white rounded-2xl border border-slate-200/80 shadow-[0_2px_16px_-4px_rgba(0,0,0,0.06)] p-6 md:p-8 mt-6"
+      >
+        <h2 style={{ fontSize: 22, fontWeight: 800, color: NORDIC.navy, letterSpacing: '-0.4px', marginBottom: 6 }}>
+          Wann hatte es schon über 30, 35 und 40 °C?
+        </h2>
+        <p style={{ fontSize: 14, color: NORDIC.stone, maxWidth: 720, lineHeight: 1.6, marginBottom: 20 }}>
+          Pro Bundesland: die höchste je gemessene Temperatur und der früheste Tag im Jahr, an dem die
+          jeweilige Hitzemarke je geknackt wurde — aus den Tagesmessungen aller DWD-Wetterstationen.
+          Klicke auf eine Spaltenüberschrift zum Sortieren.
+        </p>
+        <HeatRecords />
       </motion.div>
     </div>
   )

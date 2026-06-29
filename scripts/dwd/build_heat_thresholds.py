@@ -31,7 +31,9 @@ HERE = Path(__file__).resolve().parent
 CACHE = HERE / "cache_kl"
 PUB = HERE.parents[1] / "public"
 
-BASE = "https://opendata.dwd.de/climate_environment/CDC/observations_germany/climate/daily/kl/historical"
+KL = "https://opendata.dwd.de/climate_environment/CDC/observations_germany/climate/daily/kl"
+BASE = f"{KL}/historical"
+RECENT = f"{KL}/recent"
 STATION_LIST = f"{BASE}/KL_Tageswerte_Beschreibung_Stationen.txt"
 SOURCE = "Deutscher Wetterdienst (DWD), Climate Data Center — Stationsmessungen Tagesmaximum der Lufttemperatur (TXK), DL-DE/BY-2.0"
 
@@ -87,14 +89,8 @@ def file_map():
     return fm
 
 
-def station_daily_max(sid, fname):
-    """{ 'YYYYMMDD': txk } für eine Station (mit lokalem Cache)."""
-    cp = CACHE / fname
-    if cp.exists() and cp.stat().st_size > 0:
-        raw = cp.read_bytes()
-    else:
-        raw = fetch(f"{BASE}/{fname}")
-        cp.write_bytes(raw)
+def parse_txk(raw):
+    """{ 'YYYYMMDD': txk } aus einem KL-Tageswerte-ZIP."""
     z = zipfile.ZipFile(io.BytesIO(raw))
     pname = next(n for n in z.namelist() if n.startswith("produkt"))
     lines = z.read(pname).decode("latin-1").splitlines()
@@ -114,19 +110,43 @@ def station_daily_max(sid, fname):
     return out
 
 
+def station_daily_max(sid, fname):
+    """Tagesmaxima einer Station: historical (gecacht) + recent (immer frisch,
+    enthält das laufende Jahr). Bei Überlappung gewinnt der höhere Wert."""
+    out = {}
+    # historical (stabil → Cache)
+    if fname:
+        cp = CACHE / fname
+        if cp.exists() and cp.stat().st_size > 0:
+            raw = cp.read_bytes()
+        else:
+            raw = fetch(f"{BASE}/{fname}")
+            cp.write_bytes(raw)
+        out.update(parse_txk(raw))
+    # recent (laufendes Jahr → nicht cachen, sonst veraltet der Stand)
+    try:
+        rraw = fetch(f"{RECENT}/tageswerte_KL_{sid}_akt.zip")
+        for d, v in parse_txk(rraw).items():
+            if d not in out or v > out[d]:
+                out[d] = v
+    except Exception:
+        pass  # Station ohne recent-Datei (inaktiv) — nur historical
+    return out
+
+
 def main():
     CACHE.mkdir(exist_ok=True)
     stations = parse_stations()
     fmap = file_map()
-    sids = [s for s in stations if s in fmap]
-    print(f"Stationen: {len(sids)} (mit Datei) von {len(stations)} gelistet")
+    sids = list(stations)  # alle Stationen mit Bundesland (historical und/oder recent)
+    print(f"Stationen: {len(sids)} ({sum(s in fmap for s in sids)} mit historical, Rest nur recent)")
 
     # Bundesland-Tagesmaximum: bl -> { 'YYYYMMDD': (txk, station_name) }
     bl_day = {c: {} for c in BL_NAME}
     for i, sid in enumerate(sids, 1):
         name, bl = stations[sid]
         try:
-            dmax = station_daily_max(sid, fmap[sid])
+            dmax = station_daily_max(sid, fmap.get(sid))
         except Exception as e:
             print(f"  ! {sid} {name}: {e}")
             continue
@@ -181,8 +201,13 @@ def main():
         })
 
     states.sort(key=lambda s: -s["record"]["temp"])
+    # Datenstand: letzter Tag mit einer Messung über alle Bundesländer
+    last = max((d for day in bl_day.values() for d in day), default="")
+    data_through = f"{last[:4]}-{last[4:6]}-{last[6:]}" if last else None
     out = {
         "generated": date.today().isoformat(),
+        "dataThrough": data_through,           # letzter erfasster Messtag
+        "provisionalYear": int(last[:4]) if last else None,  # laufendes Jahr = vorläufig (recent-Daten)
         "source": SOURCE,
         "thresholds": THRESHOLDS,
         "national": nat_record,
@@ -192,6 +217,7 @@ def main():
     import json
     p.write_text(json.dumps(out, separators=(",", ":"), ensure_ascii=False), encoding="utf-8")
     print(f"\nGeschrieben: {p}  ({p.stat().st_size/1e6:.2f} MB)")
+    print(f"Datenstand bis: {data_through}")
     print(f"National-Rekord: {nat_record['temp']} °C am {nat_record['date']} ({nat_record['state']}, {nat_record['station']})")
     print("Bundesland-Rekorde (Top 5):")
     for s in states[:5]:

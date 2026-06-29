@@ -16,6 +16,8 @@ interface StateRec {
 }
 interface ThreshData {
   generated: string
+  dataThrough?: string       // letzter erfasster Messtag "YYYY-MM-DD"
+  provisionalYear?: number   // laufendes Jahr (recent-Daten, vorläufig)
   source: string
   thresholds: number[]
   national: { temp: number; date: string; station: string; state: string }
@@ -82,6 +84,12 @@ export function HeatRecords() {
   }
 
   const nat = data.national
+  const provYear = data.provisionalYear
+  const isProv = (iso?: string) => !!iso && !!provYear && iso.slice(0, 4) === String(provYear)
+  // dezentes Sternchen für vorläufige Werte aus dem laufenden Jahr
+  const prov = (iso?: string) =>
+    isProv(iso) ? <sup style={{ color: NORDIC.amber, fontWeight: 700 }} title={`vorläufig (${provYear})`}>*</sup> : null
+
   const th = (k: SortKey, label: string, sub: string) => (
     <th
       onClick={() => setSort(k)}
@@ -110,7 +118,20 @@ export function HeatRecords() {
         </span>
         <span style={{ fontSize: 13, color: NORDIC.navy }}>
           höchste je in Deutschland gemessene Temperatur — {fmtDate(nat.date)}, {nat.station} ({nat.state})
+          {isProv(nat.date) && (
+            <span style={{ marginLeft: 8, fontSize: 11, fontWeight: 700, color: NORDIC.amber, background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 999, padding: '1px 8px' }}>
+              vorläufig
+            </span>
+          )}
         </span>
+        {data.dataThrough && (
+          <span style={{
+            marginLeft: 'auto', fontSize: 11, fontWeight: 600, color: NORDIC.stone,
+            background: '#fff', border: '1px solid #fde68a', borderRadius: 999, padding: '3px 10px', whiteSpace: 'nowrap',
+          }}>
+            Datenstand: {fmtDate(data.dataThrough)}
+          </span>
+        )}
       </div>
 
       <div style={{ overflowX: 'auto' }}>
@@ -134,7 +155,7 @@ export function HeatRecords() {
                 return (
                   <>
                     <div style={{ fontWeight: 600, color: NORDIC.navy }}>{fmtMd(st.earliestMd)}</div>
-                    <div style={{ fontSize: 10, color: NORDIC.fog }}>im Jahr {st.earliestDate!.slice(0, 4)}</div>
+                    <div style={{ fontSize: 10, color: NORDIC.fog }}>im Jahr {st.earliestDate!.slice(0, 4)}{prov(st.earliestDate)}</div>
                   </>
                 )
               }
@@ -145,7 +166,7 @@ export function HeatRecords() {
                     <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
                       <span style={{ width: 8, height: 8, borderRadius: 2, background: tempColor(s.record.temp) }} />
                       <div>
-                        <div style={{ fontWeight: 700, color: NORDIC.navy }}>{s.record.temp.toLocaleString('de-DE')} °C</div>
+                        <div style={{ fontWeight: 700, color: NORDIC.navy }}>{s.record.temp.toLocaleString('de-DE')} °C{prov(s.record.date)}</div>
                         <div style={{ fontSize: 10, color: NORDIC.fog }}>{fmtDate(s.record.date)} · {s.record.station}</div>
                       </div>
                     </div>
@@ -162,7 +183,8 @@ export function HeatRecords() {
 
       <p style={{ fontSize: 11, color: NORDIC.fog, marginTop: 12, lineHeight: 1.5 }}>
         „Erstmals X °C" = frühester Kalendertag im Jahr, an dem irgendeine Station des Bundeslandes diese Marke je erreicht hat.
-        Quelle: {data.source}. Stand: {data.generated}.
+        {provYear && <> <span style={{ color: NORDIC.amber, fontWeight: 700 }}>*</span> vorläufige Werte aus dem laufenden Jahr {provYear} (noch nicht endgültig qualitätsgeprüft).</>}
+        {' '}Quelle: {data.source}. Datenstand: {data.dataThrough ? fmtDate(data.dataThrough) : data.generated}.
       </p>
     </div>
   )

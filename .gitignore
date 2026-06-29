@@ -42,3 +42,4 @@ scripts/satellite/output/
 
 # DWD-Rastercache (Hitze-Pipeline)
 scripts/dwd/cache/
+scripts/dwd/cache_kl/

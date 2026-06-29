@@ -1,69 +1,18 @@
 import { useEffect, useMemo, useState } from 'react'
-
-// Datenformat aus scripts/dwd/build_heat_thresholds.py
-interface ThreshStat {
-  earliestMd?: string       // "MM-DD" — frühester Kalendertag je gemessen
-  earliestDate?: string     // "YYYY-MM-DD"
-  firstYear?: number
-  yearsReached?: number
-  daysTotal?: number
-}
-interface StateRec {
-  code: string
-  name: string
-  record: { temp: number; date: string; station: string }
-  stats: Record<string, ThreshStat>
-}
-interface ThreshData {
-  generated: string
-  dataThrough?: string       // letzter erfasster Messtag "YYYY-MM-DD"
-  provisionalYear?: number   // laufendes Jahr (recent-Daten, vorläufig)
-  source: string
-  thresholds: number[]
-  national: { temp: number; date: string; station: string; state: string }
-  states: StateRec[]
-}
-
-const NORDIC = { navy: '#1B2B3A', red: '#dc2626', amber: '#f59e0b', stone: '#8C8880', fog: '#94a3b8' }
-const MONTHS = ['Jan', 'Feb', 'März', 'Apr', 'Mai', 'Juni', 'Juli', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez']
-
-function fmtMd(md?: string): string {
-  if (!md) return '–'
-  const [m, d] = md.split('-').map(Number)
-  return `${d}. ${MONTHS[m - 1]}`
-}
-function fmtDate(iso: string): string {
-  const [y, m, d] = iso.split('-')
-  return `${d}.${m}.${y}`
-}
-
-// Farbskala nach Rekordtemperatur (heller → tiefrot), Domäne ~36–42 °C
-function tempColor(t: number): string {
-  const f = Math.max(0, Math.min(1, (t - 36) / 6))
-  const stops: [number, [number, number, number]][] = [
-    [0, [254, 224, 144]], [0.5, [244, 109, 67]], [1, [150, 20, 20]],
-  ]
-  for (let i = 1; i < stops.length; i++) {
-    if (f <= stops[i][0]) {
-      const [f0, c0] = stops[i - 1], [f1, c1] = stops[i]
-      const k = (f - f0) / (f1 - f0)
-      return `rgb(${c0.map((c, j) => Math.round(c + (c1[j] - c) * k)).join(',')})`
-    }
-  }
-  return 'rgb(150,20,20)'
-}
+import { HeatRecordMap } from './HeatRecordMap'
+import { NORDIC, fmtMd, fmtDate, tempColor, type StateRec, type ThreshData, type StatesGeo } from './heatShared'
 
 type SortKey = 'record' | '30' | '35' | '40'
 
 export function HeatRecords() {
   const [data, setData] = useState<ThreshData | null>(null)
+  const [geo, setGeo] = useState<StatesGeo | null>(null)
   const [sort, setSort] = useState<SortKey>('record')
 
   useEffect(() => {
-    fetch(`${import.meta.env.BASE_URL}heat_thresholds.json`)
-      .then(r => r.json())
-      .then(setData)
-      .catch(() => {})
+    const base = import.meta.env.BASE_URL
+    fetch(`${base}heat_thresholds.json`).then(r => r.json()).then(setData).catch(() => {})
+    fetch(`${base}bundeslaender.geo.json`).then(r => r.json()).then(setGeo).catch(() => {})
   }, [])
 
   const states = useMemo(() => {
@@ -133,6 +82,13 @@ export function HeatRecords() {
           </span>
         )}
       </div>
+
+      {/* Choropleth-Karte + Bild-Export */}
+      {geo && (
+        <div style={{ marginBottom: 24 }}>
+          <HeatRecordMap data={data} geo={geo} />
+        </div>
+      )}
 
       <div style={{ overflowX: 'auto' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>

@@ -64,19 +64,24 @@ def fetch(url):
 
 
 def parse_stations():
-    """{station_id: (name, bl_code)} aus der Beschreibungsdatei."""
+    """{station_id: (name, bl_code, lat, lon)} aus der Beschreibungsdatei."""
     txt = fetch(STATION_LIST).decode("latin-1")
     out = {}
     for line in txt.splitlines()[2:]:
         if len(line) < 80:
             continue
         sid = line[:5].strip()
+        head = line[:60].split()  # id von bis hoehe geoBreite geoLaenge
+        try:
+            lat, lon = float(head[4]), float(head[5])
+        except (IndexError, ValueError):
+            lat = lon = None
         rest = line[60:]  # nach geoLaenge: Stationsname + Bundesland + Abgabe
         bl = next((code for name, code in BL_CODE if name in rest), None)
         if not bl:
             continue
         name = rest[: rest.index(next(n for n, c in BL_CODE if c == bl))].strip()
-        out[sid] = (name, bl)
+        out[sid] = (name, bl, lat, lon)
     return out
 
 
@@ -144,7 +149,7 @@ def main():
     # Bundesland-Tagesmaximum: bl -> { 'YYYYMMDD': (txk, station_name) }
     bl_day = {c: {} for c in BL_NAME}
     for i, sid in enumerate(sids, 1):
-        name, bl = stations[sid]
+        name, bl, lat, lon = stations[sid]
         try:
             dmax = station_daily_max(sid, fmap.get(sid))
         except Exception as e:
@@ -154,7 +159,7 @@ def main():
         for d, v in dmax.items():
             cur = day.get(d)
             if cur is None or v > cur[0]:
-                day[d] = (v, name)
+                day[d] = (v, name, lat, lon)
         if i % 100 == 0:
             print(f"  {i}/{len(sids)} …")
 
@@ -166,8 +171,10 @@ def main():
         if not day:
             continue
         # Allzeit-Rekord
-        rec_date, (rec_t, rec_st) = max(day.items(), key=lambda kv: kv[1][0])
+        rec_date, (rec_t, rec_st, rec_lat, rec_lon) = max(day.items(), key=lambda kv: kv[1][0])
         record = {"temp": round(rec_t, 1), "date": f"{rec_date[:4]}-{rec_date[4:6]}-{rec_date[6:]}", "station": rec_st}
+        if rec_lat is not None and rec_lon is not None:
+            record["lat"], record["lon"] = round(rec_lat, 4), round(rec_lon, 4)
         if rec_t > nat_record["temp"]:
             nat_record = {"temp": round(rec_t, 1), "date": record["date"], "station": rec_st, "state": bl}
 

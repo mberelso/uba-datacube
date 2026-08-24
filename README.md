@@ -20,8 +20,9 @@ UBA-Datacube ist eine moderne Web-Applikation zur Visualisierung und Analyse von
 
 - **Frontend**: React 19
 - **Framework & Build**: Vite, TypeScript (strikte Typensicherheit ohne `any`)
+- **Performance & Splitting**: `React.lazy` Route-Code-Splitting, dedizierte Vendor-Chunks (`vendor-react`, `vendor-recharts`, `vendor-d3`), In-Memory & SessionStorage API-Caching mit TTL
 - **Visualisierung**: Recharts, D3-Geo
-- **Quality Gates**: ESLint (0 Errors, 0 Warnings), Static Type Checking (`tsc --noEmit`), Playwright Prerendering (10/10 Routen statisch vorgeneriert)
+- **Quality Gates**: ESLint (0 Errors, 0 Warnings), Static Type Checking (`tsc --noEmit`), Playwright Prerendering (88/88 Routen statisch vorgeneriert)
 - **Styling**: Vanilla CSS, TailwindCSS (mit modernen CSS-Variablen)
 - **API**: UBA SDMX REST API (SDMX-JSON v1/v2)
 
@@ -48,7 +49,9 @@ npm run build
 
 Die Kernlogik für den Datenabruf befindet sich in `src/api/sdmx.ts`. 
 Die UBA-API liefert Daten im SDMX-JSON Format. Da die API-Struktur zwischen verschiedenen Datensätzen variieren kann, wurde ein fehlertolerantes Parsing implementiert:
+- **API-Caching (2-Stufen)**: `cachedFetchJson` cached API-Responses in-Memory und in `sessionStorage` (1 Std. TTL). Beim erneuten Betreten von Seiten oder Tab-Wechseln werden Daten sofort ohne Netzwerkverzögerung geladen.
 - **Typensicherheit**: Vollständig typisierte SDMX-Netzwerk- und Struktur-Interfaces (`RawSDMXHeader`, `RawSDMXStructure`, `RawSDMXDataSet`, `Dataflow`, `Dimension`).
+- **Code-Splitting**: Alle Hauptseiten (`AnalysePage`, `CatalogPage`, `WindPage`, `SolarPage`, `HeatPage` etc.) werden dynamisch per `React.lazy` geladen. Das initiale Hauptbundle wurde dadurch um über 55 % verkleinert.
 - **Zeitdimensionen**: Werden flexibel über ihre Rolle (`time`) oder ID (`TIME_PERIOD`) identifiziert.
 - **Beobachtungen (Observations)**: Es werden sowohl klassische Arrays (`[Wert, Flag]`) als auch direkte numerische Werte unterstützt.
 - **Robustes Fallback**: Wenn eine Datenreihe komplett leer ist, wird sie vom System intelligent ignoriert, um "leere" Charts zu vermeiden.

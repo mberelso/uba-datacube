@@ -1,16 +1,25 @@
-import { useEffect } from 'react'
+import { useEffect, lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import DashboardPage from './pages/DashboardPage'
-import CatalogPage from './pages/CatalogPage'
-import DatasetPage from './pages/DatasetPage'
-import AnalysePage from './pages/AnalysePage'
-import WindPage from './pages/WindPage'
-import SolarPage from './pages/SolarPage'
-import HeatPage from './pages/HeatPage'
-import AboutPage from './pages/AboutPage'
-import SocialPreviewPage from './pages/SocialPreviewPage'
+
+const CatalogPage       = lazy(() => import('./pages/CatalogPage'))
+const DatasetPage       = lazy(() => import('./pages/DatasetPage'))
+const AnalysePage       = lazy(() => import('./pages/AnalysePage'))
+const WindPage          = lazy(() => import('./pages/WindPage'))
+const SolarPage         = lazy(() => import('./pages/SolarPage'))
+const HeatPage          = lazy(() => import('./pages/HeatPage'))
+const AboutPage         = lazy(() => import('./pages/AboutPage'))
+const SocialPreviewPage = lazy(() => import('./pages/SocialPreviewPage'))
+
+function PageFallback() {
+  return (
+    <div style={{ height: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b', fontSize: 14 }}>
+      Lade Seite…
+    </div>
+  )
+}
 
 function Layout() {
   const { pathname, hash } = useLocation()
@@ -29,17 +38,19 @@ function Layout() {
     <div style={{ minHeight: '100vh', background: '#f8fafc', display: 'flex', flexDirection: 'column' }}>
       <Navbar />
       <div style={{ flex: 1 }}>
-        <Routes>
-          <Route path="/" element={<DashboardPage />} />
-          <Route path="/analysen" element={<AnalysePage />} />
-          <Route path="/wind" element={<WindPage />} />
-          <Route path="/solar" element={<SolarPage />} />
-          <Route path="/hitze" element={<HeatPage />} />
-          <Route path="/catalog" element={<CatalogPage />} />
-          <Route path="/dataset/:id" element={<DatasetPage />} />
-          <Route path="/about" element={<AboutPage />} />
-          <Route path="/social-preview" element={<SocialPreviewPage />} />
-        </Routes>
+        <Suspense fallback={<PageFallback />}>
+          <Routes>
+            <Route path="/" element={<DashboardPage />} />
+            <Route path="/analysen" element={<AnalysePage />} />
+            <Route path="/wind" element={<WindPage />} />
+            <Route path="/solar" element={<SolarPage />} />
+            <Route path="/hitze" element={<HeatPage />} />
+            <Route path="/catalog" element={<CatalogPage />} />
+            <Route path="/dataset/:id" element={<DatasetPage />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/social-preview" element={<SocialPreviewPage />} />
+          </Routes>
+        </Suspense>
       </div>
       {!hideChrome && <Footer />}
     </div>

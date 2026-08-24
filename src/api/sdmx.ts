@@ -1,5 +1,55 @@
 const BASE = 'https://daten.uba.de/release/rest'
 
+const memoryCache = new Map<string, { timestamp: number; data: unknown }>()
+
+async function cachedFetchJson<T>(url: string, headers?: Record<string, string>, ttlMs = 60 * 60 * 1000): Promise<T> {
+  const now = Date.now()
+  const mem = memoryCache.get(url)
+  if (mem && now - mem.timestamp < ttlMs) {
+    return mem.data as T
+  }
+
+  const cacheKey = `uba_cache_${url}`
+  try {
+    const item = sessionStorage.getItem(cacheKey)
+    if (item) {
+      const parsed = JSON.parse(item) as { timestamp: number; data: unknown }
+      if (now - parsed.timestamp < ttlMs) {
+        memoryCache.set(url, parsed)
+        return parsed.data as T
+      }
+    }
+  } catch {
+    // SessionStorage unavailable
+  }
+
+  try {
+    const r = await fetch(url, { headers })
+    if (!r.ok) throw new Error(`API-Fehler ${r.status}`)
+    const json = (await r.json()) as T
+    const entry = { timestamp: now, data: json }
+    memoryCache.set(url, entry)
+    try {
+      sessionStorage.setItem(cacheKey, JSON.stringify(entry))
+    } catch {
+      // Memory cache fallback
+    }
+    return json
+  } catch (err) {
+    if (mem) return mem.data as T
+    try {
+      const item = sessionStorage.getItem(cacheKey)
+      if (item) {
+        const parsed = JSON.parse(item) as { data: unknown }
+        return parsed.data as T
+      }
+    } catch {
+      // Ignore
+    }
+    throw err
+  }
+}
+
 export interface TimePoint { year: string; value: number }
 
 export interface SdmxCode {
@@ -50,9 +100,8 @@ export interface SdmxSeriesData {
 
 async function fetchSdmxJson(flowRef: string, key = 'all'): Promise<{ series: Record<string, SdmxSeriesData>; timeValues: string[] }> {
   const url = `${BASE}/data/${flowRef}/${key}?format=jsondata`
-  const r = await fetch(url, { headers: { Accept: 'application/vnd.sdmx.data+json;version=2.0,application/json' } })
-  if (!r.ok) throw new Error(`API-Fehler ${r.status} für ${flowRef}`)
-  const json = await r.json()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const json = await cachedFetchJson<any>(url, { Accept: 'application/vnd.sdmx.data+json;version=2.0,application/json' })
   const env = json.data ?? json
   const structs: Array<{ dimensions?: { observation?: SdmxDimension[]; series?: SdmxDimension[] } }> = env.structures ?? (json.structure ? [json.structure] : [])
   const dsets: Array<{ series?: Record<string, SdmxSeriesData> }> = env.dataSets ?? []
@@ -181,11 +230,8 @@ function categoryFromId(id: string): string {
 }
 
 export async function fetchDataflows(): Promise<Dataflow[]> {
-  const r = await fetch(`${BASE}/dataflow/all/all/latest`, {
-    headers: { Accept: 'application/json' },
-  })
-  if (!r.ok) throw new Error(`Datenkatalog konnte nicht geladen werden (${r.status})`)
-  const json = await r.json()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const json = await cachedFetchJson<any>(`${BASE}/dataflow/all/all/latest`, { Accept: 'application/json' })
   const refs: Record<string, SdmxRef> = json.references ?? {}
   return Object.values(refs).map((df) => ({
     id: df.id ?? '',
@@ -198,11 +244,8 @@ export async function fetchDataflows(): Promise<Dataflow[]> {
 }
 
 export async function fetchSingleDataflow(id: string): Promise<Dataflow> {
-  const r = await fetch(`${BASE}/dataflow/UBA/${id}/latest`, {
-    headers: { Accept: 'application/json' },
-  })
-  if (!r.ok) throw new Error(`Datensatz nicht gefunden (${r.status})`)
-  const json = await r.json()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const json = await cachedFetchJson<any>(`${BASE}/dataflow/UBA/${id}/latest`, { Accept: 'application/json' })
   const refs: Record<string, SdmxRef> = json.references ?? {}
   const df = Object.values(refs).find((v) => v.id === id) ?? Object.values(refs)[0]
   if (!df) throw new Error('Datensatz nicht gefunden')
@@ -217,11 +260,11 @@ export async function fetchSingleDataflow(id: string): Promise<Dataflow> {
 }
 
 export async function fetchStructure(flow: Dataflow): Promise<DatasetStructure> {
-  const r = await fetch(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const json = await cachedFetchJson<any>(
     `${BASE}/dataflow/${flow.agencyID}/${flow.id}/latest?references=datastructure`,
-    { headers: { Accept: 'application/json' } },
+    { Accept: 'application/json' },
   )
-  const json = await r.json()
   const refs: Record<string, SdmxRef> = json.references ?? {}
 
   // Find the data structure definition
@@ -268,14 +311,11 @@ export async function fetchData(flow: Dataflow, key = 'all'): Promise<{
   seriesDimensions: Dimension[]
 }> {
   const url = `${BASE}/data/${flow.agencyID},${flow.id},${flow.version}/${key}?format=jsondata`
-  const r = await fetch(url, {
-    headers: {
-      Accept: 'application/vnd.sdmx.data+json;version=2.0,application/json',
-      'Accept-Language': 'de',
-    },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const json = await cachedFetchJson<any>(url, {
+    Accept: 'application/vnd.sdmx.data+json;version=2.0,application/json',
+    'Accept-Language': 'de',
   })
-  if (!r.ok) throw new Error(`API-Fehler ${r.status} für ${flow.id}`)
-  const json = await r.json()
 
   // Support both SDMX-JSON v1 and v2 envelopes
   const envelope = json.data ?? json

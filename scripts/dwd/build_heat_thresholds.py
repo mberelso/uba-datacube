@@ -1,6 +1,6 @@
 """Hitze-Schwellen: DWD-Stationsmessungen (Tagesmaximum TXK) → Bundesland-JSON.
 
-Lädt für alle DWD-KL-Tageswert-Stationen (historical) die Tagesmaxima, aggregiert
+Lädt für alle DWD-KL-Tageswert-Stationen (historical + recent) die Tagesmaxima, aggregiert
 sie je Bundesland zum Tages-Maximum (max über alle Stationen des Landes) und
 berechnet daraus robuste Kennzahlen:
 
@@ -10,18 +10,15 @@ berechnet daraus robuste Kennzahlen:
   • erster Termin je Jahr (für spätere Detailansichten)
 
   public/heat_thresholds.json
-
-Lauf:  .venv-sat/Scripts/python.exe scripts/dwd/build_heat_thresholds.py
-
-Hinweis: Stations-Rohdaten werden in cache_kl/ gecacht (einmaliger großer
-Download ~300 MB). Re-Lauf nutzt den Cache.
 """
 
 import io
+import json
 import re
 import sys
 import urllib.request
 import zipfile
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import date
 from pathlib import Path
 
@@ -39,7 +36,6 @@ SOURCE = "Deutscher Wetterdienst (DWD), Climate Data Center — Stationsmessunge
 
 THRESHOLDS = [30, 35, 40]
 
-# Bundesland-Klartext (DWD) → UBA-Code. Längste zuerst prüfen (Sachsen-Anhalt vor Sachsen).
 BL_CODE = [
     ("Baden-Württemberg", "BW"), ("Mecklenburg-Vorpommern", "MV"),
     ("Nordrhein-Westfalen", "NW"), ("Rheinland-Pfalz", "RP"),
@@ -60,7 +56,11 @@ BL_NAME = {
 
 
 def fetch(url):
-    return urllib.request.urlopen(url, timeout=120).read()
+    req = urllib.request.Request(
+        url,
+        headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
+    )
+    return urllib.request.urlopen(req, timeout=30).read()
 
 
 def parse_stations():
@@ -71,12 +71,12 @@ def parse_stations():
         if len(line) < 80:
             continue
         sid = line[:5].strip()
-        head = line[:60].split()  # id von bis hoehe geoBreite geoLaenge
+        head = line[:60].split()
         try:
             lat, lon = float(head[4]), float(head[5])
         except (IndexError, ValueError):
             lat = lon = None
-        rest = line[60:]  # nach geoLaenge: Stationsname + Bundesland + Abgabe
+        rest = line[60:]
         bl = next((code for name, code in BL_CODE if name in rest), None)
         if not bl:
             continue
@@ -92,6 +92,19 @@ def file_map():
     for full, sid in re.findall(r"(tageswerte_KL_(\d{5})_\d+_\d+_hist\.zip)", html):
         fm[sid] = full
     return fm
+
+
+def recent_file_map():
+    """{station_id: zip-Dateiname} aus dem RECENT-Verzeichnislisting."""
+    try:
+        html = fetch(RECENT + "/").decode("utf-8", "replace")
+        fm = {}
+        for full, sid in re.findall(r"(tageswerte_KL_(\d{5})_akt\.zip)", html):
+            fm[sid] = full
+        return fm
+    except Exception as e:
+        print(f"  ! Hinweis: Recent-Directory Listing nicht geladen ({e})")
+        return {}
 
 
 def parse_txk(raw):
@@ -115,11 +128,8 @@ def parse_txk(raw):
     return out
 
 
-def station_daily_max(sid, fname):
-    """Tagesmaxima einer Station: historical (gecacht) + recent (immer frisch,
-    enthält das laufende Jahr). Bei Überlappung gewinnt der höhere Wert."""
+def station_daily_max(sid, fname, rfname):
     out = {}
-    # historical (stabil → Cache)
     if fname:
         cp = CACHE / fname
         if cp.exists() and cp.stat().st_size > 0:
@@ -128,49 +138,67 @@ def station_daily_max(sid, fname):
             raw = fetch(f"{BASE}/{fname}")
             cp.write_bytes(raw)
         out.update(parse_txk(raw))
-    # recent (laufendes Jahr → nicht cachen, sonst veraltet der Stand)
-    try:
-        rraw = fetch(f"{RECENT}/tageswerte_KL_{sid}_akt.zip")
-        for d, v in parse_txk(rraw).items():
-            if d not in out or v > out[d]:
-                out[d] = v
-    except Exception:
-        pass  # Station ohne recent-Datei (inaktiv) — nur historical
+
+    if rfname:
+        try:
+            rraw = fetch(f"{RECENT}/{rfname}")
+            for d, v in parse_txk(rraw).items():
+                if d not in out or v > out[d]:
+                    out[d] = v
+        except Exception:
+            pass
     return out
 
 
 def main():
     CACHE.mkdir(exist_ok=True)
+    out_file = PUB / "heat_thresholds.json"
+
+    # Quick Mode Check: Wenn public/heat_thresholds.json bereits existiert und
+    # '--skip-if-exists' übergeben wurde, beende sofort erfolgreich.
+    if "--skip-if-exists" in sys.argv and out_file.exists() and out_file.stat().st_size > 1000:
+        print(f"✅ public/heat_thresholds.json existiert bereits ({out_file.stat().st_size / 1e6:.2f} MB). Überspringe DWD-Download.")
+        return
+
+    print("🔍 Lade DWD Stationen & Verzeichnislisten...")
     stations = parse_stations()
     fmap = file_map()
-    sids = list(stations)  # alle Stationen mit Bundesland (historical und/oder recent)
-    print(f"Stationen: {len(sids)} ({sum(s in fmap for s in sids)} mit historical, Rest nur recent)")
+    rfmap = recent_file_map()
 
-    # Bundesland-Tagesmaximum: bl -> { 'YYYYMMDD': (txk, station_name) }
+    sids = list(stations)
+    print(f"Stationen: {len(sids)} ({sum(s in fmap for s in sids)} hist, {len(rfmap)} akt)")
+
     bl_day = {c: {} for c in BL_NAME}
-    for i, sid in enumerate(sids, 1):
+
+    def process_station(sid):
         name, bl, lat, lon = stations[sid]
         try:
-            dmax = station_daily_max(sid, fmap.get(sid))
+            dmax = station_daily_max(sid, fmap.get(sid), rfmap.get(sid))
+            return sid, bl, name, lat, lon, dmax
         except Exception as e:
-            print(f"  ! {sid} {name}: {e}")
-            continue
-        day = bl_day[bl]
-        for d, v in dmax.items():
-            cur = day.get(d)
-            if cur is None or v > cur[0]:
-                day[d] = (v, name, lat, lon)
-        if i % 100 == 0:
-            print(f"  {i}/{len(sids)} …")
+            return sid, bl, name, lat, lon, {}
 
-    # Kennzahlen je Bundesland
+    completed = 0
+    print("⚡ Verarbeite Stationen in parallelen Worker-Threads...")
+    with ThreadPoolExecutor(max_workers=16) as executor:
+        futures = {executor.submit(process_station, sid): sid for sid in sids}
+        for future in as_completed(futures):
+            completed += 1
+            sid, bl, name, lat, lon, dmax = future.result()
+            day = bl_day[bl]
+            for d, v in dmax.items():
+                cur = day.get(d)
+                if cur is None or v > cur[0]:
+                    day[d] = (v, name, lat, lon)
+            if completed % 200 == 0 or completed == len(sids):
+                print(f"  {completed}/{len(sids)} Stationen verarbeitet...")
+
     states = []
     nat_record = {"temp": -999}
     for bl, name in BL_NAME.items():
         day = bl_day[bl]
         if not day:
             continue
-        # Allzeit-Rekord
         rec_date, (rec_t, rec_st, rec_lat, rec_lon) = max(day.items(), key=lambda kv: kv[1][0])
         record = {"temp": round(rec_t, 1), "date": f"{rec_date[:4]}-{rec_date[4:6]}-{rec_date[6:]}", "station": rec_st}
         if rec_lat is not None and rec_lon is not None:
@@ -181,7 +209,6 @@ def main():
         stats = {}
         first_by_year = {}
         for T in THRESHOLDS:
-            # erster Tag je Jahr, an dem BL-Max >= T
             fy = {}
             for d in sorted(k for k, v in day.items() if v[0] >= T):
                 y = d[:4]
@@ -190,7 +217,6 @@ def main():
             stats_T = {}
             if fy:
                 years = sorted(fy)
-                # frühester Kalendertag (MM-DD) über alle Jahre
                 earliest_d = min(fy.values(), key=lambda d: d[4:])
                 stats_T = {
                     "earliestMd": f"{earliest_d[4:6]}-{earliest_d[6:]}",
@@ -208,28 +234,20 @@ def main():
         })
 
     states.sort(key=lambda s: -s["record"]["temp"])
-    # Datenstand: letzter Tag mit einer Messung über alle Bundesländer
     last = max((d for day in bl_day.values() for d in day), default="")
     data_through = f"{last[:4]}-{last[4:6]}-{last[6:]}" if last else None
     out = {
         "generated": date.today().isoformat(),
-        "dataThrough": data_through,           # letzter erfasster Messtag
-        "provisionalYear": int(last[:4]) if last else None,  # laufendes Jahr = vorläufig (recent-Daten)
+        "dataThrough": data_through,
+        "provisionalYear": int(last[:4]) if last else None,
         "source": SOURCE,
         "thresholds": THRESHOLDS,
         "national": nat_record,
         "states": states,
     }
-    p = PUB / "heat_thresholds.json"
-    import json
-    p.write_text(json.dumps(out, separators=(",", ":"), ensure_ascii=False), encoding="utf-8")
-    print(f"\nGeschrieben: {p}  ({p.stat().st_size/1e6:.2f} MB)")
+    out_file.write_text(json.dumps(out, separators=(",", ":"), ensure_ascii=False), encoding="utf-8")
+    print(f"\n✅ Geschrieben: {out_file} ({out_file.stat().st_size / 1e6:.2f} MB)")
     print(f"Datenstand bis: {data_through}")
-    print(f"National-Rekord: {nat_record['temp']} °C am {nat_record['date']} ({nat_record['state']}, {nat_record['station']})")
-    print("Bundesland-Rekorde (Top 5):")
-    for s in states[:5]:
-        r = s["record"]
-        print(f"  {s['name']}: {r['temp']} °C · {r['date']} · {r['station']}")
 
 
 if __name__ == "__main__":

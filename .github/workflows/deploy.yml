@@ -29,7 +29,12 @@ jobs:
           cache: npm
 
       - name: Update DWD Heat Data
-        run: python scripts/dwd/build_heat_thresholds.py
+        run: |
+          if [ "${{ github.event_name }}" = "schedule" ] || [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            python scripts/dwd/build_heat_thresholds.py
+          else
+            python scripts/dwd/build_heat_thresholds.py --skip-if-exists
+          fi
 
       - name: Install Chrome for prerender
         run: |

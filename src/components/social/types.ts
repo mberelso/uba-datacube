@@ -6,6 +6,8 @@ export type SocialCategory =
   | 'luft'
   | 'boden'
   | 'flaeche'
+  | 'region'
+  | 'vergleich'
   | 'default'
 
 export const CATEGORY_LABELS: Record<SocialCategory, string> = {
@@ -16,6 +18,8 @@ export const CATEGORY_LABELS: Record<SocialCategory, string> = {
   luft: 'LUFT',
   boden: 'BODEN',
   flaeche: 'FLÄCHE',
+  region: 'REGIONAL',
+  vergleich: 'VERGLEICH',
   default: 'UMWELT',
 }
 
@@ -27,6 +31,8 @@ export const CATEGORY_COLORS: Record<SocialCategory, string> = {
   luft: '#6B5EA8',
   boden: '#8A6B3A',
   flaeche: '#4A7A6B',
+  region: '#0284c7',
+  vergleich: '#7c3aed',
   default: '#4A6741',
 }
 

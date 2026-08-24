@@ -1,7 +1,11 @@
+import { useState } from 'react'
 import { motion } from 'framer-motion'
+import { ShareNetwork } from '@phosphor-icons/react'
 import { HeatMap } from '../components/charts/HeatMap'
 import { HeatRecords } from '../components/charts/HeatRecords'
 import { SEO } from '../components/SEO'
+import { SocialCardModal } from '../components/social/SocialCardModal'
+import type { SocialCardData } from '../components/social/types'
 
 const NORDIC = {
   navy:  '#1B2B3A',
@@ -42,8 +46,11 @@ const HEAT_FAQ_JSONLD = {
 }
 
 export default function HeatPage() {
+  const [modalCard, setModalCard] = useState<SocialCardData | null>(null)
+
   return (
     <div className="max-w-[1200px] mx-auto px-5 py-8">
+      {modalCard && <SocialCardModal data={modalCard} onClose={() => setModalCard(null)} />}
       <SEO
         title="Hitze in Deutschland seit 1951"
         description="Animierte Landkreis-Karte: Wie sich Heiße Tage und Sommertage in Deutschland seit 1951 vermehrt haben — aus den 1-km-Rasterdaten des Deutschen Wetterdiensts, Jahr für Jahr."
@@ -58,14 +65,34 @@ export default function HeatPage() {
         transition={{ duration: 0.35, ease: 'easeOut' }}
         className="mb-8"
       >
-        <div className="flex items-center gap-2 mb-1">
-          <svg width="18" height="18" viewBox="0 0 256 256" fill="none">
-            <circle cx="128" cy="150" r="64" fill={NORDIC.red} />
-            <path d="M128 96 C104 64 152 52 128 16 C168 56 160 92 144 104" fill={NORDIC.amber} />
-          </svg>
-          <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.1em', color: NORDIC.red }}>
-            KLIMAWANDEL
-          </span>
+        <div className="flex items-center justify-between flex-wrap gap-2 mb-1">
+          <div className="flex items-center gap-2">
+            <svg width="18" height="18" viewBox="0 0 256 256" fill="none">
+              <circle cx="128" cy="150" r="64" fill={NORDIC.red} />
+              <path d="M128 96 C104 64 152 52 128 16 C168 56 160 92 144 104" fill={NORDIC.amber} />
+            </svg>
+            <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.1em', color: NORDIC.red }}>
+              KLIMAWANDEL
+            </span>
+          </div>
+          <button
+            onClick={() =>
+              setModalCard({
+                category: 'klima',
+                metric: 'Verdreifacht',
+                metricLabel: 'Anzahl Heiße Tage seit 1950',
+                headline: 'Hitze in Deutschland seit 1951',
+                story: 'Die Zahl der Heißen Tage (≥ 30 °C) hat sich im bundesweiten Mittel mehr als verdreifacht. Der Oberrheingraben und Brandenburg verzeichnen die höchsten Werte.',
+                sparkline: [5, 7, 8, 12, 11, 15, 19],
+                yearRange: '1951 – 2025',
+                datasetId: 'dwd-heat',
+              })
+            }
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-12 font-semibold transition-colors cursor-pointer border-0 shadow-sm"
+          >
+            <ShareNetwork size={14} weight="bold" />
+            Hitze-Infografik teilen
+          </button>
         </div>
         <h1 style={{
           fontSize: 32, fontWeight: 800, color: NORDIC.navy,

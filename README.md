@@ -8,6 +8,7 @@ UBA-Datacube ist eine moderne Web-Applikation zur Visualisierung und Analyse von
 - **Emotionales Visual Design (Story First)**: Die Startseite nutzt ein bildstarkes Layout ("Kompass für die Umwelt") mit atmosphärischen Natur-Fotografien und Hover-Effekten, um einen emotionalen Zugang zu den Umweltdaten zu schaffen.
 - **Katalog**: Durchsuchen und Filtern aller verfügbaren UBA-Datensätze (Dataflows).
 - **Regional-Explorer & Bundesland-Dashboard (`/regionen`)**: Interaktiver Vergleich aller 16 deutschen Bundesländer mit 4 zentralen Umweltindikatoren (Heiße Tage, Windkraft-Ausbau MW, Solarenergie-Ausbau MW, PRTR-Industrie-Emissionen), regionalen Klimafakten und direkter Tabellensortierung.
+- **1-Klick Social-Infografik-Export & Story-Card-Generator**: Auf allen Hauptseiten (`/regionen`, `/vergleich`, `/dataset/:id`, `/hitze`, `/wind`, `/solar`) können Besucher per Klick hochauflösende Story-Cards (1080×1920 px im Instagram/LinkedIn-Format) mit Umweltpuls-Branding, Metriken und Sparklines erzeugen und direkt via `navigator.share` oder Download teilen.
 - **SEO-Booster & Google Rich Snippets**:
   - **Sitemap-Generator (`public/sitemap.xml`)**: Automatischer Build-Schritt (`scripts/generate-sitemap.ts`) erzeugt für alle 89 gerenderten Routen eine XML-Sitemap mit Prioritäten und Datumsstempeln.
   - **Robots.txt (`public/robots.txt`)**: Vollständige Crawler-Freigabe für Suchmaschinenbot-Indexing.

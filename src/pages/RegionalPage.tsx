@@ -3,10 +3,12 @@ import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   MapPin, Flame, Wind, Sun, Factory,
-  CaretRight, CheckCircle, Scales, MagnifyingGlass
+  CaretRight, CheckCircle, Scales, MagnifyingGlass, ShareNetwork
 } from '@phosphor-icons/react'
 import { BUNDESLAENDER, type BundeslandInfo } from '../utils/bundeslaender'
 import { SEO } from '../components/SEO'
+import { SocialCardModal } from '../components/social/SocialCardModal'
+import type { SocialCardData } from '../components/social/types'
 
 const NORDIC = {
   navy:  '#1B2B3A',
@@ -53,6 +55,7 @@ export default function RegionalPage() {
   const [search, setSearch] = useState<string>('')
   const [sortKey, setSortKey] = useState<'hotDaysAvg' | 'windCapacityMw' | 'solarCapacityMw' | 'prtrEmissionsKt'>('hotDaysAvg')
   const [sortAsc, setSortAsc] = useState<boolean>(false)
+  const [modalCard, setModalCard] = useState<SocialCardData | null>(null)
 
   const statesList = useMemo(() => Object.values(BUNDESLAENDER), [])
 
@@ -76,6 +79,7 @@ export default function RegionalPage() {
 
   return (
     <div className="max-w-[1200px] mx-auto px-5 py-8">
+      {modalCard && <SocialCardModal data={modalCard} onClose={() => setModalCard(null)} />}
       <SEO
         title="Regional-Explorer — Wie grün ist dein Bundesland?"
         description="Vergleiche Klimadaten, Hitzetage, Windkraft- und Solarausbau sowie Industrie-Emissionen aller 16 deutschen Bundesländer im Detail."
@@ -188,7 +192,24 @@ export default function RegionalPage() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
+                <button
+                  onClick={() =>
+                    setModalCard({
+                      category: 'region',
+                      metric: `${selectedState.hotDaysAvg}`,
+                      metricLabel: 'Heiße Tage / Jahr (Ø)',
+                      headline: `${selectedState.name}: Klimadaten im Überblick`,
+                      story: `Mit ${selectedState.windCapacityMw.toLocaleString('de-DE')} MW Windkraft und ${selectedState.solarCapacityMw.toLocaleString('de-DE')} MW Solar-Leistung verzeichnet ${selectedState.name} im Schnitt ${selectedState.hotDaysAvg} Heiße Tage pro Jahr.`,
+                      sparkline: [selectedState.hotDaysAvg, selectedState.windCapacityMw / 100, selectedState.solarCapacityMw / 100, selectedState.prtrEmissionsKt],
+                      yearRange: 'Datenstand 2026',
+                      datasetId: `region-${selectedState.code}`,
+                    })
+                  }
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-sky-500 hover:bg-sky-600 text-white text-12 font-semibold transition-colors cursor-pointer border-0 shadow-sm"
+                >
+                  <ShareNetwork size={14} weight="bold" />
+                  Infografik teilen
+                </button>
                 <Link
                   to={`/hitze`}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white text-12 font-medium transition-colors no-underline"
@@ -210,7 +231,6 @@ export default function RegionalPage() {
                   <Sun size={14} className="text-amber-400" />
                   Solar-Karte
                 </Link>
-              </div>
             </div>
 
             <p className="text-14 text-slate-200 leading-relaxed max-w-3xl font-light">

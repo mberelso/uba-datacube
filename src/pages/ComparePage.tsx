@@ -1,8 +1,11 @@
 import { useEffect, useState, useMemo } from 'react'
 import { motion } from 'framer-motion'
+import { ShareNetwork } from '@phosphor-icons/react'
 import { CompareChart, type CompareSeries } from '../components/charts/CompareChart'
 import { SEO } from '../components/SEO'
 import { fetchAveragedSeries, fetchSingleSeries, type TimePoint } from '../api/sdmx'
+import { SocialCardModal } from '../components/social/SocialCardModal'
+import type { SocialCardData } from '../components/social/types'
 
 const NORDIC = {
   navy:  '#1B2B3A',
@@ -57,11 +60,10 @@ const PRESETS: PresetOption[] = [
     loadB: async () => {
       const res = await fetch(`${import.meta.env.BASE_URL}heat_thresholds.json`)
       const json = await res.json()
-      // National firstByYear 30 °C total days or count per year
       const firstByYr: Record<string, string> = json.states[0]?.firstByYear?.['30'] ?? {}
       const data: TimePoint[] = Object.keys(firstByYr).map((y) => ({
         year: y,
-        value: 1, // Indicator count
+        value: 1,
       }))
       return { label: 'Erstmals 30 °C in DWD-Stationen', unit: 'Tage im Jahr', data }
     },
@@ -75,6 +77,7 @@ export default function ComparePage() {
   const [seriesB, setSeriesB]                   = useState<CompareSeries | null>(null)
   const [loading, setLoading]                   = useState<boolean>(true)
   const [error, setError]                       = useState<string>('')
+  const [modalCard, setModalCard]               = useState<SocialCardData | null>(null)
 
   const activePreset = useMemo(
     () => PRESETS.find((p) => p.id === selectedPresetId) ?? PRESETS[0],
@@ -194,7 +197,30 @@ export default function ComparePage() {
               Relativer Trend (% Index = 100)
             </button>
           </div>
+
+          {seriesA && seriesB && (
+            <button
+              onClick={() =>
+                setModalCard({
+                  category: 'vergleich',
+                  metric: 'Zusammenhang',
+                  metricLabel: `${seriesA.label} vs. ${seriesB.label}`,
+                  headline: activePreset.title,
+                  story: activePreset.subtitle,
+                  sparkline: seriesA.data.slice(0, 10).map((d) => d.value ?? 0),
+                  yearRange: 'Zeitanalyse',
+                  datasetId: activePreset.id,
+                })
+              }
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold transition-colors cursor-pointer border-0 shadow-sm ml-2"
+            >
+              <ShareNetwork size={14} weight="bold" />
+              Vergleichs-Infografik teilen
+            </button>
+          )}
         </div>
+
+        {modalCard && <SocialCardModal data={modalCard} onClose={() => setModalCard(null)} />}
 
         <div className="hidden sm:flex items-center gap-4 text-xs font-semibold">
           <span className="flex items-center gap-1.5 text-sky-700">

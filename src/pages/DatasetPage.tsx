@@ -19,6 +19,8 @@ import { DatasetStory } from '../components/DatasetStory'
 import { getDatasetContent } from '../data/datasetContent'
 import { SEO } from '../components/SEO'
 import { ExportModal } from '../components/ExportModal'
+import { SocialCardModal } from '../components/social/SocialCardModal'
+import type { SocialCardData, SocialCategory } from '../components/social/types'
 
 const CHART_COLORS = [
   '#1B2B3A', '#dc2626', '#4A6741', '#d97706', '#7c3aed',
@@ -117,6 +119,7 @@ export default function DatasetPage() {
   const [showAdvanced, setShowAdvanced] = useState(true)
   const [shareCopied, setShareCopied] = useState(false)
   const [exportOpen, setExportOpen] = useState(false)
+  const [modalCard, setModalCard] = useState<SocialCardData | null>(null)
 
   const [seriesMap, setSeriesMap] = useState<Record<string, { dimValues: string[]; observations: Record<string, number | null> }>>({})
   const [timeValues, setTimeValues] = useState<string[]>([])
@@ -817,6 +820,29 @@ export default function DatasetPage() {
               </button>
               <button
                 onClick={() => {
+                  const sKey = Array.from(selectedSeries)[0]
+                  const obs = sKey ? seriesMap[sKey]?.observations : null
+                  const lastYr = timeValues[timeValues.length - 1]
+                  const lastVal = obs && lastYr ? obs[lastYr] : null
+                  const rawValues = timeValues.map(t => obs ? (obs[t] ?? 0) : 0).filter((v): v is number => typeof v === 'number')
+
+                  setModalCard({
+                    category: (flow?.category as SocialCategory) || 'default',
+                    metric: lastVal !== null && lastVal !== undefined ? `${lastVal}` : 'Trend',
+                    metricLabel: `Stand ${lastYr ?? 'aktuell'}`,
+                    headline: flow?.name ?? 'Umwelt-Datensatz',
+                    story: content?.lead || content?.headline || flow?.description || `${flow?.name} — interaktiv auf Umweltpuls.`,
+                    sparkline: rawValues.length > 0 ? rawValues : [10, 20, 15, 30],
+                    yearRange: timeValues.length > 1 ? `${timeValues[0]} – ${lastYr}` : 'Zeitreihe',
+                    datasetId: flow?.id ?? 'dataset',
+                  })
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-semibold border transition-all cursor-pointer bg-sky-50 border-sky-200 text-sky-700 hover:bg-sky-100"
+              >
+                <ShareNetwork size={12} weight="bold" /> Infografik
+              </button>
+              <button
+                onClick={() => {
                   navigator.clipboard.writeText(window.location.href).then(() => {
                     setShareCopied(true)
                     setTimeout(() => setShareCopied(false), 2000)
@@ -836,6 +862,8 @@ export default function DatasetPage() {
               </button>
             </div>
           </div>
+
+          {modalCard && <SocialCardModal data={modalCard} onClose={() => setModalCard(null)} />}
 
           {/* Chart */}
           <AnimatePresence mode="wait">

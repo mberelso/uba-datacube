@@ -159,8 +159,10 @@ export async function fetchAveragedSeries(flowRef: string, key = 'all'): Promise
   }
 
   // Fallback: Use robust fetchData pipeline
-  const flowId = flowRef.includes(',') ? flowRef.split(',')[1] : flowRef
-  const result = await fetchData({ id: flowId, agencyID: 'UBA', version: '1.0', name: '', description: '', category: 'klima' }, 'all')
+  const parts = flowRef.split(',')
+  const flowId = parts.length >= 2 ? parts[1] : flowRef
+  const version = parts.length >= 3 ? parts[2] : '1.0'
+  const result = await fetchData({ id: flowId, agencyID: 'UBA', version, name: '', description: '', category: 'klima' }, 'all')
   const acc: Record<string, number[]> = {}
   for (const s of Object.values(result.seriesMap)) {
     for (const [yr, val] of Object.entries(s.observations)) {
@@ -196,8 +198,10 @@ export async function fetchSingleSeries(flowRef: string, key = 'all', seriesInde
   }
 
   // Fallback: Use robust fetchData pipeline
-  const flowId = flowRef.includes(',') ? flowRef.split(',')[1] : flowRef
-  const result = await fetchData({ id: flowId, agencyID: 'UBA', version: '1.0', name: '', description: '', category: 'klima' }, 'all')
+  const parts = flowRef.split(',')
+  const flowId = parts.length >= 2 ? parts[1] : flowRef
+  const version = parts.length >= 3 ? parts[2] : '1.0'
+  const result = await fetchData({ id: flowId, agencyID: 'UBA', version, name: '', description: '', category: 'klima' }, 'all')
   const firstSeries = Object.values(result.seriesMap)[seriesIndex] || Object.values(result.seriesMap)[0]
   if (!firstSeries) return []
 
@@ -205,6 +209,102 @@ export async function fetchSingleSeries(flowRef: string, key = 'all', seriesInde
     .filter(([, val]) => val != null)
     .map(([year, val]) => ({ year, value: val as number }))
     .sort((a, b) => a.year.localeCompare(b.year))
+}
+
+/** Fetch CSV text with cache */
+const csvTextCache = new Map<string, Promise<string>>()
+
+export async function fetchCsvText(url: string): Promise<string> {
+  const cached = csvTextCache.get(url)
+  if (cached) return cached
+  const load = async (attempt = 0): Promise<string> => {
+    try {
+      const r = await fetch(url, { headers: { Accept: 'text/csv', ...defaultHeaders } })
+      if (!r.ok) throw new Error(`CSV fetch failed ${r.status}`)
+      return await r.text()
+    } catch (e) {
+      if (attempt >= 1) throw e
+      await new Promise((res) => setTimeout(res, 800))
+      return load(attempt + 1)
+    }
+  }
+  const p = load()
+  p.catch(() => csvTextCache.delete(url))
+  csvTextCache.set(url, p)
+  return p
+}
+
+export async function fetchCsvSeries(
+  flowId: string,
+  version = '1.0',
+): Promise<Record<string, { codes: string[]; colIds: string[]; obs: Record<string, number | null> }>> {
+  const cleanFlow = flowId.includes(',') ? flowId.split(',')[1] : flowId
+  let text: string
+  try {
+    text = await fetchCsvText(`https://daten.uba.de/release/rest/data/UBA,${cleanFlow},${version}/all?format=csv`)
+  } catch {
+    text = await fetchCsvText(`https://daten.uba.de/release/rest/data/UBA,${cleanFlow},${version}/.?format=csv`)
+  }
+  const lines = text.trim().split('\n')
+  const sep = lines[0].includes(';') ? ';' : ','
+  const header = lines[0].split(sep).map((h) => h.trim().replace(/\r/g, ''))
+  const timeCol = header.indexOf('TIME_PERIOD')
+  const valCol = header.indexOf('OBS_VALUE')
+  const colIds = header.slice(1, timeCol)
+  const result: Record<string, { codes: string[]; colIds: string[]; obs: Record<string, number | null> }> = {}
+  for (const line of lines.slice(1)) {
+    if (!line.trim()) continue
+    const cols = line.split(sep).map((c) => c.trim().replace(/\r/g, ''))
+    const codes = colIds.map((_c, i) => cols[i + 1])
+    const key = codes.join(':')
+    const raw = cols[valCol]
+    const val = raw !== '' ? parseFloat(raw) : null
+    if (!result[key]) result[key] = { codes, colIds, obs: {} }
+    result[key].obs[cols[timeCol]] = isNaN(val as number) ? null : val
+  }
+  return result
+}
+
+export async function fetchCsvAveraged(
+  flowId: string,
+  version = '1.0',
+  filters: Record<string, string> = {},
+): Promise<TimePoint[]> {
+  const csv = await fetchCsvSeries(flowId, version)
+  const acc: Record<string, number[]> = {}
+  for (const { codes, colIds, obs } of Object.values(csv)) {
+    const matches = Object.entries(filters).every(([dimId, code]) => {
+      const idx = colIds.indexOf(dimId)
+      return idx !== -1 && codes[idx] === code
+    })
+    if (Object.keys(filters).length > 0 && !matches) continue
+    for (const [year, val] of Object.entries(obs)) {
+      if (val != null && !isNaN(val)) (acc[year] ??= []).push(val)
+    }
+  }
+  return Object.entries(acc)
+    .map(([year, vs]) => ({ year, value: +(vs.reduce((a, b) => a + b, 0) / vs.length).toFixed(2) }))
+    .sort((a, b) => a.year.localeCompare(b.year))
+}
+
+export async function fetchDataSingleSeries(
+  flowId: string,
+  version = '1.0',
+  filters: Record<string, string> = {},
+): Promise<TimePoint[]> {
+  const csv = await fetchCsvSeries(flowId, version)
+  for (const { codes, colIds, obs } of Object.values(csv)) {
+    const matches = Object.entries(filters).every(([dimId, code]) => {
+      const idx = colIds.indexOf(dimId)
+      return idx !== -1 && codes[idx] === code
+    })
+    if (!matches) continue
+    return Object.entries(obs)
+      .map(([year, val]) => ({ year, value: val as number }))
+      .filter((p) => p.value != null && !isNaN(p.value))
+      .sort((a, b) => a.year.localeCompare(b.year))
+  }
+  return []
 }
 
 /** Fetch multiple named series, returns { label → TimePoint[] } */

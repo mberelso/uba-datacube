@@ -25,15 +25,15 @@ interface PresetOption {
 const PRESETS: PresetOption[] = [
   {
     id: 'ghg-vs-renewable',
-    title: 'Treibhausgase vs. Erneuerbare Energien',
-    subtitle: 'Wie beeinflusst der Ausbau erneuerbarer Energien die Treibhausgasemissionen in Deutschland?',
+    title: 'Temperatur vs. Erneuerbare Energien',
+    subtitle: 'Wie entwickelt sich der Ausbau erneuerbarer Energien im Vergleich zum Temperaturtrend in Deutschland?',
     loadA: async () => {
-      const data = await fetchAveragedSeries('UBA,DF_CLIMATE_EMISSIONS_GHG,1.0', 'all')
-      return { label: 'Treibhausgasemissionen', unit: 'Mio. t CO₂-Äquiv.', data }
+      const data = await fetchAveragedSeries('UBA,DF_CLIMATE_GERMANY_TEMPERATURE_MEAN,1.0', 'DE.A.DEGC.JM.')
+      return { label: 'Durchschnittstemperatur', unit: '°C (Jahresmittel)', data }
     },
     loadB: async () => {
-      const data = await fetchSingleSeries('UBA,DF_ENERGY_RENEWABLE_SHARE,1.0', 'all')
-      return { label: 'Anteil Erneuerbare Energien', unit: '% am Bruttestromverbrauch', data }
+      const data = await fetchSingleSeries('UBA,DF_ENERGY_AGEE_SHARE,1.0', 'DE.A.PZ.SHARE_EE_GFEC_RED.EE')
+      return { label: 'Anteil Erneuerbare Energien', unit: '% am Bruttoendenergieverbrauch', data }
     },
   },
   {
@@ -41,12 +41,12 @@ const PRESETS: PresetOption[] = [
     title: 'Pkw-Kraftstoffverbrauch vs. Luftschadstoffe',
     subtitle: 'Zusammenhang zwischen Pkw-Kraftstoffverbrauch und dem Luftschadstoff-Emissionsindex.',
     loadA: async () => {
-      const data = await fetchSingleSeries('UBA,DF_TRANSPORT_ENERGY_FUEL_CONSUMPTION,1.0', 'all')
+      const data = await fetchAveragedSeries('UBA,DF_TRANSPORT_ENERGY_FUEL_CONSUMPTION,1.0', 'all')
       return { label: 'Pkw Kraftstoffverbrauch', unit: 'l/100 km', data }
     },
     loadB: async () => {
-      const data = await fetchAveragedSeries('UBA,DF_AIR_EMISSIONS_INDEX,1.0', 'all')
-      return { label: 'Luftschadstoff-Index', unit: 'Index (1990 = 100)', data }
+      const data = await fetchAveragedSeries('UBA,DF_AIR_EMISSIONS_INDEX,2026.0', 'all')
+      return { label: 'Luftschadstoff-Index', unit: 'Index (2005 = 100)', data }
     },
   },
   {
@@ -61,10 +61,12 @@ const PRESETS: PresetOption[] = [
       const res = await fetch(`${import.meta.env.BASE_URL}heat_thresholds.json`)
       const json = await res.json()
       const firstByYr: Record<string, string> = json.states[0]?.firstByYear?.['30'] ?? {}
-      const data: TimePoint[] = Object.keys(firstByYr).map((y) => ({
-        year: y,
-        value: 1,
-      }))
+      const data: TimePoint[] = Object.keys(firstByYr)
+        .filter((y) => parseInt(y) >= 1981)
+        .map((y) => ({
+          year: y,
+          value: 1,
+        }))
       return { label: 'Erstmals 30 °C in DWD-Stationen', unit: 'Tage im Jahr', data }
     },
   },

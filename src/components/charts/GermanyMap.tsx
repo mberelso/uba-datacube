@@ -38,8 +38,19 @@ function heatColor(t: number) {
 
 interface TooltipInfo { code: string; svgX: number; svgY: number }
 
+interface GeoJsonFeature {
+  type: string
+  properties: { id: string }
+  geometry: unknown
+}
+
+interface GeoJsonData {
+  type: string
+  features: GeoJsonFeature[]
+}
+
 export function GermanyMap() {
-  const [geoJson, setGeoJson] = useState<any>(null)
+  const [geoJson, setGeoJson] = useState<GeoJsonData | null>(null)
   const [tooltip, setTooltip] = useState<TooltipInfo | null>(null)
   const svgRef = useRef<SVGSVGElement>(null)
 
@@ -48,7 +59,7 @@ export function GermanyMap() {
   }, [])
 
   const projection = useMemo(
-    () => geoJson ? geoMercator().fitSize([340, 420], geoJson) : null,
+    () => geoJson ? geoMercator().fitSize([340, 420], geoJson as unknown as Parameters<ReturnType<typeof geoMercator>['fitSize']>[1]) : null,
     [geoJson]
   )
   const pathGen = useMemo(() => projection ? geoPath(projection) : null, [projection])
@@ -85,13 +96,13 @@ export function GermanyMap() {
         style={{ width: '100%', maxWidth: 400, display: 'block' }}
         onMouseLeave={() => setTooltip(null)}
       >
-        {geoJson.features.map((feature: any) => {
+        {geoJson.features.map((feature) => {
           const geoId: string = feature.properties.id
           const code = GEO_TO_CODE[geoId]
           const d = code ? SETTLEMENT_DATA[code] : undefined
           const t = d ? Math.min(d.avgHaPerDay / MAX_GROWTH, 1) : 0
           const fill = d ? heatColor(t) : '#f1f5f9'
-          const pathD = pathGen(feature) ?? ''
+          const pathD = pathGen(feature as unknown as Parameters<NonNullable<typeof pathGen>>[0]) ?? ''
           return (
             <path
               key={geoId}

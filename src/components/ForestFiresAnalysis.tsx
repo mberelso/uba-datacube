@@ -21,7 +21,7 @@ export default function ForestFiresAnalysis({ timeValues, seriesMap, activeSerie
 
     const causeSet = new Set<string>()
 
-    const dataByYear: Record<string, Record<string, any>> = {}
+    const dataByYear: Record<string, Record<string, string | number | null>> = {}
     timeValues.forEach(year => {
       dataByYear[year] = { year }
     })
@@ -61,10 +61,10 @@ export default function ForestFiresAnalysis({ timeValues, seriesMap, activeSerie
 
     // For Intensity: calculate Hectares / Count
     const intensity = finalChartData.map(d => {
-      const count = d.insgesamtAnzahl ?? 0
-      const area = d.insgesamtHektar ?? 0
+      const count = typeof d.insgesamtAnzahl === 'number' ? d.insgesamtAnzahl : 0
+      const area = typeof d.insgesamtHektar === 'number' ? d.insgesamtHektar : 0
       return {
-        year: d.year,
+        year: String(d.year ?? ''),
         hektarProBrand: count > 0 ? area / count : null,
         area,
         count
@@ -153,9 +153,9 @@ export default function ForestFiresAnalysis({ timeValues, seriesMap, activeSerie
                 <YAxis tick={{ fontSize: 10 }} width={65} tickFormatter={val => val.toFixed(1)} />
                 <Tooltip 
                   contentStyle={{ fontSize: 12, borderRadius: 8 }}
-                  formatter={(val: any, name: any) => {
+                  formatter={(val: unknown, name: unknown) => {
                     if (name === 'hektarProBrand') return [Number(val).toFixed(2) + ' ha/Brand', 'Brandintensität']
-                    return [val, name]
+                    return [String(val ?? ''), String(name ?? '')]
                   }}
                 />
                 <Legend wrapperStyle={{ fontSize: 11, paddingTop: 10 }} iconType="circle" />

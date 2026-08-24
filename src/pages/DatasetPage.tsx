@@ -100,13 +100,14 @@ export default function DatasetPage() {
   const location = useLocation()
 
   // ?lazy=<JSON> aus der URL lesen — einmalig beim Mount, nie wieder
-  const urlLazyFilters = useRef<Record<string, string> | null | false>(false)
-  if (urlLazyFilters.current === false) {
+  const urlLazyFilters = useMemo<Record<string, string> | null>(() => {
     try {
       const raw = new URLSearchParams(location.search).get('lazy')
-      urlLazyFilters.current = raw ? JSON.parse(decodeURIComponent(raw)) : null
-    } catch { urlLazyFilters.current = null }
-  }
+      return raw ? JSON.parse(decodeURIComponent(raw)) : null
+    } catch {
+      return null
+    }
+  }, [location.search])
   const urlPresetApplied = useRef(false)
 
   const [flow, setFlow] = useState<Dataflow | null>(null)
@@ -193,7 +194,7 @@ export default function DatasetPage() {
   // Initialer Load: Struktur + Daten parallel — Struktur entscheidet ob Lazy-Modus nötig
   useEffect(() => {
     if (!id) return
-    setLoading(true)
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setError('')
     setLazyMode(false)
     setLazyDimConfig(null)
@@ -220,7 +221,7 @@ export default function DatasetPage() {
             setDims(structure.seriesDimensions)
           }
           setLazyMode(true)
-          const urlFilters = urlLazyFilters.current as Record<string, string> | null
+          const urlFilters = urlLazyFilters
           const initFilters = urlFilters ?? cfg?.defaultFilters ?? null
           if (initFilters && Object.keys(initFilters).length > 0) {
             setFilters(initFilters)
@@ -255,7 +256,7 @@ export default function DatasetPage() {
         if (estimate > LAZY_THRESHOLD) {
           dataAbort.abort()
           setLazyMode(true)
-          const urlFilters2 = urlLazyFilters.current as Record<string, string> | null
+          const urlFilters2 = urlLazyFilters
           if (urlFilters2 && Object.keys(urlFilters2).length > 0) {
             setFilters(urlFilters2)
             urlPresetApplied.current = true
@@ -311,15 +312,16 @@ export default function DatasetPage() {
       // wählbaren Werte aus der DSD anbieten
       if (!lazyMode && !lazyDimConfig && seriesDimensions.length > 0) setDims(seriesDimensions)
       autoSelectTopSeries(sm)
-    } catch (e: any) {
-      setError(e.message ?? 'Fehler beim Laden der gefilterten Daten')
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'Fehler beim Laden der gefilterten Daten'
+      setError(msg)
     } finally {
       setDataLoading(false)
     }
   }, [flow, dims, filters, lazyMode, lazyDimConfig, buildSdmxKey, autoSelectTopSeries])
 
-  const content = id ? getDatasetContent(decodeURIComponent(id)) : null
-  const labelOverrides = content?.labelOverrides ?? {}
+  const content = useMemo(() => (id ? getDatasetContent(decodeURIComponent(id)) : null), [id])
+  const labelOverrides = useMemo(() => content?.labelOverrides ?? {}, [content])
   const defaultChartConfig = content?.defaultChartConfig ?? null
   const isStacked = defaultChartConfig?.type === 'stacked'
 
@@ -365,7 +367,7 @@ export default function DatasetPage() {
         if (matchingLabel && !labelToKey[matchingLabel]) labelToKey[matchingLabel] = key
       }
       return timeValues.map(year => {
-        const point: Record<string, any> = { year }
+        const point: Record<string, number | string | null> = { year }
         let hasData = false
         for (const { label } of defaultChartConfig!.stackedSeries!) {
           const key = labelToKey[label]
@@ -378,7 +380,7 @@ export default function DatasetPage() {
     }
 
     return timeValues.map((year) => {
-      const point: Record<string, any> = { year }
+      const point: Record<string, number | string | null> = { year }
       let hasData = false
       for (const key of selectedSeries) {
         const s = seriesMap[key]
@@ -394,7 +396,7 @@ export default function DatasetPage() {
   }, [timeValues, selectedSeries, seriesMap, labelDimIndices, varyingDimIndices, applyLabelOverride, isStacked, defaultChartConfig, stackedLabels])
 
   const filteredSeries = useMemo(() => {
-    return Object.entries(seriesMap).filter(([_, s]) =>
+    return Object.entries(seriesMap).filter(([, s]) =>
       // Im Lazy-Modus: API hat bereits durch den Key gefiltert — alle geladenen
       // Serien sind relevant. (Clientseitiger Vergleich würde scheitern, weil
       // die Filter Code-IDs enthalten, dimValues aber Klartextnamen.)
@@ -410,9 +412,12 @@ export default function DatasetPage() {
   }, [seriesMap, filters, dims, lazyMode, lazyDimConfig, labelDimIndices, varyingDimIndices, applyLabelOverride])
 
   const filteredSeriesRef = useRef(filteredSeries)
-  filteredSeriesRef.current = filteredSeries
   const seriesMapRef = useRef(seriesMap)
-  seriesMapRef.current = seriesMap
+
+  useEffect(() => {
+    filteredSeriesRef.current = filteredSeries
+    seriesMapRef.current = seriesMap
+  }, [filteredSeries, seriesMap])
 
   // When filters change (user picked a filter dropdown value), auto-select the
   // top 5 matching series by data density so the chart is never empty.
@@ -438,7 +443,7 @@ export default function DatasetPage() {
     } else {
       // Normal-Modus: seriesMap bereits geladen, passende Serien selektieren
       const targetVals = Object.values(presetFilters).filter(Boolean)
-      const matchingKeys = Object.entries(seriesMap).filter(([_, s]) =>
+      const matchingKeys = Object.entries(seriesMap).filter(([, s]) =>
         targetVals.every(val => s.dimValues.includes(val))
       ).map(([key]) => key)
       setSelectedSeries(new Set(matchingKeys))
@@ -726,7 +731,11 @@ export default function DatasetPage() {
                       checked={checked}
                       onChange={() => setSelectedSeries(prev => {
                         const next = new Set(prev)
-                        next.has(key) ? next.delete(key) : next.add(key)
+                        if (next.has(key)) {
+                          next.delete(key)
+                        } else {
+                          next.add(key)
+                        }
                         return next
                       })}
                       className="sr-only"

@@ -10,7 +10,7 @@ export interface StackedSeriesConfig {
 }
 
 interface Props {
-  chartData: any[]
+  chartData: Record<string, number | string | null>[]
   seriesConfig: StackedSeriesConfig[]
 }
 

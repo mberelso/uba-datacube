@@ -5,7 +5,7 @@ import {
 import { CHART_COLORS, GlassTooltip } from './ChartStyles'
 
 interface ClimateChartProps {
-  chartData: any[]
+  chartData: Record<string, unknown>[]
   activeSeriesList: { label: string }[]
   exportMode?: boolean
 }
@@ -13,7 +13,10 @@ interface ClimateChartProps {
 export function ClimateChart({ chartData, activeSeriesList }: ClimateChartProps) {
   // Determine if data contains negative values (e.g. sinks) – show reference line
   const hasNegative = chartData.some(row =>
-    activeSeriesList.some(s => row[s.label] != null && row[s.label] < 0)
+    activeSeriesList.some(s => {
+      const val = row[s.label]
+      return typeof val === 'number' && val < 0
+    })
   )
 
   return (

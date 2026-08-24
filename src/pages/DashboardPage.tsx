@@ -111,7 +111,6 @@ function useHighlightData(config: HighlightConfig) {
   const [error, setError] = useState(false)
 
   useEffect(() => {
-    setLoading(true)
     fetchSingleDataflow(config.flowId)
       .then((flow) => fetchData(flow, config.key ?? 'all'))
       .then(({ seriesMap, timeValues }) => {
@@ -132,7 +131,7 @@ function useHighlightData(config: HighlightConfig) {
       })
       .catch(() => setError(true))
       .finally(() => setLoading(false))
-  }, [config.flowId])
+  }, [config.flowId, config.key])
 
   return { data, loading, error }
 }
@@ -252,7 +251,7 @@ function HighlightCard({ config }: { config: HighlightConfig }) {
                       <YAxis tick={{ fontSize: 8, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
                       <Tooltip
                         contentStyle={{ fontSize: 11, borderRadius: 8, border: '1px solid #e2e8f0', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}
-                        formatter={(v: any) => [Number(v).toLocaleString('de-DE', { maximumFractionDigits: 1 }), config.unit ?? '']}
+                        formatter={(v: unknown) => [Number(v).toLocaleString('de-DE', { maximumFractionDigits: 1 }), config.unit ?? '']}
                       />
                       <Bar dataKey="value" fill={config.color} radius={[3, 3, 0, 0]} opacity={0.85} />
                     </BarChart>
@@ -269,7 +268,7 @@ function HighlightCard({ config }: { config: HighlightConfig }) {
                       <YAxis tick={{ fontSize: 8, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
                       <Tooltip
                         contentStyle={{ fontSize: 11, borderRadius: 8, border: '1px solid #e2e8f0', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}
-                        formatter={(v: any) => [Number(v).toLocaleString('de-DE', { maximumFractionDigits: 1 }), config.unit ?? '']}
+                        formatter={(v: unknown) => [Number(v).toLocaleString('de-DE', { maximumFractionDigits: 1 }), config.unit ?? '']}
                       />
                       <Area type="monotone" dataKey="value" stroke={config.color} strokeWidth={1.5}
                         fill={`url(#g-${config.flowId})`} dot={false} connectNulls />

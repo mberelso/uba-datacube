@@ -269,7 +269,7 @@ export default function RelatedPublications({
                     target="_blank"
                     rel="noopener noreferrer"
                     className="group block rounded-xl border border-slate-200 bg-slate-50 p-4 no-underline hover:border-current hover:bg-white transition-all"
-                    style={{ '--tw-border-opacity': 1 } as any}
+                    style={{ '--tw-border-opacity': 1 } as React.CSSProperties}
                   >
                     <div className="flex items-start justify-between gap-2 mb-2">
                       <span

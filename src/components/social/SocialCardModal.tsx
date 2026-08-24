@@ -72,8 +72,9 @@ export function SocialCardModal({ data: baseData, onClose }: {
         URL.revokeObjectURL(url)
         setHint('Bild heruntergeladen — in Instagram Story hochladen.')
       }
-    } catch (e: any) {
-      if (e?.name !== 'AbortError') setHint('Fehler beim Exportieren.')
+    } catch (e: unknown) {
+      const err = e as { name?: string }
+      if (err?.name !== 'AbortError') setHint('Fehler beim Exportieren.')
     } finally {
       setBusy(false)
     }

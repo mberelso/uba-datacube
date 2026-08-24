@@ -33,8 +33,14 @@ const COLORS = {
   border:   '#ffffff',
 }
 
+interface GeoFeature {
+  type: string
+  properties: { id: string; name?: string }
+  geometry: unknown
+}
+
 export function WindTurbineMap() {
-  const [geoJson, setGeoJson] = useState<any>(null)
+  const [geoJson, setGeoJson] = useState<{ features: GeoFeature[] } | null>(null)
   const [data, setData] = useState<WindData | null>(null)
   const [error, setError] = useState(false)
   const [playing, setPlaying] = useState(false)
@@ -46,7 +52,9 @@ export function WindTurbineMap() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const rafRef = useRef<number>(0)
   const showPlannedRef = useRef(showPlanned)
-  showPlannedRef.current = showPlanned
+  useEffect(() => {
+    showPlannedRef.current = showPlanned
+  }, [showPlanned])
 
   useEffect(() => {
     fetch('/bundeslaender.geo.json').then(r => r.json()).then(setGeoJson).catch(() => setError(true))
@@ -54,7 +62,7 @@ export function WindTurbineMap() {
   }, [])
 
   const projection = useMemo(
-    () => geoJson ? geoMercator().fitExtent([[14, 30], [W - 14, H - 12]], geoJson) : null,
+    () => geoJson ? geoMercator().fitExtent([[14, 30], [W - 14, H - 12]], geoJson as unknown as Parameters<ReturnType<typeof geoMercator>['fitExtent']>[1]) : null,
     [geoJson]
   )
 
@@ -222,8 +230,8 @@ export function WindTurbineMap() {
       {/* ── Karte ──────────────────────────────────────────────────────── */}
       <div className="relative" style={{ aspectRatio: `${W} / ${H}`, maxWidth: 560 }}>
         <svg viewBox={`0 0 ${W} ${H}`} className="absolute inset-0 w-full h-full">
-          {geoJson.features.map((f: any) => (
-            <path key={f.properties.id} d={pathGen(f) ?? ''} fill={COLORS.land} stroke={COLORS.border} strokeWidth={1.2} />
+          {geoJson.features.map((f) => (
+            <path key={f.properties.id} d={pathGen(f as unknown as Parameters<NonNullable<typeof pathGen>>[0]) ?? ''} fill={COLORS.land} stroke={COLORS.border} strokeWidth={1.2} />
           ))}
         </svg>
         <canvas

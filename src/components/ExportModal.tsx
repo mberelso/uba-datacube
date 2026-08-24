@@ -10,7 +10,7 @@ import { type StackedSeriesConfig } from './charts/StackedAreaChart'
 interface ExportModalProps {
   flow: Dataflow
   content: DatasetContent | null
-  chartData: Record<string, any>[]
+  chartData: Record<string, number | string | null>[]
   activeSeriesList: ChartProps['activeSeriesList']
   chartType: 'line' | 'bar'
   stackedSeries?: StackedSeriesConfig[]

@@ -97,16 +97,24 @@ const BACKGROUNDS: Record<string, { prompt: string; label: string }[]> = {
 
 // ─── Gemini Image Generation (AI Studio) ─────────────────────────────────────
 
+interface GeminiPart {
+  inlineData?: {
+    data?: string
+    mimeType?: string
+  }
+}
+
 async function generateImage(ai: GoogleGenAI, prompt: string): Promise<Buffer> {
   const response = await ai.models.generateContent({
     model: 'gemini-2.5-flash-image',
     contents: prompt,
-    config: { responseModalities: ['IMAGE'] } as any,
+    config: { responseModalities: ['IMAGE'] },
   })
 
-  for (const part of response.candidates?.[0]?.content?.parts ?? []) {
-    if ((part as any).inlineData?.data) {
-      return Buffer.from((part as any).inlineData.data, 'base64')
+  const parts = (response.candidates?.[0]?.content?.parts ?? []) as GeminiPart[]
+  for (const part of parts) {
+    if (part.inlineData?.data) {
+      return Buffer.from(part.inlineData.data, 'base64')
     }
   }
   throw new Error('Keine Bilddaten in der Antwort')
@@ -157,8 +165,9 @@ async function main() {
         total++
         // Pause zwischen Requests (Image-Quota ist begrenzt)
         await new Promise(r => setTimeout(r, 8000))
-      } catch (err: any) {
-        console.log(`✗ FEHLER: ${err.message}`)
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err)
+        console.log(`✗ FEHLER: ${msg}`)
       }
     }
   }

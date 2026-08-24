@@ -142,6 +142,7 @@ function useData<T>(loader: () => Promise<T>) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true)
     setError(false)
     loader().then(setData).catch(() => setError(true)).finally(() => setLoading(false))
@@ -249,15 +250,37 @@ function ChartCard({ title, subtitle, kpi, kpiUnit, kpiYear, trend, color, loadi
   )
 }
 
-const TT = ({ active, payload, label, unit = '' }: any) => {
+function numVal(v: unknown): number | undefined {
+  return typeof v === 'number' ? v : undefined
+}
+
+function strVal(v: unknown): string | undefined {
+  return v != null ? String(v) : undefined
+}
+
+interface TooltipPayloadEntry {
+  name?: string
+  color?: string
+  stroke?: string
+  value?: number | string | null
+}
+
+interface TTProps {
+  active?: boolean
+  payload?: TooltipPayloadEntry[]
+  label?: string
+  unit?: string
+}
+
+const TT = ({ active, payload, label, unit = '' }: TTProps) => {
   if (!active || !payload?.length) return null
   return (
     <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 8, padding: '8px 12px', fontSize: 12 }}>
       <div style={{ fontWeight: 600, marginBottom: 4 }}>{label}</div>
-      {payload.map((p: any) => (
-        <div key={p.name} style={{ color: p.color ?? p.stroke, display: 'flex', gap: 8 }}>
+      {payload.map((p) => (
+        <div key={p.name ?? ''} style={{ color: p.color ?? p.stroke, display: 'flex', gap: 8 }}>
           <span style={{ color: '#64748b' }}>{p.name}:</span>
-          <b>{typeof p.value === 'number' ? fmt(p.value, 2) : p.value} {unit}</b>
+          <b>{typeof p.value === 'number' ? fmt(p.value, 2) : String(p.value ?? '')} {unit}</b>
         </div>
       ))}
     </div>
@@ -576,7 +599,7 @@ function ElectricCarChart() {
     const years = new Set<string>()
     for (const pts of Object.values(named)) pts.forEach(p => years.add(p.year))
     return Array.from(years).sort().map(year => {
-      const row: Record<string, any> = { year }
+      const row: Record<string, number | string | null> = { year }
       for (const [label, pts] of Object.entries(named)) {
         const pt = pts.find(p => p.year === year)
         row[label] = pt ? +(pt.value / 1e6).toFixed(3) : null
@@ -588,7 +611,7 @@ function ElectricCarChart() {
 
   return (
     <ChartCard title="Pkw-Bestand nach Antriebsart" subtitle="Millionen Fahrzeuge (Stichtag 1. Januar)"
-      kpi={latestBEV} kpiUnit="Mio. BEV" kpiYear={data?.[data.length - 1]?.year}
+      kpi={numVal(latestBEV)} kpiUnit="Mio. BEV" kpiYear={strVal(data?.[data.length - 1]?.year)}
       color="#0284c7" loading={loading} error={error}
       flowId="DF_TRANSPORT_VEHICLE_STOCK_TREND_FUEL" source="Quelle: Umweltbundesamt / Kraftfahrt-Bundesamt">
       <ResponsiveContainer width="100%" height="100%">
@@ -617,7 +640,7 @@ function FuelConsumptionChart() {
 
   return (
     <ChartCard title="Kraftstoffverbrauch Pkw" subtitle="Durchschnittlicher Verbrauch im Straßenverkehr (L/100 km)"
-      kpi={latest?.value} kpiUnit="L/100 km" kpiYear={latest?.year}
+      kpi={numVal(latest?.value)} kpiUnit="L/100 km" kpiYear={strVal(latest?.year)}
       trend={first && latest ? latest.value - first.value : undefined}
       color="#b45309" loading={loading} error={error}
       flowId="DF_TRANSPORT_ENERGY_FUEL_CONSUMPTION" source="Quelle: Umweltbundesamt">
@@ -657,7 +680,7 @@ function AirPollutantsChart({ onShare }: { onShare: (d: SocialCardData) => void 
     const years = new Set<string>()
     for (const pts of Object.values(named)) pts.forEach(p => years.add(p.year))
     return Array.from(years).sort().map(year => {
-      const row: Record<string, any> = { year }
+      const row: Record<string, number | string | null> = { year }
       for (const [label, pts] of Object.entries(named)) {
         const pt = pts.find(p => p.year === year)
         row[label] = pt ? +pt.value.toFixed(1) : null
@@ -668,14 +691,15 @@ function AirPollutantsChart({ onShare }: { onShare: (d: SocialCardData) => void 
 
   const latest = data?.[data.length - 1]
   const first = data?.[0]
+  const lastNo = typeof latest?.['NOₓ'] === 'number' ? latest['NOₓ'] : 100
   const socialCard: SocialCardData | undefined = data && latest && first ? {
     category: 'luft',
-    metric: `−${fmt(100 - (latest['NOₓ'] ?? 100), 0)} %`,
+    metric: `−${fmt(100 - lastNo, 0)} %`,
     metricLabel: 'NOₓ-Reduktion seit 2005',
     headline: 'Luftqualität deutlich verbessert',
     story: 'Stickoxid-, Feinstaub- und Schwefeldioxid-Emissionen sind seit 2005 deutlich gesunken. Deutschland macht bei der Luftreinhaltung sichtbare Fortschritte.',
-    sparkline: data.map(p => p['NOₓ'] ?? 100),
-    yearRange: `${first.year} – ${latest.year}`,
+    sparkline: data.map(p => typeof p['NOₓ'] === 'number' ? (p['NOₓ'] as number) : 100),
+    yearRange: `${strVal(first.year)} – ${strVal(latest.year)}`,
     datasetId: 'DF_AIR_EMISSIONS_INDEX',
   } : undefined
 
@@ -712,7 +736,7 @@ function FuelPricesChart() {
     const years = new Set<string>()
     for (const pts of Object.values(named)) pts.forEach(p => years.add(p.year))
     return Array.from(years).sort().map(year => {
-      const row: Record<string, any> = { year }
+      const row: Record<string, number | string | null> = { year }
       for (const [label, pts] of Object.entries(named)) {
         const pt = pts.find(p => p.year === year)
         row[label] = pt ? +pt.value.toFixed(3) : null
@@ -724,7 +748,7 @@ function FuelPricesChart() {
 
   return (
     <ChartCard title="Kraftstoffpreise im Straßenverkehr" subtitle="Jahresdurchschnitt Benzin und Diesel (€/L)"
-      kpi={latestBenzin} kpiUnit="€/L (Benzin)" kpiYear={data?.[data.length - 1]?.year}
+      kpi={numVal(latestBenzin)} kpiUnit="€/L (Benzin)" kpiYear={strVal(data?.[data.length - 1]?.year)}
       color="#f59e0b" loading={loading} error={error}
       flowId="DF_TRANSPORT_ENERGY_FUEL_PRICES" source="Quelle: Umweltbundesamt / BAFA">
       <ResponsiveContainer width="100%" height="100%">
@@ -756,7 +780,7 @@ function NitrogenChart() {
     const years = new Set<string>()
     for (const pts of Object.values(named)) pts.forEach(p => years.add(p.year))
     return Array.from(years).sort().map(year => {
-      const row: Record<string, any> = { year }
+      const row: Record<string, number | string | null> = { year }
       for (const [label, pts] of Object.entries(named)) {
         const pt = pts.find(p => p.year === year)
         row[label] = pt ? +pt.value.toFixed(1) : null
@@ -768,7 +792,7 @@ function NitrogenChart() {
 
   return (
     <ChartCard title="Stickstoffüberschuss Landwirtschaft" subtitle="Gesamtbilanz (kg N/ha) · Ziel: ≤ 70 kg/ha bis 2030"
-      kpi={latestSaldo} kpiUnit="kg N/ha (Saldo)" kpiYear={data?.[data.length - 1]?.year}
+      kpi={numVal(latestSaldo)} kpiUnit="kg N/ha (Saldo)" kpiYear={strVal(data?.[data.length - 1]?.year)}
       color="#65a30d" loading={loading} error={error}
       flowId="DF_AGRICULTURE_FORESTRY_NITROGEN_SURPLUS" source="Quelle: Umweltbundesamt / BMEL">
       <ResponsiveContainer width="100%" height="100%">
@@ -804,7 +828,7 @@ function ForestFireChart() {
     const years = new Set<string>()
     for (const pts of Object.values(named)) pts.forEach(p => years.add(p.year))
     return Array.from(years).sort().map(year => {
-      const row: Record<string, any> = { year, gesamt: 0 }
+      const row: Record<string, number | string | null> = { year, gesamt: 0 }
       for (const [label, pts] of Object.entries(named)) {
         const pt = pts.find(p => p.year === year)
         const val = pt ? +pt.value.toFixed(0) : 0
@@ -818,7 +842,7 @@ function ForestFireChart() {
 
   return (
     <ChartCard title="Waldbrandfläche nach Ursache" subtitle="Hektar pro Jahr · gestapelt nach Brandursache"
-      kpi={latest?.['gesamt']} kpiUnit="ha gesamt" kpiYear={latest?.year}
+      kpi={numVal(latest?.['gesamt'])} kpiUnit="ha gesamt" kpiYear={strVal(latest?.year)}
       color="#d97706" loading={loading} error={error}
       flowId="DF_AGRICULTURE_FORESTRY_FOREST_FIRE_AREA" source="Quelle: Umweltbundesamt / BMEL">
       <ResponsiveContainer width="100%" height="100%">
@@ -850,7 +874,7 @@ function GreenMobilityChart() {
     const years = new Set<string>()
     for (const pts of Object.values(named)) pts.forEach(p => years.add(p.year))
     return Array.from(years).sort().map(year => {
-      const row: Record<string, any> = { year }
+      const row: Record<string, number | string | null> = { year }
       for (const [label, pts] of Object.entries(named)) {
         const pt = pts.find(p => p.year === year)
         row[label] = pt ? +pt.value.toFixed(2) : null
@@ -860,12 +884,12 @@ function GreenMobilityChart() {
   })
   const latest = data?.[data.length - 1]
   const total = latest
-    ? ['ÖPNV (Straße)', 'Schiene', 'Radverkehr', 'Fußverkehr'].reduce((s, k) => s + (latest[k] ?? 0), 0)
+    ? ['ÖPNV (Straße)', 'Schiene', 'Radverkehr', 'Fußverkehr'].reduce((s, k) => s + (typeof latest[k] === 'number' ? (latest[k] as number) : 0), 0)
     : undefined
 
   return (
     <ChartCard title="Umweltfreundliche Mobilität" subtitle="Anteil an der Personenverkehrsleistung (%) · gestapelt nach Verkehrsträger"
-      kpi={total} kpiUnit="% gesamt" kpiYear={latest?.year}
+      kpi={total} kpiUnit="% gesamt" kpiYear={strVal(latest?.year)}
       color="#16a34a" loading={loading} error={error}
       flowId="DF_TRANSPORT_PASSENGER_PERFORMANCE_SHARE" source="Quelle: Umweltbundesamt / Destatis">
       <ResponsiveContainer width="100%" height="100%">
@@ -954,7 +978,7 @@ function WasteRecyclingRateChart() {
     const years = new Set<string>()
     for (const pts of Object.values(named)) pts.forEach(p => years.add(p.year))
     return Array.from(years).sort().map(year => {
-      const row: Record<string, any> = { year }
+      const row: Record<string, number | string | null> = { year }
       for (const [label, pts] of Object.entries(named)) {
         const pt = pts.find(p => p.year === year)
         row[label] = pt ? +pt.value.toFixed(1) : null
@@ -966,7 +990,7 @@ function WasteRecyclingRateChart() {
 
   return (
     <ChartCard title="Abfallrecyclingquoten" subtitle="Recyclingquote (%) nach Abfallkategorie · 2021–2023"
-      kpi={latest?.['Gesamtabfall (nicht-gef.)']} kpiUnit="% Gesamtabfall" kpiYear={latest?.year}
+      kpi={numVal(latest?.['Gesamtabfall (nicht-gef.)'])} kpiUnit="% Gesamtabfall" kpiYear={strVal(latest?.year)}
       color="#0891b2" loading={loading} error={error}
       flowId="DF_WASTE_RECOVERY_RATE" source="Quelle: Umweltbundesamt / Destatis">
       <ResponsiveContainer width="100%" height="100%">
@@ -998,7 +1022,7 @@ function WasteDisposalChart() {
     const years = new Set<string>()
     for (const pts of Object.values(named)) pts.forEach(p => years.add(p.year))
     return Array.from(years).sort().map(year => {
-      const row: Record<string, any> = { year }
+      const row: Record<string, number | string | null> = { year }
       for (const [label, pts] of Object.entries(named)) {
         const pt = pts.find(p => p.year === year)
         row[label] = pt ? +(pt.value / 1000).toFixed(1) : null
@@ -1009,12 +1033,12 @@ function WasteDisposalChart() {
   const latest = data?.[data.length - 1]
   const total = latest
     ? ['Stoffliche Verwertung', 'Thermische Behandlung', 'Deponierung', 'Behandlung zur Beseitigung']
-        .reduce((s, k) => s + (latest[k] ?? 0), 0)
+        .reduce((s, k) => s + (typeof latest[k] === 'number' ? (latest[k] as number) : 0), 0)
     : undefined
 
   return (
     <ChartCard title="Brutto-Abfallaufkommen nach Verwertungsweg" subtitle="Mio. Tonnen gesamt · gestapelt nach Entsorgungspfad"
-      kpi={total} kpiUnit="Mio. t gesamt" kpiYear={latest?.year}
+      kpi={total} kpiUnit="Mio. t gesamt" kpiYear={strVal(latest?.year)}
       color="#475569" loading={loading} error={error}
       flowId="DF_WASTE_VOLUME" source="Quelle: Umweltbundesamt / Destatis">
       <ResponsiveContainer width="100%" height="100%">
@@ -1054,7 +1078,7 @@ function ConsumerFootprintChart() {
     const years = new Set<string>()
     for (const pts of Object.values(named)) pts.forEach(p => years.add(p.year))
     return Array.from(years).sort().map(year => {
-      const row: Record<string, any> = { year }
+      const row: Record<string, number | string | null> = { year }
       for (const [label, pts] of Object.entries(named)) {
         const pt = pts.find(p => p.year === year)
         row[label] = pt ? +pt.value.toFixed(1) : null
@@ -1097,7 +1121,7 @@ function EnvTaxRevenueChart() {
     const years = new Set<string>()
     for (const pts of Object.values(named)) pts.forEach(p => years.add(p.year))
     return Array.from(years).sort().map(year => {
-      const row: Record<string, any> = { year }
+      const row: Record<string, number | string | null> = { year }
       for (const [label, pts] of Object.entries(named)) {
         const pt = pts.find(p => p.year === year)
         row[label] = pt ? +(pt.value / 1000).toFixed(1) : null
@@ -1108,12 +1132,12 @@ function EnvTaxRevenueChart() {
   const latestTotal = data?.[data.length - 1]
   const total = latestTotal
     ? (['Energiesteuer', 'Kraftfahrzeugsteuer', 'Emissionshandel', 'Luftverkehrsteuer'] as const)
-        .reduce((s, k) => s + (latestTotal[k] ?? 0), 0)
+        .reduce((s, k) => s + (typeof latestTotal[k] === 'number' ? (latestTotal[k] as number) : 0), 0)
     : undefined
 
   return (
     <ChartCard title="Umweltsteuereinnahmen" subtitle="Mrd. € · gestapelt nach Steuerart"
-      kpi={total} kpiUnit="Mrd. € gesamt" kpiYear={latestTotal?.year}
+      kpi={total} kpiUnit="Mrd. € gesamt" kpiYear={strVal(latestTotal?.year)}
       color="#475569" loading={loading} error={error}
       flowId="DF_ENV_ECON_REVENUE_ENV_TAXES" source="Quelle: Umweltbundesamt / Destatis">
       <ResponsiveContainer width="100%" height="100%">
@@ -1182,7 +1206,7 @@ function GhgSectorProjectionChart() {
       }
     }
     return Array.from(years).sort().map(year => {
-      const row: Record<string, any> = { year }
+      const row: Record<string, number | string | null> = { year }
       for (const label of Object.keys(sectorKeys)) {
         row[label] = seriesData[label][year] != null ? +seriesData[label][year]!.toFixed(1) : null
       }
@@ -1192,14 +1216,14 @@ function GhgSectorProjectionChart() {
 
   const latest = data?.[data.length - 1]
   const totalLatest = latest
-    ? Object.keys(SEKTOR_COLORS).reduce((s, k) => s + (latest[k] ?? 0), 0)
+    ? Object.keys(SEKTOR_COLORS).reduce((s, k) => s + (typeof latest[k] === 'number' ? (latest[k] as number) : 0), 0)
     : undefined
 
   return (
     <ChartCard
       title="THG-Emissionen nach Sektor bis 2045"
       subtitle="Projektion 2026 · MMS-Szenario · Mio. t CO₂-Äq."
-      kpi={totalLatest} kpiUnit="Mio. t CO₂" kpiYear={latest?.year}
+      kpi={totalLatest} kpiUnit="Mio. t CO₂" kpiYear={strVal(latest?.year)}
       color="#dc2626" loading={loading} error={error} height={260}
       flowId="DF_CROSS_PROJECTION_REPORT_CORE_INDICATORS_26"
       lazyFilters={{ D_COUNTRY: 'DE', FREQUENCY: 'A', D_REPORTING_YEAR: '2026', D_INDICATOR_PROJECTION_REPORT: 'THPR_DTNTBL_SNSTGS_10703870', D_UNIT: 'MT_CO2_EQ', D_KSG_SECTOR: 'TOTAL', D_SCENARIO_TYPE: 'MMS' }}

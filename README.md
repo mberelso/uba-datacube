@@ -16,12 +16,13 @@ UBA-Datacube ist eine moderne Web-Applikation zur Visualisierung und Analyse von
   - **Spezial-Analysen**: Maßgeschneiderte Ansichten für komplexe Datensätze (z. B. Waldbrände), die verschiedene Einheiten (Anzahl vs. Fläche) trennen und abgeleitete Metriken (wie "Brandintensität") on-the-fly berechnen, um echte Erkenntnisse zu liefern.
   - **Wissenschaftliche Notation**: Extrem kleine Messwerte werden zur besseren Lesbarkeit automatisch skaliert (z. B. `1.2e-6`).
 
-## 🛠️ Tech Stack
+## 🛠️ Tech Stack & Code-Qualität
 
-- **Frontend**: React 18
-- **Framework & Build**: Vite, TypeScript
-- **Visualisierung**: Recharts
-- **Styling**: Vanilla CSS (mit modernen CSS-Variablen)
+- **Frontend**: React 19
+- **Framework & Build**: Vite, TypeScript (strikte Typensicherheit ohne `any`)
+- **Visualisierung**: Recharts, D3-Geo
+- **Quality Gates**: ESLint (0 Errors, 0 Warnings), Static Type Checking (`tsc --noEmit`), Playwright Prerendering (10/10 Routen statisch vorgeneriert)
+- **Styling**: Vanilla CSS, TailwindCSS (mit modernen CSS-Variablen)
 - **API**: UBA SDMX REST API (SDMX-JSON v1/v2)
 
 ## 📦 Lokale Entwicklung
@@ -33,7 +34,13 @@ npm install
 # Entwicklungsserver starten
 npm run dev
 
-# Produktionsbuild erstellen
+# Code-Qualität & Linting überprüfen
+npm run lint
+
+# Typen prüfen
+npx tsc --noEmit
+
+# Produktionsbuild & Playwright Prerender erstellen
 npm run build
 ```
 
@@ -41,7 +48,9 @@ npm run build
 
 Die Kernlogik für den Datenabruf befindet sich in `src/api/sdmx.ts`. 
 Die UBA-API liefert Daten im SDMX-JSON Format. Da die API-Struktur zwischen verschiedenen Datensätzen variieren kann, wurde ein fehlertolerantes Parsing implementiert:
+- **Typensicherheit**: Vollständig typisierte SDMX-Netzwerk- und Struktur-Interfaces (`RawSDMXHeader`, `RawSDMXStructure`, `RawSDMXDataSet`, `Dataflow`, `Dimension`).
 - **Zeitdimensionen**: Werden flexibel über ihre Rolle (`time`) oder ID (`TIME_PERIOD`) identifiziert.
 - **Beobachtungen (Observations)**: Es werden sowohl klassische Arrays (`[Wert, Flag]`) als auch direkte numerische Werte unterstützt.
 - **Robustes Fallback**: Wenn eine Datenreihe komplett leer ist, wird sie vom System intelligent ignoriert, um "leere" Charts zu vermeiden.
+- **Hook-Architektur & Rendering**: React-Hooks sind für reaktive Abfragen optimiert (`useMemo`, `useCallback`) ohne Mutationen von Ref-Werten während des Rendering-Passes.
 - **Spezial-Komponenten (Custom Views)**: Für Datensätze, bei denen Standard-Visualisierungen an ihre Grenzen stoßen (z. B. `DF_AGRICULTURE_FORESTRY_FOREST_FIRE_AREA` wegen gemischter Einheiten), existieren maßgeschneiderte Komponenten (wie `ForestFiresAnalysis.tsx`). Diese werden dynamisch eingebunden, nutzen synchrone Diagramme (`syncId`) und berechnen auf Basis des API-Responses abgeleitete Metriken für tiefere Einblicke.

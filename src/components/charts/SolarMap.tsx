@@ -61,8 +61,14 @@ function rampColor(t: number): string {
   return `rgb(154,52,18)`
 }
 
+interface GeoFeature {
+  type: string
+  properties: { ags: string; name?: string }
+  geometry: unknown
+}
+
 export function SolarMap() {
-  const [geoJson, setGeoJson] = useState<any>(null)
+  const [geoJson, setGeoJson] = useState<{ features: GeoFeature[] } | null>(null)
   const [kreise, setKreise] = useState<KreiseData | null>(null)
   const [points, setPoints] = useState<PointData | null>(null)
   const [summary, setSummary] = useState<Summary | null>(null)
@@ -76,7 +82,9 @@ export function SolarMap() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const rafRef = useRef<number>(0)
   const showPointsRef = useRef(showPoints)
-  showPointsRef.current = showPoints
+  useEffect(() => {
+    showPointsRef.current = showPoints
+  }, [showPoints])
 
   useEffect(() => {
     fetch('/kreise.geo.json').then(r => r.json()).then(setGeoJson).catch(() => setError(true))
@@ -86,7 +94,7 @@ export function SolarMap() {
   }, [])
 
   const projection = useMemo(
-    () => geoJson ? geoMercator().fitExtent([[14, 12], [W - 14, H - 12]], geoJson) : null,
+    () => geoJson ? geoMercator().fitExtent([[14, 12], [W - 14, H - 12]], geoJson as unknown as Parameters<ReturnType<typeof geoMercator>['fitExtent']>[1]) : null,
     [geoJson]
   )
 
@@ -197,14 +205,14 @@ export function SolarMap() {
       {/* ── Karte ──────────────────────────────────────────────────────── */}
       <div className="relative" style={{ aspectRatio: `${W} / ${H}`, maxWidth: 560 }}>
         <svg viewBox={`0 0 ${W} ${H}`} className="absolute inset-0 w-full h-full">
-          {geoJson.features.map((f: any, fi: number) => {
+          {geoJson.features.map((f, fi: number) => {
             const k = kreise.kreise[f.properties.ags]
             const gw = k ? k.cumGw[idx] : 0
             const fill = gw > 0 ? rampColor(Math.sqrt(gw / maxKreisGw)) : COLORS.land
             return (
               <path
                 key={`${f.properties.ags}-${fi}`}
-                d={pathGen(f) ?? ''}
+                d={pathGen(f as unknown as Parameters<NonNullable<typeof pathGen>>[0]) ?? ''}
                 fill={fill}
                 stroke={COLORS.border}
                 strokeWidth={0.4}

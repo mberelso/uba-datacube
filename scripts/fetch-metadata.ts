@@ -41,22 +41,37 @@ interface DatasetMeta {
   error?: string
 }
 
-// ── API-Abfragen ─────────────────────────────────────────────────────────────
-
 interface FlowInfo { id: string; version: string; agencyID: string }
+
+interface SdmxRefMeta {
+  id?: string
+  version?: string
+  agencyID?: string
+  codes?: Record<string, unknown>
+  localRepresentation?: { enumeration?: string }
+  dataStructureComponents?: {
+    dimensionList?: {
+      dimensions?: Array<{
+        localRepresentation?: { enumeration?: string }
+      }>
+    }
+  }
+}
+
+// ── API-Abfragen ─────────────────────────────────────────────────────────────
 
 async function fetchAllDataflows(): Promise<FlowInfo[]> {
   const url = `${BASE}/dataflow/all/all/latest`
   const r = await fetch(url, { headers: { Accept: 'application/json', 'Accept-Language': 'de' } })
   if (!r.ok) throw new Error(`Dataflows: HTTP ${r.status}`)
-  const json = await r.json() as any
-  const refs: Record<string, any> = json.references ?? {}
+  const json = await r.json() as { references?: Record<string, SdmxRefMeta> }
+  const refs = json.references ?? {}
   return Object.values(refs)
-    .filter((df: any) => df.id?.startsWith('DF_'))
-    .map((df: any) => ({
-      id:       df.id as string,
-      version:  (df.version ?? '1.0') as string,
-      agencyID: (df.agencyID ?? 'UBA') as string,
+    .filter((df): df is SdmxRefMeta & { id: string } => typeof df.id === 'string' && df.id.startsWith('DF_'))
+    .map((df) => ({
+      id:       df.id,
+      version:  df.version ?? '1.0',
+      agencyID: df.agencyID ?? 'UBA',
     }))
     .sort((a, b) => a.id.localeCompare(b.id))
 }
@@ -72,17 +87,17 @@ async function fetchMetadataFromStructure(flow: FlowInfo, reason: string): Promi
     })
     if (!r.ok) throw new Error(`DSD HTTP ${r.status}`)
 
-    const json = await r.json() as any
-    const refs: Record<string, any> = json.references ?? {}
-    const dsd = Object.values(refs).find((v: any) => v.id && !v.id.startsWith('DF_')) as any
+    const json = await r.json() as { references?: Record<string, SdmxRefMeta> }
+    const refs = json.references ?? {}
+    const dsd = Object.values(refs).find((v) => typeof v.id === 'string' && !v.id.startsWith('DF_'))
     if (!dsd) throw new Error('Kein DSD gefunden')
 
-    const dims: any[] = dsd.dataStructureComponents?.dimensionList?.dimensions ?? []
+    const dims = dsd.dataStructureComponents?.dimensionList?.dimensions ?? []
     let seriesEstimate = 1
     for (const d of dims) {
       const enumRef = d.localRepresentation?.enumeration
       if (enumRef) {
-        const cl = refs[enumRef] as any
+        const cl = refs[enumRef]
         const count = cl?.codes ? Object.keys(cl.codes).length : 0
         if (count > 0) seriesEstimate *= count
       }
@@ -98,8 +113,8 @@ async function fetchMetadataFromStructure(flow: FlowInfo, reason: string): Promi
       error: `Datenmenge zu groß für Download — Serienanzahl geschätzt aus DSD`,
     }
   } catch (dsdErr) {
-    // Auch DSD nicht erreichbar — gib leeren Eintrag zurück
-    throw new Error(`Alle Endpunkte fehlgeschlagen. Daten: ${reason}. DSD: ${dsdErr instanceof Error ? dsdErr.message : String(dsdErr)}`)
+    const dsdErrMsg = dsdErr instanceof Error ? dsdErr.message : String(dsdErr)
+    throw new Error(`Alle Endpunkte fehlgeschlagen. Daten: ${reason}. DSD: ${dsdErrMsg}`, { cause: dsdErr })
   }
 }
 
@@ -158,7 +173,7 @@ async function fetchMetadataForDataset(flow: FlowInfo): Promise<DatasetMeta> {
         }
       }
     }
-  } catch (e) {
+  } catch {
     // CSV fehlgeschlagen — weiter mit JSON-Fallback
   }
 
@@ -179,23 +194,35 @@ async function fetchMetadataForDataset(flow: FlowInfo): Promise<DatasetMeta> {
     return await fetchMetadataFromStructure(flow, jsonErr instanceof Error ? jsonErr.message : String(jsonErr))
   }
 
-  const json = await r.json() as any
+  interface JsonStructDim { id?: string; role?: string; values?: Array<{ id?: string }> }
+  interface JsonObsSeries { observations?: Record<string, unknown> | Array<[number | string, unknown]> }
+
+  const json = await r.json() as {
+    data?: {
+      dataSets?: Array<{ series?: Record<string, JsonObsSeries> }>
+      structures?: Array<{ dimensions?: { observation?: JsonStructDim[] } }>
+    }
+    dataSets?: Array<{ series?: Record<string, JsonObsSeries> }>
+    structures?: Array<{ dimensions?: { observation?: JsonStructDim[] } }>
+    structure?: { dimensions?: { observation?: JsonStructDim[] } }
+  }
+
   const envelope = json.data ?? json
-  const datasets: any[] = envelope.dataSets ?? []
-  const structures: any[] = envelope.structures ?? (json.structure ? [json.structure] : [])
+  const datasets = envelope.dataSets ?? []
+  const structures = envelope.structures ?? (json.structure ? [json.structure] : [])
 
   const struct = structures[0]
-  const obsDims: any[] = struct?.dimensions?.observation ?? []
-  const timeDim = obsDims.find((d: any) => d.id === 'TIME_PERIOD' || d.role === 'time') ?? obsDims[0]
-  const timeValues: string[] = (timeDim?.values ?? []).map((v: any) => v.id ?? String(v))
+  const obsDims = struct?.dimensions?.observation ?? []
+  const timeDim = obsDims.find((d) => d.id === 'TIME_PERIOD' || d.role === 'time') ?? obsDims[0]
+  const timeValues: string[] = (timeDim?.values ?? []).map((v) => v.id ?? String(v))
 
-  const rawSeries: Record<string, any> = datasets[0]?.series ?? {}
+  const rawSeries = datasets[0]?.series ?? {}
   const seriesCount = Object.keys(rawSeries).length
 
   const years = new Set<string>()
   let obsCount = 0
 
-  for (const s of Object.values(rawSeries) as any[]) {
+  for (const s of Object.values(rawSeries)) {
     const obs = s.observations ?? {}
     if (Array.isArray(obs)) {
       for (const entry of obs) {
@@ -236,15 +263,7 @@ function patchHandbook(content: string, meta: DatasetMeta): string {
     : meta.seriesCount.toLocaleString('de-DE')
   const obs      = meta.obsCount > 0 ? meta.obsCount.toLocaleString('de-DE') : null
 
-  // Replace ⏳-Platzhalter innerhalb des jeweiligen Datensatz-Blocks.
-  // Muster: Zeilen direkt nach dem ### Heading mit dem passenden ID-Aufruf.
-  // Wir patchen global alle Vorkommen — sie sind eindeutig durch den Kontext.
-
-  // Zeitraum: "⏳ API-Daten ausstehend (erwartet: ...)" oder "⏳ API-Daten ausstehend"
-  // Wir patchen nur innerhalb des richtigen Dataset-Blocks, indem wir nach der ID suchen.
-
   const datasetRegex = new RegExp(
-    // Match von ### heading mit ID bis zum nächsten ### heading oder Seitenende
     `(###[^\\n]*\\(\`${escapeRegex(meta.id)}\`\\)[\\s\\S]*?)(?=\\n###|\\n---\\n\\n##|$)`,
     'g'
   )

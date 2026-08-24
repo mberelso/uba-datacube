@@ -278,10 +278,12 @@ function datasetTitle(route: string): string | null {
 async function run() {
   const previewServer = await preview({
     root: ROOT,
-    preview: { port: PORT, strictPort: true },
+    preview: { port: PORT, strictPort: false },
   })
 
-  const base = `http://localhost:${PORT}`
+  const address = previewServer.httpServer.address()
+  const serverPort = typeof address === 'object' && address ? address.port : PORT
+  const base = `http://localhost:${serverPort}`
   const executablePath = findChromium()
   if (executablePath) console.log(`Using browser: ${executablePath}`)
 

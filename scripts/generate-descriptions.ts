@@ -46,9 +46,17 @@ interface RawFlow {
   category: string
 }
 
-function httpGet(url: string, headers: Record<string, string> = {}): Promise<any> {
+interface GeneratedContent {
+  headline: string
+  lead: string
+  trend: string
+  context: string
+  methodology: string
+}
+
+function httpGet(url: string, headers: Record<string, string> = {}): Promise<unknown> {
   return new Promise((resolve, reject) => {
-    https.get(url, { headers: { 'Accept': 'application/json', ...headers } }, (res) => {
+    https.get(url, { headers: { Accept: 'application/json', ...headers } }, (res) => {
       if (res.statusCode !== 200) { reject(new Error(`HTTP ${res.statusCode}`)); return }
       let data = ''
       res.on('data', (chunk) => { data += chunk })
@@ -59,10 +67,10 @@ function httpGet(url: string, headers: Record<string, string> = {}): Promise<any
 
 async function fetchFlows(): Promise<RawFlow[]> {
   const url = `${SDMX_BASE}/dataflow/UBA/all/latest`
-  const json: any = await httpGet(url)
+  const json = await httpGet(url) as { references?: Record<string, { id?: string; name?: string; description?: string; agencyID?: string; version?: string }> }
 
   // references is a plain object keyed by some id string, values are dataflow objects
-  const refs: Record<string, any> = json.references ?? {}
+  const refs = json.references ?? {}
   const flows: RawFlow[] = []
 
   for (const df of Object.values(refs)) {
@@ -96,7 +104,7 @@ function getReviewedIds(): Set<string> {
   const src = fs.readFileSync(CONTENT_FILE, 'utf-8')
   const reviewed = new Set<string>()
   // Simple heuristic: find blocks that contain status: 'reviewed'
-  const blocks = src.split(/\n  DF_/)
+  const blocks = src.split(/\n\s{2}DF_/)
   for (const block of blocks) {
     const idMatch = block.match(/^([A-Z0-9_]+):/)
     if (!idMatch) continue
@@ -132,7 +140,7 @@ Return ONLY a valid JSON object (no markdown, no explanation):
 
 // ─── Generate via Claude ──────────────────────────────────────────────────────
 
-async function generateContent(client: Anthropic, flow: RawFlow): Promise<string> {
+async function generateContent(client: Anthropic, flow: RawFlow): Promise<GeneratedContent> {
   const message = await client.messages.create({
     model: 'claude-sonnet-4-6',
     max_tokens: 1024,
@@ -142,7 +150,7 @@ async function generateContent(client: Anthropic, flow: RawFlow): Promise<string
   const raw = message.content[0].type === 'text' ? message.content[0].text : ''
   // Strip markdown code fences if present
   const text = raw.replace(/^```(?:json)?\s*/m, '').replace(/\s*```\s*$/m, '').trim()
-  const parsed = JSON.parse(text)
+  const parsed = JSON.parse(text) as Record<string, string>
 
   // Validate all required fields exist
   const required = ['headline', 'lead', 'trend', 'context', 'methodology']
@@ -150,12 +158,18 @@ async function generateContent(client: Anthropic, flow: RawFlow): Promise<string
     if (!parsed[field]) throw new Error(`Missing field: ${field}`)
   }
 
-  return parsed
+  return {
+    headline: parsed.headline,
+    lead: parsed.lead,
+    trend: parsed.trend,
+    context: parsed.context,
+    methodology: parsed.methodology,
+  }
 }
 
 // ─── Format as TypeScript entry ──────────────────────────────────────────────
 
-function formatEntry(flowId: string, content: any): string {
+function formatEntry(flowId: string, content: GeneratedContent): string {
   const esc = (s: string) => s.replace(/'/g, "\\'")
   return `
   // AUTO-GENERATED DRAFT — please review and set status to 'reviewed'
@@ -229,8 +243,9 @@ async function main() {
 
       // Rate limit: 1 request per second to be safe
       await new Promise((r) => setTimeout(r, 1000))
-    } catch (err: any) {
-      console.log(`FAILED: ${err.message}`)
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err)
+      console.log(`FAILED: ${msg}`)
     }
   }
 

@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import type { CSSProperties } from 'react'
 
 // --- Glass Tooltip --- 
@@ -96,13 +97,25 @@ export function xAxisTickProps(data: { year: string }[]): {
   return { interval: 'preserveStartEnd' }
 }
 
+export interface GlassTooltipPayloadEntry {
+  color?: string
+  name?: string
+  value?: number | string
+}
+
+export interface GlassTooltipProps {
+  active?: boolean
+  payload?: GlassTooltipPayloadEntry[]
+  label?: string
+}
+
 // --- Glassmorphism Tooltip component (reusable) ---
-export function GlassTooltip({ active, payload, label }: any) {
+export function GlassTooltip({ active, payload, label }: GlassTooltipProps) {
   if (!active || !payload?.length) return null
   return (
     <div style={GlassTooltipContainer}>
       <div style={GlassTooltipLabel}>{label}</div>
-      {payload.map((entry: any, i: number) => (
+      {payload.map((entry, i) => (
         <div key={i} style={GlassTooltipRow}>
           <span style={{ width: 8, height: 8, borderRadius: '50%', background: entry.color, flexShrink: 0 }} />
           <span style={GlassTooltipName}>{entry.name}</span>

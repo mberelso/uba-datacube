@@ -2,26 +2,72 @@ const BASE = 'https://daten.uba.de/release/rest'
 
 export interface TimePoint { year: string; value: number }
 
-async function fetchSdmxJson(flowRef: string, key = 'all'): Promise<{ series: Record<string, any>; timeValues: string[] }> {
+export interface SdmxCode {
+  id: string
+  name?: string
+}
+
+export interface SdmxRef {
+  id?: string
+  name?: string
+  description?: string
+  agencyID?: string
+  version?: string
+  codes?: Record<string, SdmxCode>
+  localRepresentation?: { enumeration?: string }
+  dataStructureComponents?: {
+    dimensionList?: {
+      dimensions?: Array<{
+        id: string
+        names?: { de?: string; en?: string }
+        position: number
+        localRepresentation?: { enumeration?: string }
+      }>
+      timeDimension?: { id: string; position: number }
+    }
+  }
+}
+
+export interface SdmxDimensionValue {
+  id?: string
+  name?: string
+  names?: { de?: string; en?: string }
+  role?: string
+}
+
+export interface SdmxDimension {
+  id: string
+  name?: string
+  names?: { de?: string; en?: string }
+  position?: number
+  role?: string
+  values?: SdmxDimensionValue[]
+}
+
+export interface SdmxSeriesData {
+  observations?: Record<string, number | null | (number | null)[]> | (number | null)[][]
+}
+
+async function fetchSdmxJson(flowRef: string, key = 'all'): Promise<{ series: Record<string, SdmxSeriesData>; timeValues: string[] }> {
   const url = `${BASE}/data/${flowRef}/${key}?format=jsondata`
   const r = await fetch(url, { headers: { Accept: 'application/vnd.sdmx.data+json;version=2.0,application/json' } })
   if (!r.ok) throw new Error(`API-Fehler ${r.status} für ${flowRef}`)
   const json = await r.json()
   const env = json.data ?? json
-  const structs: any[] = env.structures ?? (json.structure ? [json.structure] : [])
-  const dsets: any[] = env.dataSets ?? []
+  const structs: Array<{ dimensions?: { observation?: SdmxDimension[]; series?: SdmxDimension[] } }> = env.structures ?? (json.structure ? [json.structure] : [])
+  const dsets: Array<{ series?: Record<string, SdmxSeriesData> }> = env.dataSets ?? []
   
   // Find time dimension values more robustly
   const obsDims = structs[0]?.dimensions?.observation ?? []
-  const timeDim = obsDims.find((d: any) => d.id === 'TIME_PERIOD' || d.role === 'time') ?? obsDims[0]
-  const tvals: any[] = timeDim?.values ?? []
+  const timeDim = obsDims.find((d) => d.id === 'TIME_PERIOD' || d.role === 'time') ?? obsDims[0]
+  const tvals: SdmxDimensionValue[] = timeDim?.values ?? []
   
   const series = dsets[0]?.series ?? {}
   console.log(`[SDMX] Found ${Object.keys(series).length} series and ${tvals.length} time points`)
   
   return {
     series,
-    timeValues: tvals.map((v: any) => v.id ?? String(v)),
+    timeValues: tvals.map((v) => v.id ?? String(v)),
   }
 }
 
@@ -29,8 +75,12 @@ async function fetchSdmxJson(flowRef: string, key = 'all'): Promise<{ series: Re
 export async function fetchAveragedSeries(flowRef: string, key = 'all'): Promise<TimePoint[]> {
   const { series, timeValues } = await fetchSdmxJson(flowRef, key)
   const acc: Record<string, number[]> = {}
-  for (const sv of Object.values(series) as any[]) {
-    for (const [tidx, val] of Object.entries(sv.observations ?? {})) {
+  for (const sv of Object.values(series)) {
+    const rawObs = sv.observations ?? {}
+    const entries = Array.isArray(rawObs)
+      ? rawObs.map((item, idx) => [String(item[0] ?? idx), item[1]] as [string, unknown])
+      : Object.entries(rawObs)
+    for (const [tidx, val] of entries) {
       const yr = timeValues[Number(tidx)] ?? tidx
       // Handle both array [value, status] and direct value
       const v = Array.isArray(val) ? (val[0] as number | null) : (typeof val === 'number' ? val : null)
@@ -45,9 +95,13 @@ export async function fetchAveragedSeries(flowRef: string, key = 'all'): Promise
 /** Pick a single named series by 0-based series index */
 export async function fetchSingleSeries(flowRef: string, key = 'all', seriesIndex = 0): Promise<TimePoint[]> {
   const { series, timeValues } = await fetchSdmxJson(flowRef, key)
-  const sv = Object.values(series)[seriesIndex] as any
+  const sv = Object.values(series)[seriesIndex]
   if (!sv) return []
-  return Object.entries(sv.observations ?? {})
+  const rawObs = sv.observations ?? {}
+  const entries = Array.isArray(rawObs)
+    ? rawObs.map((item, idx) => [String(item[0] ?? idx), item[1]] as [string, unknown])
+    : Object.entries(rawObs)
+  return entries
     .map(([tidx, val]) => ({
       year: timeValues[Number(tidx)] ?? tidx,
       value: Array.isArray(val) ? (val[0] as number) : (val as number),
@@ -65,9 +119,13 @@ export async function fetchNamedSeries(
   const { series, timeValues } = await fetchSdmxJson(flowRef, key)
   const result: Record<string, TimePoint[]> = {}
   for (const [seriesKey, label] of Object.entries(labelMap)) {
-    const sv = series[seriesKey] as any
+    const sv = series[seriesKey]
     if (!sv) continue
-    result[label] = Object.entries(sv.observations ?? {})
+    const rawObs = sv.observations ?? {}
+    const entries = Array.isArray(rawObs)
+      ? rawObs.map((item, idx) => [String(item[0] ?? idx), item[1]] as [string, unknown])
+      : Object.entries(rawObs)
+    result[label] = entries
       .map(([tidx, val]) => ({
         year: timeValues[Number(tidx)] ?? tidx,
         value: Array.isArray(val) ? (val[0] as number) : (val as number),
@@ -128,14 +186,14 @@ export async function fetchDataflows(): Promise<Dataflow[]> {
   })
   if (!r.ok) throw new Error(`Datenkatalog konnte nicht geladen werden (${r.status})`)
   const json = await r.json()
-  const refs: Record<string, any> = json.references ?? {}
-  return Object.values(refs).map((df: any) => ({
-    id: df.id,
-    name: df.name ?? df.id,
+  const refs: Record<string, SdmxRef> = json.references ?? {}
+  return Object.values(refs).map((df) => ({
+    id: df.id ?? '',
+    name: df.name ?? df.id ?? '',
     description: (df.description ?? '').replace(/<[^>]+>/g, ''),
     agencyID: df.agencyID ?? 'UBA',
     version: df.version ?? '1.0',
-    category: categoryFromId(df.id),
+    category: categoryFromId(df.id ?? ''),
   }))
 }
 
@@ -145,8 +203,8 @@ export async function fetchSingleDataflow(id: string): Promise<Dataflow> {
   })
   if (!r.ok) throw new Error(`Datensatz nicht gefunden (${r.status})`)
   const json = await r.json()
-  const refs: Record<string, any> = json.references ?? {}
-  const df = Object.values(refs).find((v: any) => v.id === id) ?? Object.values(refs)[0] as any
+  const refs: Record<string, SdmxRef> = json.references ?? {}
+  const df = Object.values(refs).find((v) => v.id === id) ?? Object.values(refs)[0]
   if (!df) throw new Error('Datensatz nicht gefunden')
   return {
     id: df.id ?? id,
@@ -164,12 +222,12 @@ export async function fetchStructure(flow: Dataflow): Promise<DatasetStructure> 
     { headers: { Accept: 'application/json' } },
   )
   const json = await r.json()
-  const refs: Record<string, any> = json.references ?? {}
+  const refs: Record<string, SdmxRef> = json.references ?? {}
 
   // Find the data structure definition
   const dsdEntry = Object.values(refs).find(
-    (v: any) => v.id && !v.id.startsWith('DF_'),
-  ) as any
+    (v) => v.id && !v.id.startsWith('DF_'),
+  )
 
   const dims: Dimension[] = []
   let timeDim: Dimension = { id: 'TIME_PERIOD', name: 'Jahr', position: 0, values: [] }
@@ -179,9 +237,9 @@ export async function fetchStructure(flow: Dataflow): Promise<DatasetStructure> 
       const vals: DimensionValue[] = []
       const enumRef = d.localRepresentation?.enumeration
       if (enumRef) {
-        const cl = refs[enumRef] as any
+        const cl = refs[enumRef]
         if (cl?.codes) {
-          for (const code of Object.values(cl.codes) as any[]) {
+          for (const code of Object.values(cl.codes)) {
             vals.push({ id: code.id, name: code.name ?? code.id })
           }
         }
@@ -194,7 +252,7 @@ export async function fetchStructure(flow: Dataflow): Promise<DatasetStructure> 
     }
   }
 
-  const flowRef = Object.values(refs).find((v: any) => v.id === flow.id) as any
+  const flowRef = Object.values(refs).find((v) => v.id === flow.id)
   return {
     title: flowRef?.name ?? flow.name,
     description: (flowRef?.description ?? flow.description).replace(/<[^>]+>/g, ''),
@@ -221,8 +279,8 @@ export async function fetchData(flow: Dataflow, key = 'all'): Promise<{
 
   // Support both SDMX-JSON v1 and v2 envelopes
   const envelope = json.data ?? json
-  const datasets: any[] = envelope.dataSets ?? []
-  const structures: any[] = envelope.structures ?? (json.structure ? [json.structure] : [])
+  const datasets: Array<{ series?: Record<string, SdmxSeriesData> }> = envelope.dataSets ?? []
+  const structures: Array<{ dimensions?: { series?: SdmxDimension[]; observation?: SdmxDimension[] } }> = envelope.structures ?? (json.structure ? [json.structure] : [])
 
   const struct = structures[0]
 
@@ -230,30 +288,31 @@ export async function fetchData(flow: Dataflow, key = 'all'): Promise<{
   let timeValues: string[] = []
 
   if (struct?.dimensions) {
-    const seriesDims: any[] = struct.dimensions.series ?? []
-    const obsDims: any[] = struct.dimensions.observation ?? []
+    const seriesDims: SdmxDimension[] = struct.dimensions.series ?? []
+    const obsDims: SdmxDimension[] = struct.dimensions.observation ?? []
 
     for (const d of seriesDims) {
       dims.push({
         id: d.id,
         name: d.names?.de ?? d.names?.en ?? d.name ?? d.id,
         position: d.position ?? dims.length,
-        values: (d.values ?? []).map((v: any) => ({ id: v.id ?? String(v), name: v.names?.de ?? v.names?.en ?? v.name ?? v.id ?? String(v) })),
+        values: (d.values ?? []).map((v) => ({ id: v.id ?? String(v), name: v.names?.de ?? v.names?.en ?? v.name ?? v.id ?? String(v) })),
       })
     }
     if (obsDims.length > 0) {
-      const timeDim = obsDims.find((d: any) => d.id === 'TIME_PERIOD' || d.role === 'time') ?? obsDims[0]
-      timeValues = (timeDim.values ?? []).map((v: any) => v.id ?? String(v))
+      const timeDim = obsDims.find((d) => d.id === 'TIME_PERIOD' || d.role === 'time') ?? obsDims[0]
+      timeValues = (timeDim.values ?? []).map((v) => v.id ?? String(v))
     }
   }
 
   const ds = datasets[0] ?? {}
-  const rawSeries: Record<string, any> = ds.series ?? {}
+  const rawSeries: Record<string, SdmxSeriesData> = ds.series ?? {}
 
   // If timeValues came back empty, reconstruct from observation keys (fallback for non-standard SDMX responses)
   if (timeValues.length === 0 && Object.keys(rawSeries).length > 0) {
-    const firstSeries = Object.values(rawSeries)[0] as any
-    const obsKeys = Object.keys(firstSeries?.observations ?? {}).map(Number).sort((a, b) => a - b)
+    const firstSeries = Object.values(rawSeries)[0]
+    const obsObj = firstSeries?.observations ?? {}
+    const obsKeys = (Array.isArray(obsObj) ? obsObj.map((item, idx) => Number(item[0] ?? idx)) : Object.keys(obsObj).map(Number)).sort((a, b) => a - b)
     // Check if the keys look like years (1990–2100) or indices
     if (obsKeys.every(k => k >= 1900 && k <= 2200)) {
       timeValues = obsKeys.map(String)
@@ -261,11 +320,11 @@ export async function fetchData(flow: Dataflow, key = 'all'): Promise<{
   }
 
   const seriesMap: Record<string, { dimValues: string[]; observations: Record<string, number | null> }> = {}
-  for (const [key, s] of Object.entries(rawSeries)) {
-    const indices = key.split(':').map(Number)
+  for (const [seriesKey, s] of Object.entries(rawSeries)) {
+    const indices = seriesKey.split(':').map(Number)
     const dimValues = indices.map((idx, i) => dims[i]?.values[idx]?.name ?? String(idx))
     const obs: Record<string, number | null> = {}
-    const rawObs = (s as any).observations ?? {}
+    const rawObs = s.observations ?? {}
 
     if (Array.isArray(rawObs)) {
       // SDMX-JSON 2.0: observations is an array of [timeIndex, value, ...attributes]
@@ -284,7 +343,7 @@ export async function fetchData(flow: Dataflow, key = 'all'): Promise<{
       }
     }
 
-    seriesMap[key] = { dimValues, observations: obs }
+    seriesMap[seriesKey] = { dimValues, observations: obs }
   }
 
   // If timeValues still empty, derive sorted list from what we collected in observations
@@ -300,10 +359,6 @@ export async function fetchData(flow: Dataflow, key = 'all'): Promise<{
   timeValues.sort((a, b) => a.localeCompare(b))
 
   // Sparse data fallback: try CSV if the JSON observations look incomplete.
-  // Two cases — both sind bekannte UBA-SDMX-JSON-Fehler:
-  //  (a) global sparse: praktisch jede Serie hat ≤2 Beobachtungen.
-  //  (b) partiell sparse: manche Serien sind volle Zeitreihen, andere haben
-  //      nur 1–2 Punkte (einzelne Serien verlieren ihre Beobachtungen).
   const obsCounts = Object.values(seriesMap).map(s => Object.keys(s.observations).length)
   const seriesCount = obsCounts.length
   const totalObs = obsCounts.reduce((n, c) => n + c, 0)
@@ -314,33 +369,27 @@ export async function fetchData(flow: Dataflow, key = 'all'): Promise<{
   if (isSparse && Object.keys(seriesMap).length > 0) {
     try {
       const csvUrl = `${BASE}/data/${flow.agencyID},${flow.id},${flow.version}/${key}?format=csv`
-      // Accept-Language ist Pflicht — ohne ihn antwortet die UBA-API mit
-      // HTTP 500 ("languageTag1"). Mit ihm kommt eine Semikolon-CSV.
       const csvR = await fetch(csvUrl, { headers: { Accept: 'text/csv', 'Accept-Language': 'de' } })
       if (csvR.ok) {
         const text = await csvR.text()
         const lines = text.trim().split('\n')
-        // SDMX CSV uses semicolons as separator
         const sep = lines[0].includes(';') ? ';' : ','
         const header = lines[0].split(sep).map(h => h.trim().replace(/\r/g, ''))
         const timeCol = header.indexOf('TIME_PERIOD')
         const valCol = header.indexOf('OBS_VALUE')
-        // Series dim columns = everything between DATAFLOW and TIME_PERIOD (excl. DATAFLOW)
         const seriesCols = header.slice(1, timeCol)
 
-        // Build dim id→name lookup from existing dims
         const dimById: Record<string, Record<string, string>> = {}
         for (const d of dims) {
           dimById[d.id] = {}
           for (const v of d.values) dimById[d.id][v.id] = v.name
         }
 
-        // Parse CSV into { seriesCodeKey → { year → value } }
         const csvSeries: Record<string, { codes: string[]; obs: Record<string, number | null> }> = {}
         for (const line of lines.slice(1)) {
           if (!line.trim()) continue
           const cols = line.split(sep).map(c => c.trim().replace(/\r/g, ''))
-          const codes = seriesCols.map((_c, i) => cols[i + 1]) // +1 to skip DATAFLOW
+          const codes = seriesCols.map((_c, i) => cols[i + 1])
           const codeKey = codes.join(':')
           const year = cols[timeCol]
           const raw = cols[valCol]
@@ -359,7 +408,6 @@ export async function fetchData(flow: Dataflow, key = 'all'): Promise<{
           for (const y of Object.keys(obs)) newTimeValues.add(y)
         }
 
-        // Rebuild seriesDimensions from CSV columns so labels are correct
         const csvDims: Dimension[] = seriesCols.map((colId, pos) => {
           const existingDim = dims.find(d => d.id === colId)
           const uniqueCodes = [...new Set(Object.values(csvSeries).map(s => s.codes[pos]))]

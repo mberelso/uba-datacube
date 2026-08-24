@@ -7,7 +7,7 @@ import { GlassTooltip, CHART_COLORS_PALETTE, formatVal, xAxisTickProps } from '.
 export const CHART_COLORS = CHART_COLORS_PALETTE
 
 export interface ChartProps {
-  chartData: any[]
+  chartData: Record<string, number | string | null>[]
   activeSeriesList: { label: string; color?: string }[]
   chartType: 'line' | 'bar'
   exportMode?: boolean
@@ -15,7 +15,7 @@ export interface ChartProps {
 
 export function FallbackChart({ chartData, activeSeriesList, chartType }: ChartProps) {
   const tickFmt = (val: number) => formatVal(val)
-  const { interval, angle, textAnchor, dy, ticks } = xAxisTickProps(chartData)
+  const { interval, angle, textAnchor, dy, ticks } = xAxisTickProps(chartData as { year: string }[])
   const bottomMargin = angle ? 20 : 5
 
   return (

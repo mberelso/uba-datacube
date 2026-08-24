@@ -10,6 +10,7 @@ export default function Navbar() {
   const links = [
     { to: '/', label: 'Dashboard' },
     { to: '/analysen', label: 'Analysen' },
+    { to: '/vergleich', label: 'Vergleich' },
     { to: '/catalog', label: 'Datenkatalog' },
     { to: '/about', label: 'Über das Projekt' },
   ]

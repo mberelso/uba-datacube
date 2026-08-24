@@ -7,7 +7,7 @@ UBA-Datacube ist eine moderne Web-Applikation zur Visualisierung und Analyse von
 - **Dashboard**: Übersichtliche Darstellung ausgewählter Schlüsselindikatoren (Treibhausgasemissionen, Temperaturen, Erneuerbare Energien etc.).
 - **Emotionales Visual Design (Story First)**: Die Startseite nutzt ein bildstarkes Layout ("Kompass für die Umwelt") mit atmosphärischen Natur-Fotografien und Hover-Effekten, um einen emotionalen Zugang zu den Umweltdaten zu schaffen.
 - **Katalog**: Durchsuchen und Filtern aller verfügbaren UBA-Datensätze (Dataflows).
-- **Dataset-Analyse**: Detaillierte interaktive Charts (Linie, Balken, Fläche) für jeden Datensatz.
+- **Datenvergleich & Indikatoren-Analyse (`/vergleich`)**: Interaktive Gegenüberstellung zweier Umwelt-Indikatoren auf einer gemeinsamen Zeitachse mit Dual-Y-Achse, relativem Trendmodus (% Index = 100), automatischer Pearson-Korrelationsberechnung und kombinierter CSV-Exportfunktion.
 - **Smart Data Discovery**:
   - **Dimensionale Filter**: Komplexe Datensätze (z. B. mit >6000 Serien) können komfortabel über Dropdown-Menüs gefiltert werden.
   - **Smart Defaults**: Das System berechnet automatisch die relevantesten Datenreihen (Hauptemittenten) und wählt diese beim Laden eines Datensatzes als Startansicht aus.
@@ -22,7 +22,7 @@ UBA-Datacube ist eine moderne Web-Applikation zur Visualisierung und Analyse von
 - **Framework & Build**: Vite, TypeScript (strikte Typensicherheit ohne `any`)
 - **Performance & Splitting**: `React.lazy` Route-Code-Splitting, dedizierte Vendor-Chunks (`vendor-react`, `vendor-recharts`, `vendor-d3`), In-Memory & SessionStorage API-Caching mit TTL
 - **Visualisierung**: Recharts, D3-Geo
-- **Quality Gates**: ESLint (0 Errors, 0 Warnings), Static Type Checking (`tsc --noEmit`), Playwright Prerendering (88/88 Routen statisch vorgeneriert)
+- **Quality Gates**: ESLint (0 Errors, 0 Warnings), Static Type Checking (`tsc --noEmit`), Playwright Prerendering (89/89 Routen statisch vorgeneriert)
 - **Styling**: Vanilla CSS, TailwindCSS (mit modernen CSS-Variablen)
 - **API**: UBA SDMX REST API (SDMX-JSON v1/v2)
 

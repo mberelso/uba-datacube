@@ -11,6 +11,7 @@ const WindPage          = lazy(() => import('./pages/WindPage'))
 const SolarPage         = lazy(() => import('./pages/SolarPage'))
 const HeatPage          = lazy(() => import('./pages/HeatPage'))
 const AboutPage         = lazy(() => import('./pages/AboutPage'))
+const ComparePage       = lazy(() => import('./pages/ComparePage'))
 const SocialPreviewPage = lazy(() => import('./pages/SocialPreviewPage'))
 
 function PageFallback() {
@@ -42,6 +43,7 @@ function Layout() {
           <Routes>
             <Route path="/" element={<DashboardPage />} />
             <Route path="/analysen" element={<AnalysePage />} />
+            <Route path="/vergleich" element={<ComparePage />} />
             <Route path="/wind" element={<WindPage />} />
             <Route path="/solar" element={<SolarPage />} />
             <Route path="/hitze" element={<HeatPage />} />

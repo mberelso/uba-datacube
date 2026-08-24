@@ -3,6 +3,9 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+  schedule:
+    # Jeden Montag um 04:00 Uhr UTC automatisch frische DWD-Hitzedaten ziehen & deployen
+    - cron: '0 4 * * 1'
   workflow_dispatch:
 
 permissions:
@@ -16,10 +19,17 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
       - uses: actions/setup-node@v5
         with:
           node-version: 24
           cache: npm
+
+      - name: Update DWD Heat Data
+        run: python scripts/dwd/build_heat_thresholds.py
 
       - name: Install Chrome for prerender
         run: |

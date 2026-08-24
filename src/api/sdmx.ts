@@ -2,6 +2,10 @@ const BASE = 'https://daten.uba.de/release/rest'
 
 const memoryCache = new Map<string, { timestamp: number; data: unknown }>()
 
+const defaultHeaders: Record<string, string> = typeof window === 'undefined' ? {
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+} : {}
+
 async function cachedFetchJson<T>(url: string, headers?: Record<string, string>, ttlMs = 60 * 60 * 1000): Promise<T> {
   const now = Date.now()
   const mem = memoryCache.get(url)
@@ -10,41 +14,47 @@ async function cachedFetchJson<T>(url: string, headers?: Record<string, string>,
   }
 
   const cacheKey = `uba_cache_${url}`
-  try {
-    const item = sessionStorage.getItem(cacheKey)
-    if (item) {
-      const parsed = JSON.parse(item) as { timestamp: number; data: unknown }
-      if (now - parsed.timestamp < ttlMs) {
-        memoryCache.set(url, parsed)
-        return parsed.data as T
+  if (typeof sessionStorage !== 'undefined') {
+    try {
+      const item = sessionStorage.getItem(cacheKey)
+      if (item) {
+        const parsed = JSON.parse(item) as { timestamp: number; data: unknown }
+        if (now - parsed.timestamp < ttlMs) {
+          memoryCache.set(url, parsed)
+          return parsed.data as T
+        }
       }
+    } catch {
+      // SessionStorage unavailable
     }
-  } catch {
-    // SessionStorage unavailable
   }
 
   try {
-    const r = await fetch(url, { headers })
+    const r = await fetch(url, { headers: { ...defaultHeaders, ...headers } })
     if (!r.ok) throw new Error(`API-Fehler ${r.status}`)
     const json = (await r.json()) as T
     const entry = { timestamp: now, data: json }
     memoryCache.set(url, entry)
-    try {
-      sessionStorage.setItem(cacheKey, JSON.stringify(entry))
-    } catch {
-      // Memory cache fallback
+    if (typeof sessionStorage !== 'undefined') {
+      try {
+        sessionStorage.setItem(cacheKey, JSON.stringify(entry))
+      } catch {
+        // Memory cache fallback
+      }
     }
     return json
   } catch (err) {
     if (mem) return mem.data as T
-    try {
-      const item = sessionStorage.getItem(cacheKey)
-      if (item) {
-        const parsed = JSON.parse(item) as { data: unknown }
-        return parsed.data as T
+    if (typeof sessionStorage !== 'undefined') {
+      try {
+        const item = sessionStorage.getItem(cacheKey)
+        if (item) {
+          const parsed = JSON.parse(item) as { data: unknown }
+          return parsed.data as T
+        }
+      } catch {
+        // Ignore
       }
-    } catch {
-      // Ignore
     }
     throw err
   }

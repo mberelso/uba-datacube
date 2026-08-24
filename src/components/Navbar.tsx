@@ -83,10 +83,12 @@ export default function Navbar() {
 
         {/* Hamburger */}
         <button
+          id="mobile-nav-toggle"
           className="md:hidden ml-auto p-1.5 rounded-lg transition-colors cursor-pointer border-0"
           style={{ background: open ? 'rgba(255,255,255,0.1)' : 'transparent', color: '#fff' }}
           onClick={() => setOpen(!open)}
           aria-label="Menü"
+          aria-expanded={open}
         >
           {open ? <X size={22} weight="bold" /> : <List size={22} weight="bold" />}
         </button>

@@ -8,6 +8,7 @@
     "og-image": "node scripts/generate-og-image.cjs",
     "build": "tsc -b && vite build && npx tsx scripts/prerender.ts",
     "lint": "eslint .",
+    "test": "npx tsx scripts/test-sdmx.ts",
     "preview": "vite preview",
     "generate-descriptions": "npx tsx scripts/generate-descriptions.ts",
     "fetch-metadata": "npx tsx scripts/fetch-metadata.ts",

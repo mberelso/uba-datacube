@@ -167,6 +167,8 @@ export default function CatalogPage() {
           <line x1="168" y1="168" x2="224" y2="224" stroke={NORDIC.fog} strokeWidth="20" strokeLinecap="round"/>
         </svg>
         <input
+          id="catalog-search-input"
+          aria-label="Datensatz suchen"
           type="search"
           placeholder="Datensatz suchen…"
           value={search}

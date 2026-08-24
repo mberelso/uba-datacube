@@ -822,18 +822,42 @@ export default function DatasetPage() {
                 onClick={() => {
                   const sKey = Array.from(selectedSeries)[0]
                   const obs = sKey ? seriesMap[sKey]?.observations : null
+                  const firstYr = timeValues[0]
                   const lastYr = timeValues[timeValues.length - 1]
+                  const firstVal = obs && firstYr ? obs[firstYr] : null
                   const lastVal = obs && lastYr ? obs[lastYr] : null
                   const rawValues = timeValues.map(t => obs ? (obs[t] ?? 0) : 0).filter((v): v is number => typeof v === 'number')
 
+                  const unit = content?.unit || ''
+                  let metricStr = 'Trend'
+                  let labelStr = `Stand ${lastYr ?? 'aktuell'}`
+
+                  if (typeof firstVal === 'number' && typeof lastVal === 'number' && firstVal !== 0 && timeValues.length > 1) {
+                    const pctChange = Math.round(((lastVal - firstVal) / Math.abs(firstVal)) * 100)
+                    const sign = pctChange > 0 ? '+' : ''
+                    const formattedLast = lastVal >= 1000
+                      ? Math.round(lastVal).toLocaleString('de-DE')
+                      : lastVal.toLocaleString('de-DE', { maximumFractionDigits: 1 })
+                    const unitSuffix = unit ? ` ${unit}` : ''
+                    metricStr = `${sign}${pctChange} %`
+                    labelStr = `Veränderung ${firstYr}–${lastYr} (Stand ${lastYr}: ${formattedLast}${unitSuffix})`
+                  } else if (typeof lastVal === 'number') {
+                    const formattedLast = lastVal >= 1000
+                      ? Math.round(lastVal).toLocaleString('de-DE')
+                      : lastVal.toLocaleString('de-DE', { maximumFractionDigits: 1 })
+                    const unitSuffix = unit ? ` ${unit}` : ''
+                    metricStr = `${formattedLast}${unitSuffix}`
+                    labelStr = `Stand ${lastYr}`
+                  }
+
                   setModalCard({
                     category: (flow?.category as SocialCategory) || 'default',
-                    metric: lastVal !== null && lastVal !== undefined ? `${lastVal}` : 'Trend',
-                    metricLabel: `Stand ${lastYr ?? 'aktuell'}`,
+                    metric: metricStr,
+                    metricLabel: labelStr,
                     headline: flow?.name ?? 'Umwelt-Datensatz',
                     story: content?.lead || content?.headline || flow?.description || `${flow?.name} — interaktiv auf Umweltpuls.`,
                     sparkline: rawValues.length > 0 ? rawValues : [10, 20, 15, 30],
-                    yearRange: timeValues.length > 1 ? `${timeValues[0]} – ${lastYr}` : 'Zeitreihe',
+                    yearRange: timeValues.length > 1 ? `${firstYr} – ${lastYr}` : 'Zeitreihe',
                     datasetId: flow?.id ?? 'dataset',
                   })
                 }}

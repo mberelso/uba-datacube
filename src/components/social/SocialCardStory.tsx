@@ -54,6 +54,16 @@ export function SocialCardStory({ data }: { data: SocialCardData }) {
   const accent = CATEGORY_COLORS[data.category]
   const [yearStart, yearEnd] = data.yearRange.split('–').map(s => s.trim())
 
+  const metricLen = data.metric.length
+  const metricFontSize = metricLen <= 5 ? 160 : metricLen <= 8 ? 120 : metricLen <= 14 ? 90 : 72
+  const metricLetterSpacing = metricLen <= 5 ? '-7px' : metricLen <= 8 ? '-4px' : '-2px'
+
+  const headlineLen = data.headline.length
+  const headlineFontSize = headlineLen > 60 ? 48 : headlineLen > 35 ? 58 : 72
+
+  const storyLen = data.story.length
+  const storyFontSize = storyLen > 180 ? 28 : storyLen > 100 ? 32 : 36
+
   return (
     <div
       style={{
@@ -130,19 +140,19 @@ export function SocialCardStory({ data }: { data: SocialCardData }) {
         {/* Metric */}
         <div>
           <div style={{
-            fontSize: 176,
+            fontSize: metricFontSize,
             fontWeight: 800,
             color: '#fff',
             lineHeight: 1,
-            letterSpacing: '-7px',
+            letterSpacing: metricLetterSpacing,
           }}>
             {data.metric}
           </div>
           <div style={{
-            fontSize: 38,
-            color: 'rgba(255,255,255,0.45)',
-            fontWeight: 400,
-            marginTop: 16,
+            fontSize: 34,
+            color: 'rgba(255,255,255,0.65)',
+            fontWeight: 500,
+            marginTop: 18,
             letterSpacing: '-0.3px',
           }}>
             {data.metricLabel}
@@ -151,22 +161,22 @@ export function SocialCardStory({ data }: { data: SocialCardData }) {
 
         {/* Headline */}
         <div style={{
-          fontSize: 72,
+          fontSize: headlineFontSize,
           fontWeight: 700,
           color: '#fff',
-          marginTop: 52,
-          lineHeight: 1.08,
-          letterSpacing: '-2px',
+          marginTop: 44,
+          lineHeight: 1.1,
+          letterSpacing: '-1.5px',
         }}>
           {data.headline}
         </div>
 
         {/* Story */}
         <div style={{
-          fontSize: 36,
-          color: 'rgba(255,255,255,0.62)',
-          marginTop: 36,
-          lineHeight: 1.55,
+          fontSize: storyFontSize,
+          color: 'rgba(255,255,255,0.68)',
+          marginTop: 28,
+          lineHeight: 1.5,
           fontWeight: 400,
         }}>
           {data.story}

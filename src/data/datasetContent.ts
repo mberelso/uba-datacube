@@ -91,6 +91,8 @@ export interface DatasetContent {
    * Schadstoff + Firma + Freisetzungsart das aussagekräftige Label sind.
    */
   labelDimensionIds?: string[]
+  /** Unit of measurement for data values in this dataset (e.g. '1.000 m³', 'Mio. t CO₂-Äq.', '%') */
+  unit?: string
   /** Quick-access presets shown above the explorer */
   presets?: PresetConfig[]
 }

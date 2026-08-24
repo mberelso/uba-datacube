@@ -24,13 +24,46 @@ interface SEOProps {
   description?: string
   path?: string
   image?: string
-  jsonLd?: object
+  jsonLd?: object | object[]
 }
 
 export function SEO({ title, description = DEFAULT_DESCRIPTION, path = '', image = DEFAULT_IMAGE, jsonLd }: SEOProps) {
   const fullTitle = title ? `${title} | ${SITE_NAME}` : `${SITE_NAME} – Umweltdaten Deutschland interaktiv`
   const url = `${SITE_URL}${path}`
-  const structuredData = jsonLd ? JSON.stringify(jsonLd) : (path === '' ? WEBSITE_JSONLD : null)
+
+  // Automatic BreadcrumbList Schema
+  const breadcrumbs: Array<{ '@type': string; position: number; name: string; item: string }> = [
+    { '@type': 'ListItem', position: 1, name: 'Startseite', item: SITE_URL }
+  ]
+  if (path === '/catalog') {
+    breadcrumbs.push({ '@type': 'ListItem', position: 2, name: 'Datenkatalog', item: url })
+  } else if (path === '/vergleich') {
+    breadcrumbs.push({ '@type': 'ListItem', position: 2, name: 'Datenvergleich', item: url })
+  } else if (path === '/hitze') {
+    breadcrumbs.push({ '@type': 'ListItem', position: 2, name: 'Hitze in Deutschland', item: url })
+  } else if (path === '/wind') {
+    breadcrumbs.push({ '@type': 'ListItem', position: 2, name: 'Windkraft-Ausbau', item: url })
+  } else if (path === '/solar') {
+    breadcrumbs.push({ '@type': 'ListItem', position: 2, name: 'Solar-Ausbau', item: url })
+  } else if (path.startsWith('/dataset/')) {
+    breadcrumbs.push({ '@type': 'ListItem', position: 2, name: 'Datenkatalog', item: `${SITE_URL}/catalog` })
+    breadcrumbs.push({ '@type': 'ListItem', position: 3, name: title ?? 'Datensatz', item: url })
+  }
+
+  const breadcrumbJsonLd = breadcrumbs.length > 1 ? {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: breadcrumbs,
+  } : null
+
+  const schemas: object[] = []
+  if (jsonLd) {
+    if (Array.isArray(jsonLd)) schemas.push(...jsonLd)
+    else schemas.push(jsonLd)
+  } else if (path === '') {
+    schemas.push(JSON.parse(WEBSITE_JSONLD))
+  }
+  if (breadcrumbJsonLd) schemas.push(breadcrumbJsonLd)
 
   return (
     <Helmet>
@@ -56,9 +89,11 @@ export function SEO({ title, description = DEFAULT_DESCRIPTION, path = '', image
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={image} />
 
-      {structuredData && (
-        <script type="application/ld+json">{structuredData}</script>
-      )}
+      {schemas.map((schema, idx) => (
+        <script key={idx} type="application/ld+json">
+          {JSON.stringify(schema)}
+        </script>
+      ))}
     </Helmet>
   )
 }

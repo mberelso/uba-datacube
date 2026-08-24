@@ -7,6 +7,10 @@ UBA-Datacube ist eine moderne Web-Applikation zur Visualisierung und Analyse von
 - **Dashboard**: Übersichtliche Darstellung ausgewählter Schlüsselindikatoren (Treibhausgasemissionen, Temperaturen, Erneuerbare Energien etc.).
 - **Emotionales Visual Design (Story First)**: Die Startseite nutzt ein bildstarkes Layout ("Kompass für die Umwelt") mit atmosphärischen Natur-Fotografien und Hover-Effekten, um einen emotionalen Zugang zu den Umweltdaten zu schaffen.
 - **Katalog**: Durchsuchen und Filtern aller verfügbaren UBA-Datensätze (Dataflows).
+- **SEO-Booster & Google Rich Snippets**:
+  - **Sitemap-Generator (`public/sitemap.xml`)**: Automatischer Build-Schritt (`scripts/generate-sitemap.ts`) erzeugt für alle 89 gerenderten Routen eine XML-Sitemap mit Prioritäten und Datumsstempeln.
+  - **Robots.txt (`public/robots.txt`)**: Vollständige Crawler-Freigabe für Suchmaschinenbot-Indexing.
+  - **JSON-LD Schema Integration (`src/components/SEO.tsx`)**: Automatische Generierung von `BreadcrumbList` (Pfad-Hierarchie im Google-Snippet), `FAQPage` Rich Snippets für Q&A-Dropdowns in den Google-Suchergebnissen sowie `Dataset`-Schemas für Google Dataset Search.
 - **Datenvergleich & Indikatoren-Analyse (`/vergleich`)**: Interaktive Gegenüberstellung zweier Umwelt-Indikatoren auf einer gemeinsamen Zeitachse mit Dual-Y-Achse, relativem Trendmodus (% Index = 100), automatischer Pearson-Korrelationsberechnung und kombinierter CSV-Exportfunktion.
 - **Smart Data Discovery**:
   - **Dimensionale Filter**: Komplexe Datensätze (z. B. mit >6000 Serien) können komfortabel über Dropdown-Menüs gefiltert werden.

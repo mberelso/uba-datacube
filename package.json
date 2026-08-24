@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "og-image": "node scripts/generate-og-image.cjs",
-    "build": "tsc -b && vite build && npx tsx scripts/prerender.ts",
+    "build": "npx tsx scripts/generate-sitemap.ts && tsc -b && vite build && npx tsx scripts/prerender.ts",
     "lint": "eslint .",
     "test": "npx tsx scripts/test-sdmx.ts",
     "preview": "vite preview",

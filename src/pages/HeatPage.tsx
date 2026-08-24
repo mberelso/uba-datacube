@@ -10,6 +10,37 @@ const NORDIC = {
   stone: '#8C8880',
 }
 
+const HEAT_FAQ_JSONLD = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: 'Wie hat sich die Zahl der Heißen Tage in Deutschland seit 1951 verändert?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Die durchschnittliche Anzahl der Heißen Tage (Tageshöchsttemperatur >= 30 °C) in Deutschland hat sich seit den 1950er Jahren im bundesweiten Mittel mehr als verdreifacht.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Wo ist der Hitze-Hotspot in Deutschland?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Der Oberrheingraben (u. a. Karlsruhe, Mannheim, Freiburg) sowie Teile Ostdeutschlands (Berlin/Brandenburg) verzeichnen regelmäßig die höchsten Anzahlen an Heißen Tagen pro Jahr.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Woher stammen die Hitzedaten auf Umweltpuls?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Die Hitzedaten basieren auf den amtlichen 1-km-Rastermessungen und Stationsdaten des Deutschen Wetterdienstes (DWD), die automatisch aktualisiert werden.',
+      },
+    },
+  ],
+}
+
 export default function HeatPage() {
   return (
     <div className="max-w-[1200px] mx-auto px-5 py-8">
@@ -18,6 +49,7 @@ export default function HeatPage() {
         description="Animierte Landkreis-Karte: Wie sich Heiße Tage und Sommertage in Deutschland seit 1951 vermehrt haben — aus den 1-km-Rasterdaten des Deutschen Wetterdiensts, Jahr für Jahr."
         path="/hitze"
         image="https://www.umweltpuls.de/og-hitze.png"
+        jsonLd={HEAT_FAQ_JSONLD}
       />
 
       <motion.div

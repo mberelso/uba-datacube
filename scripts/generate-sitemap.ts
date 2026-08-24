@@ -17,6 +17,7 @@ interface RouteSpec {
 
 const STATIC_ROUTES: RouteSpec[] = [
   { path: '/', priority: 1.0, changefreq: 'daily' },
+  { path: '/regionen', priority: 0.9, changefreq: 'weekly' },
   { path: '/catalog', priority: 0.9, changefreq: 'daily' },
   { path: '/analysen', priority: 0.9, changefreq: 'weekly' },
   { path: '/vergleich', priority: 0.9, changefreq: 'weekly' },

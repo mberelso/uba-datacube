@@ -9,6 +9,7 @@ export default function Navbar() {
 
   const links = [
     { to: '/', label: 'Dashboard' },
+    { to: '/regionen', label: 'Regionen' },
     { to: '/analysen', label: 'Analysen' },
     { to: '/vergleich', label: 'Vergleich' },
     { to: '/catalog', label: 'Datenkatalog' },

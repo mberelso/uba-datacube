@@ -187,12 +187,13 @@ const DIST = join(ROOT, 'dist')
 const PORT = 4173
 const SITE_URL = 'https://www.umweltpuls.de'
 
-const STATIC_ROUTES = ['/', '/catalog', '/analysen', '/vergleich', '/wind', '/solar', '/hitze', '/about']
+const STATIC_ROUTES = ['/', '/catalog', '/analysen', '/regionen', '/vergleich', '/wind', '/solar', '/hitze', '/about']
 
 const STATIC_DESCRIPTIONS: Record<string, string> = {
   '/': 'Klimadaten, Emissionstrends und Umweltindikatoren des Umweltbundesamts — interaktiv erkunden, filtern und exportieren. Kostenlos und offen.',
   '/catalog': 'Alle Umweltdatensätze des Umweltbundesamts auf einen Blick — durchsuchen, filtern und interaktiv erkunden.',
   '/analysen': 'Ausgewählte Umwelttrends: Temperaturentwicklung, Treibhausgase, Erneuerbare Energien und mehr — basierend auf Daten des Umweltbundesamts.',
+  '/regionen': 'Regional-Explorer: Vergleiche Klimadaten, Hitzetage, Wind- und Solarausbau sowie Industrie-Emissionen aller 16 deutschen Bundesländer im Detail.',
   '/vergleich': 'Multivariate Umweltindikatoren-Analyse: Vergleiche zwei Umweltdatenreihen des UBA und DWD auf einer gemeinsamen Zeitachse mit Dual-Y-Achse.',
   '/wind': 'Animierte Deutschlandkarte des Windkraft-Ausbaus seit 1990: alle Windenergieanlagen aus dem Marktstammdatenregister, Jahr für Jahr — an Land und auf See, mit Satellitenbildern vom Bau einzelner Windparks.',
   '/solar': 'Animierte Deutschlandkarte des Solar-Ausbaus seit 2000: über 4 Millionen Photovoltaik-Anlagen aus dem Marktstammdatenregister — installierte Leistung je Landkreis und die großen Freiflächen-Solarparks, Jahr für Jahr.',

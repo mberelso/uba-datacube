@@ -1447,6 +1447,49 @@ export default function AnalysePage() {
         Ausgewählte Umwelttrends auf Basis der Daten des Umweltbundesamts – direkt aus der SDMX REST API.
       </p>
 
+      {/* ── Feature Teaser: Regional-Explorer ───────────────────────────────────── */}
+      <div style={{
+        marginBottom: 24,
+        borderRadius: 14,
+        border: '1.5px solid #bae6fd',
+        background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
+        padding: '16px 20px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: 12,
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <span style={{ fontSize: 28 }}>📍</span>
+          <div>
+            <div style={{ fontSize: 16, fontWeight: 800, color: '#0f172a' }}>
+              Wie grün ist dein Bundesland?
+            </div>
+            <p style={{ fontSize: 13, color: '#0369a1', margin: '2px 0 0', fontWeight: 500 }}>
+              Hitze, Windräder, Solarparks & PRTR-Industrie-Emissionen aller 16 Bundesländer im Vergleich.
+            </p>
+          </div>
+        </div>
+        <Link
+          to="/regionen"
+          style={{
+            background: '#0284c7',
+            color: '#fff',
+            padding: '8px 16px',
+            borderRadius: 8,
+            fontSize: 13,
+            fontWeight: 700,
+            textDecoration: 'none',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+          }}
+        >
+          Bundesland wählen →
+        </Link>
+      </div>
+
       {/* ── Feature: Klimaprojektionen ─────────────────────────────────────────── */}
       <div style={{
         marginBottom: 52,

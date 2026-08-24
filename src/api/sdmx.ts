@@ -109,7 +109,9 @@ export interface SdmxSeriesData {
 }
 
 async function fetchSdmxJson(flowRef: string, key = 'all'): Promise<{ series: Record<string, SdmxSeriesData>; timeValues: string[] }> {
-  const url = `${BASE}/data/${flowRef}/${key}?format=jsondata`
+  const fullRef = flowRef.includes(',') ? flowRef : `UBA,${flowRef},1.0`
+  const keyPath = !key || key === '1.0' ? 'all' : key
+  const url = `${BASE}/data/${fullRef}/${keyPath}?format=jsondata`
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const json = await cachedFetchJson<any>(url, { Accept: 'application/vnd.sdmx.data+json;version=2.0,application/json' })
   const env = json.data ?? json
@@ -122,7 +124,7 @@ async function fetchSdmxJson(flowRef: string, key = 'all'): Promise<{ series: Re
   const tvals: SdmxDimensionValue[] = timeDim?.values ?? []
   
   const series = dsets[0]?.series ?? {}
-  console.log(`[SDMX] Found ${Object.keys(series).length} series and ${tvals.length} time points`)
+  console.log(`[SDMX] Found ${Object.keys(series).length} series and ${tvals.length} time points for ${fullRef}`)
   
   return {
     series,
@@ -130,20 +132,39 @@ async function fetchSdmxJson(flowRef: string, key = 'all'): Promise<{ series: Re
   }
 }
 
-/** Average all series per year, return sorted array */
+/** Average all series per year, return sorted array with robust fallback */
 export async function fetchAveragedSeries(flowRef: string, key = 'all'): Promise<TimePoint[]> {
-  const { series, timeValues } = await fetchSdmxJson(flowRef, key)
+  try {
+    const { series, timeValues } = await fetchSdmxJson(flowRef, key)
+    if (Object.keys(series).length > 0) {
+      const acc: Record<string, number[]> = {}
+      for (const sv of Object.values(series)) {
+        const rawObs = sv.observations ?? {}
+        const entries = Array.isArray(rawObs)
+          ? rawObs.map((item, idx) => [String(item[0] ?? idx), item[1]] as [string, unknown])
+          : Object.entries(rawObs)
+        for (const [tidx, val] of entries) {
+          const yr = timeValues[Number(tidx)] ?? tidx
+          const v = Array.isArray(val) ? (val[0] as number | null) : (typeof val === 'number' ? val : null)
+          if (v != null) (acc[yr] ??= []).push(v)
+        }
+      }
+      const res = Object.entries(acc)
+        .map(([year, vs]) => ({ year, value: vs.reduce((a, b) => a + b, 0) / vs.length }))
+        .sort((a, b) => a.year.localeCompare(b.year))
+      if (res.length > 0) return res
+    }
+  } catch (err) {
+    console.warn(`[fetchAveragedSeries] SdmxJson failed for ${flowRef}, attempting fetchData fallback...`, err)
+  }
+
+  // Fallback: Use robust fetchData pipeline
+  const flowId = flowRef.includes(',') ? flowRef.split(',')[1] : flowRef
+  const result = await fetchData({ id: flowId, agencyID: 'UBA', version: '1.0', name: '', description: '', category: 'klima' }, 'all')
   const acc: Record<string, number[]> = {}
-  for (const sv of Object.values(series)) {
-    const rawObs = sv.observations ?? {}
-    const entries = Array.isArray(rawObs)
-      ? rawObs.map((item, idx) => [String(item[0] ?? idx), item[1]] as [string, unknown])
-      : Object.entries(rawObs)
-    for (const [tidx, val] of entries) {
-      const yr = timeValues[Number(tidx)] ?? tidx
-      // Handle both array [value, status] and direct value
-      const v = Array.isArray(val) ? (val[0] as number | null) : (typeof val === 'number' ? val : null)
-      if (v != null) (acc[yr] ??= []).push(v)
+  for (const s of Object.values(result.seriesMap)) {
+    for (const [yr, val] of Object.entries(s.observations)) {
+      if (val != null) (acc[yr] ??= []).push(val)
     }
   }
   return Object.entries(acc)
@@ -151,21 +172,38 @@ export async function fetchAveragedSeries(flowRef: string, key = 'all'): Promise
     .sort((a, b) => a.year.localeCompare(b.year))
 }
 
-/** Pick a single named series by 0-based series index */
+/** Pick a single named series by 0-based series index with robust fallback */
 export async function fetchSingleSeries(flowRef: string, key = 'all', seriesIndex = 0): Promise<TimePoint[]> {
-  const { series, timeValues } = await fetchSdmxJson(flowRef, key)
-  const sv = Object.values(series)[seriesIndex]
-  if (!sv) return []
-  const rawObs = sv.observations ?? {}
-  const entries = Array.isArray(rawObs)
-    ? rawObs.map((item, idx) => [String(item[0] ?? idx), item[1]] as [string, unknown])
-    : Object.entries(rawObs)
-  return entries
-    .map(([tidx, val]) => ({
-      year: timeValues[Number(tidx)] ?? tidx,
-      value: Array.isArray(val) ? (val[0] as number) : (val as number),
-    }))
-    .filter((p) => p.value != null)
+  try {
+    const { series, timeValues } = await fetchSdmxJson(flowRef, key)
+    const sv = Object.values(series)[seriesIndex]
+    if (sv) {
+      const rawObs = sv.observations ?? {}
+      const entries = Array.isArray(rawObs)
+        ? rawObs.map((item, idx) => [String(item[0] ?? idx), item[1]] as [string, unknown])
+        : Object.entries(rawObs)
+      const res = entries
+        .map(([tidx, val]) => ({
+          year: timeValues[Number(tidx)] ?? tidx,
+          value: Array.isArray(val) ? (val[0] as number) : (val as number),
+        }))
+        .filter((p) => p.value != null)
+        .sort((a, b) => a.year.localeCompare(b.year))
+      if (res.length > 0) return res
+    }
+  } catch (err) {
+    console.warn(`[fetchSingleSeries] SdmxJson failed for ${flowRef}, attempting fetchData fallback...`, err)
+  }
+
+  // Fallback: Use robust fetchData pipeline
+  const flowId = flowRef.includes(',') ? flowRef.split(',')[1] : flowRef
+  const result = await fetchData({ id: flowId, agencyID: 'UBA', version: '1.0', name: '', description: '', category: 'klima' }, 'all')
+  const firstSeries = Object.values(result.seriesMap)[seriesIndex] || Object.values(result.seriesMap)[0]
+  if (!firstSeries) return []
+
+  return Object.entries(firstSeries.observations)
+    .filter(([, val]) => val != null)
+    .map(([year, val]) => ({ year, value: val as number }))
     .sort((a, b) => a.year.localeCompare(b.year))
 }
 

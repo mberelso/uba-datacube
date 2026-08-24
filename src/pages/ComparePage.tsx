@@ -28,11 +28,11 @@ const PRESETS: PresetOption[] = [
     title: 'Treibhausgase vs. Erneuerbare Energien',
     subtitle: 'Wie beeinflusst der Ausbau erneuerbarer Energien die Treibhausgasemissionen in Deutschland?',
     loadA: async () => {
-      const data = await fetchAveragedSeries('DF_CLIMATE_EMISSIONS_GHG', '1.0')
+      const data = await fetchAveragedSeries('UBA,DF_CLIMATE_EMISSIONS_GHG,1.0', 'all')
       return { label: 'Treibhausgasemissionen', unit: 'Mio. t CO₂-Äquiv.', data }
     },
     loadB: async () => {
-      const data = await fetchSingleSeries('DF_ENERGY_RENEWABLE_SHARE', '1.0')
+      const data = await fetchSingleSeries('UBA,DF_ENERGY_RENEWABLE_SHARE,1.0', 'all')
       return { label: 'Anteil Erneuerbare Energien', unit: '% am Bruttestromverbrauch', data }
     },
   },
@@ -41,11 +41,11 @@ const PRESETS: PresetOption[] = [
     title: 'Pkw-Kraftstoffverbrauch vs. Luftschadstoffe',
     subtitle: 'Zusammenhang zwischen Pkw-Kraftstoffverbrauch und dem Luftschadstoff-Emissionsindex.',
     loadA: async () => {
-      const data = await fetchSingleSeries('DF_TRANSPORT_ENERGY_FUEL_CONSUMPTION', '1.0')
+      const data = await fetchSingleSeries('UBA,DF_TRANSPORT_ENERGY_FUEL_CONSUMPTION,1.0', 'all')
       return { label: 'Pkw Kraftstoffverbrauch', unit: 'l/100 km', data }
     },
     loadB: async () => {
-      const data = await fetchAveragedSeries('DF_AIR_EMISSIONS_INDEX', '2026.0')
+      const data = await fetchAveragedSeries('UBA,DF_AIR_EMISSIONS_INDEX,1.0', 'all')
       return { label: 'Luftschadstoff-Index', unit: 'Index (1990 = 100)', data }
     },
   },
@@ -54,7 +54,7 @@ const PRESETS: PresetOption[] = [
     title: 'Wassertemperatur vs. Heiße Tage (DWD)',
     subtitle: 'Langzeitverlauf der Fließgewässer-Wassertemperatur im Vergleich zu den DWD-Hitzetagen.',
     loadA: async () => {
-      const data = await fetchAveragedSeries('DF_DAS_WASSER_WW_I_10', '1.0')
+      const data = await fetchAveragedSeries('UBA,DF_DAS_WASSER_WW_I_10,1.0', 'all')
       return { label: 'Fließgewässer Wassertemperatur', unit: '°C (Jahresmittel)', data }
     },
     loadB: async () => {

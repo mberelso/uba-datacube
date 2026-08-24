@@ -32,7 +32,7 @@ export default function ForestFiresAnalysis({ timeValues, seriesMap, activeSerie
       // dimValues [Country, Freq, Unit, Cause, Indicator]
       // Fallback indices if dimensions change, but usually Cause is [3] and Unit is [2]
       // We look for 'Insgesamt' in the string to be safe, or just use dimValues[3]
-      const cause = s.dimValues.find(v => v.includes('Ursache') || v.includes('Vorsatz') || v.includes('Fahrlässigkeit') || v.includes('Insgesamt')) || s.dimValues[3]
+      const cause = (s.dimValues.find(v => v.includes('Ursache') || v.includes('Vorsatz') || v.includes('Fahrlässigkeit') || v.includes('Insgesamt')) || s.dimValues[3] || 'Unbekannt').trim()
       const isTotal = cause === 'Insgesamt'
       const isHektar = s.dimValues.some(v => v.toLowerCase().includes('hektar') || v.toLowerCase().includes('fläche'))
       const isAnzahl = !isHektar && s.dimValues.some(v => v.toLowerCase().includes('anzahl'))

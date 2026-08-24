@@ -36,14 +36,22 @@ export const CATEGORY_COLORS: Record<SocialCategory, string> = {
   default: '#4A6741',
 }
 
+export interface ChartPoint {
+  year: string
+  value: number
+}
+
 export interface SocialCardData {
   category: SocialCategory
   metric: string       // "−38 %"
   metricLabel: string  // "gegenüber 1990"
   headline: string     // "CO₂-Emissionen fast halbiert"
   story: string        // 2–3 Sätze
-  sparkline: number[]  // rohe Datenpunkte, werden intern normalisiert
+  sparkline: number[]  // rohe Datenpunkte
   yearRange: string    // "1990 – 2023"
   datasetId: string
   backgroundUrl?: string
+  unit?: string
+  seriesName?: string
+  chartPoints?: ChartPoint[]
 }

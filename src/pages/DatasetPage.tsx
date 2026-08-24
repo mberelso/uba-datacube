@@ -20,7 +20,7 @@ import { getDatasetContent } from '../data/datasetContent'
 import { SEO } from '../components/SEO'
 import { ExportModal } from '../components/ExportModal'
 import { SocialCardModal } from '../components/social/SocialCardModal'
-import type { SocialCardData, SocialCategory } from '../components/social/types'
+import type { SocialCardData, SocialCategory, ChartPoint } from '../components/social/types'
 
 const CHART_COLORS = [
   '#1B2B3A', '#dc2626', '#4A6741', '#d97706', '#7c3aed',
@@ -821,44 +821,50 @@ export default function DatasetPage() {
               <button
                 onClick={() => {
                   const sKey = Array.from(selectedSeries)[0]
-                  const obs = sKey ? seriesMap[sKey]?.observations : null
-                  const firstYr = timeValues[0]
-                  const lastYr = timeValues[timeValues.length - 1]
-                  const firstVal = obs && firstYr ? obs[firstYr] : null
-                  const lastVal = obs && lastYr ? obs[lastYr] : null
-                  const rawValues = timeValues.map(t => obs ? (obs[t] ?? 0) : 0).filter((v): v is number => typeof v === 'number')
+                  const sObj = sKey ? seriesMap[sKey] : null
+                  const seriesName = sObj ? applyLabelOverride(sObj.dimValues.join(' · ')) : undefined
+                  const obs = sObj ? sObj.observations : null
 
+                  const chartPts: ChartPoint[] = timeValues
+                    .map((t) => ({ year: t, value: obs ? (obs[t] ?? null) : null }))
+                    .filter((p): p is ChartPoint => typeof p.value === 'number')
+
+                  const firstP = chartPts[0]
+                  const lastP = chartPts[chartPts.length - 1]
                   const unit = content?.unit || ''
-                  let metricStr = 'Trend'
-                  let labelStr = `Stand ${lastYr ?? 'aktuell'}`
+                  const unitSuffix = unit ? ` ${unit}` : ''
 
-                  if (typeof firstVal === 'number' && typeof lastVal === 'number' && firstVal !== 0 && timeValues.length > 1) {
-                    const pctChange = Math.round(((lastVal - firstVal) / Math.abs(firstVal)) * 100)
+                  let metricStr: string
+                  let labelStr: string
+
+                  if (firstP && lastP && firstP.year !== lastP.year && firstP.value !== 0) {
+                    const pctChange = Math.round(((lastP.value - firstP.value) / Math.abs(firstP.value)) * 100)
                     const sign = pctChange > 0 ? '+' : ''
-                    const formattedLast = lastVal >= 1000
-                      ? Math.round(lastVal).toLocaleString('de-DE')
-                      : lastVal.toLocaleString('de-DE', { maximumFractionDigits: 1 })
-                    const unitSuffix = unit ? ` ${unit}` : ''
                     metricStr = `${sign}${pctChange} %`
-                    labelStr = `Veränderung ${firstYr}–${lastYr} (Stand ${lastYr}: ${formattedLast}${unitSuffix})`
-                  } else if (typeof lastVal === 'number') {
-                    const formattedLast = lastVal >= 1000
-                      ? Math.round(lastVal).toLocaleString('de-DE')
-                      : lastVal.toLocaleString('de-DE', { maximumFractionDigits: 1 })
-                    const unitSuffix = unit ? ` ${unit}` : ''
-                    metricStr = `${formattedLast}${unitSuffix}`
-                    labelStr = `Stand ${lastYr}`
+                    labelStr = `Entwicklung ${firstP.year}–${lastP.year} (${unit ? unit : 'Gesamtverlauf'})`
+                  } else if (lastP) {
+                    const fmt = lastP.value >= 1000
+                      ? Math.round(lastP.value).toLocaleString('de-DE')
+                      : lastP.value.toLocaleString('de-DE', { maximumFractionDigits: 1 })
+                    metricStr = `${fmt}${unitSuffix}`
+                    labelStr = `Messwert im Jahr ${lastP.year}`
+                  } else {
+                    metricStr = `${timeValues.length} Jahre`
+                    labelStr = `Zeitreihe ${timeValues[0] ?? ''} bis ${timeValues[timeValues.length - 1] ?? ''}`
                   }
 
                   setModalCard({
                     category: (flow?.category as SocialCategory) || 'default',
                     metric: metricStr,
                     metricLabel: labelStr,
-                    headline: flow?.name ?? 'Umwelt-Datensatz',
-                    story: content?.lead || content?.headline || flow?.description || `${flow?.name} — interaktiv auf Umweltpuls.`,
-                    sparkline: rawValues.length > 0 ? rawValues : [10, 20, 15, 30],
-                    yearRange: timeValues.length > 1 ? `${firstYr} – ${lastYr}` : 'Zeitreihe',
+                    headline: content?.displayName || flow?.name || 'Umwelt-Datensatz',
+                    story: content?.lead || content?.headline || flow?.description || `Entwicklung der Umweltdaten von ${firstP?.year ?? ''} bis ${lastP?.year ?? ''}.`,
+                    sparkline: chartPts.map((p) => p.value),
+                    yearRange: timeValues.length > 1 ? `${timeValues[0]} – ${timeValues[timeValues.length - 1]}` : 'Zeitreihe',
                     datasetId: flow?.id ?? 'dataset',
+                    unit,
+                    seriesName,
+                    chartPoints: chartPts,
                   })
                 }}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-semibold border transition-all cursor-pointer bg-sky-50 border-sky-200 text-sky-700 hover:bg-sky-100"

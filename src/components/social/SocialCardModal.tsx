@@ -14,7 +14,7 @@ const BG_VARIANTS: Record<string, { file: string; label: string }[]> = {
   flaeche:   [{ file: 'flaeche-1.jpg', label: 'Aerial' }, { file: 'flaeche-2.jpg', label: 'Waldgrenze' }],
 }
 
-const PREVIEW_SCALE = 0.28
+const PREVIEW_SCALE = 0.33
 
 async function exportPng(el: HTMLElement): Promise<Blob> {
   const blob = await toBlob(el, { pixelRatio: 1, cacheBust: true })

@@ -24,16 +24,16 @@ export const CATEGORY_LABELS: Record<SocialCategory, string> = {
 }
 
 export const CATEGORY_COLORS: Record<SocialCategory, string> = {
-  klima: '#4A6741',
-  energie: '#C4872A',
-  transport: '#3A6B8A',
-  wasser: '#2A7A8C',
-  luft: '#6B5EA8',
-  boden: '#8A6B3A',
-  flaeche: '#4A7A6B',
-  region: '#0284c7',
-  vergleich: '#7c3aed',
-  default: '#4A6741',
+  klima: '#10b981',
+  energie: '#f59e0b',
+  transport: '#06b6d4',
+  wasser: '#38bdf8',
+  luft: '#a855f7',
+  boden: '#eab308',
+  flaeche: '#14b8a6',
+  region: '#38bdf8',
+  vergleich: '#c084fc',
+  default: '#10b981',
 }
 
 export interface ChartPoint {

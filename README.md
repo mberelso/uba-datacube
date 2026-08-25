@@ -26,11 +26,11 @@ UBA-Datacube ist eine moderne Web-Applikation zur Visualisierung und Analyse von
 
 - **Frontend**: React 19
 - **Framework & Build**: Vite, TypeScript (strikte Typensicherheit ohne `any`)
-- **Performance & Splitting**: `React.lazy` Route-Code-Splitting, dedizierte Vendor-Chunks (`vendor-react`, `vendor-recharts`, `vendor-d3`), In-Memory & SessionStorage API-Caching mit TTL
+- **Performance & Splitting**: `React.lazy` Route-Code-Splitting, `RouteErrorBoundary` für automatische Chunk-Load-Recovery, dedizierte Vendor-Chunks (`vendor-react`, `vendor-recharts`, `vendor-d3`), In-Memory & SessionStorage API-Caching mit TTL und JSON Promise-Deduping.
 - **Visualisierung**: Recharts, D3-Geo
-- **Quality Gates**: ESLint (0 Errors, 0 Warnings), Static Type Checking (`tsc --noEmit`), Playwright Prerendering (89/89 Routen statisch vorgeneriert)
+- **Quality Gates & Testing**: Vitest Unit-Tests (`npm test`), ESLint (0 Errors, 0 Warnings), Static Type Checking (`tsc --noEmit`), GitHub Actions CI PR-Gate (`.github/workflows/ci.yml`), Playwright Prerendering (87/87 Routen statisch vorgeneriert mit automatischem 404.html Fallback) und automatischer Secret-Guard im Build.
 - **Styling**: Vanilla CSS, TailwindCSS (mit modernen CSS-Variablen)
-- **API**: UBA SDMX REST API (SDMX-JSON v1/v2)
+- **API**: UBA SDMX REST API (SDMX-JSON v1/v2, kanonischer SDMX-CSV Parser)
 
 ## 📦 Lokale Entwicklung
 
@@ -41,13 +41,16 @@ npm install
 # Entwicklungsserver starten
 npm run dev
 
+# Unit-Tests ausführen (Vitest)
+npm test
+
 # Code-Qualität & Linting überprüfen
 npm run lint
 
 # Typen prüfen
 npx tsc --noEmit
 
-# Produktionsbuild & Playwright Prerender erstellen
+# Produktionsbuild, Secret-Guard & Playwright Prerender erstellen
 npm run build
 ```
 

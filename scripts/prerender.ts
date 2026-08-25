@@ -13,10 +13,11 @@
 
 import { chromium } from 'playwright-core'
 import { preview } from 'vite'
-import { writeFileSync, mkdirSync, existsSync } from 'fs'
+import { writeFileSync, readFileSync, mkdirSync, existsSync } from 'fs'
 import { join, resolve } from 'path'
 import { fileURLToPath } from 'url'
 import { DATASET_CONTENT } from '../src/data/datasetContent.ts'
+import { DEFAULT_FULL_TITLE } from '../src/constants/seo.ts'
 
 /** Trim a description to max 155 chars, breaking at a word boundary. */
 function trimDesc(text: string, max = 155): string {
@@ -206,6 +207,8 @@ const ROUTE_IMAGES: Record<string, string> = {
   '/wind': `${SITE_URL}/og-wind.png`,
   '/solar': `${SITE_URL}/og-solar.png`,
   '/hitze': `${SITE_URL}/og-hitze.png`,
+  '/regionen': `${SITE_URL}/og-image.png`,
+  '/vergleich': `${SITE_URL}/og-image.png`,
 }
 const DATASET_ROUTES = Object.keys(DATASET_CONTENT).map(
   id => `/dataset/${encodeURIComponent(id)}`
@@ -297,31 +300,29 @@ async function run() {
 
   console.log(`Prerendering ${ALL_ROUTES.length} routes…`)
   let ok = 0, fail = 0
+  const retried = new Set<string>()
 
-  for (const route of ALL_ROUTES) {
+  const processRoute = async (route: string, isRetry = false): Promise<boolean> => {
     try {
       const page = await browser.newPage()
       await page.goto(`${base}${route}`, { waitUntil: 'domcontentloaded', timeout: 20000 })
 
       // Wait for React to render and Helmet to flush page-specific meta tags.
-      // We check that og:title has been set to something other than the generic
-      // homepage title — that means the route-specific SEO component has run.
-      const HOMEPAGE_TITLE = 'Umweltpuls'
+      // We check that og:title has been set to something other than the generic title.
       await page.waitForFunction(
-        (homepageTitle) => {
+        (defaultTitle) => {
           if (!document.documentElement.dataset.prerenderReady) return false
           if (window.location.pathname === '/') return true
           const ogTitle = document.querySelector('meta[property="og:title"]')?.getAttribute('content') ?? ''
-          // Wait until og:title is set and differs from the bare homepage brand name
-          return ogTitle.length > 0 && ogTitle !== homepageTitle
+          return ogTitle.length > 0 && ogTitle !== defaultTitle
         },
-        HOMEPAGE_TITLE,
+        DEFAULT_FULL_TITLE,
         { timeout: 8000 }
-      ).catch(() => {})
+      ).catch(() => {
+        console.warn(`  ⚠️ ${route}: Helmet-Flush-Timeout (og:title blieb generisch)`)
+      })
 
       // Deduplicate head tags in-browser.
-      // react-helmet-async sets data-rh="true" on every tag it manages.
-      // Strategy: prefer the data-rh tag; otherwise keep first.
       await page.evaluate(() => {
         const head = document.head
 
@@ -361,13 +362,12 @@ async function run() {
       await page.close()
 
       // Patch route-specific meta: canonical, og:url, og:title, twitter:title.
-      // For dataset pages, also inject the known title from DATASET_CONTENT
-      // since the API hasn't loaded yet at snapshot time.
       let html = patchRouteMeta(snapshotHtml, route)
       const dsTitle = datasetTitle(route)
       if (dsTitle) {
         const id = decodeURIComponent((route.match(/^\/dataset\/(.+)$/)?.[1] ?? ''))
-        const lead = DATASET_CONTENT[id]?.lead ?? ''
+        const content = DATASET_CONTENT[id]
+        const lead = content?.lead ?? ''
         html = html
           .replace(/(<title[^>]*>)[^<]*(<\/title>)/i, `$1${dsTitle}$2`)
           .replace(/(<meta[^>]*og:title[^>]*content=")[^"]*(")/gi, `$1${dsTitle}$2`)
@@ -379,6 +379,16 @@ async function run() {
             .replace(/(<meta[^>]*og:description[^>]*content=")[^"]*(")/gi, `$1${desc}$2`)
             .replace(/(<meta[^>]*name="twitter:description"[^>]*content=")[^"]*(")/gi, `$1${desc}$2`)
         }
+        if (content?.excludeFromCatalog) {
+          html = html.replace('</head>', '<meta name="robots" content="noindex"></head>')
+        }
+      }
+
+      // Verification check: Non-homepage static routes must not have the generic default title
+      const titleInHtml = html.match(/<title[^>]*>(.*?)<\/title>/i)?.[1] ?? ''
+      if (!dsTitle && route !== '/' && titleInHtml === DEFAULT_FULL_TITLE) {
+        console.warn(`  ⚠️ ${route}: Generischer Titel im Snapshot (${titleInHtml})`)
+        return false
       }
 
       // Inject JSON-LD structured data
@@ -391,24 +401,47 @@ async function run() {
       const outDir = join(DIST, ...segments)
       mkdirSync(outDir, { recursive: true })
       writeFileSync(join(outDir, 'index.html'), html, 'utf-8')
-      ok++
-      if (ok % 10 === 0 || ok === ALL_ROUTES.length) {
-        process.stdout.write(`  ${ok}/${ALL_ROUTES.length} routes done\n`)
-      }
+      return true
     } catch (e) {
+      if (!isRetry && !retried.has(route)) {
+        retried.add(route)
+        console.warn(`  RETRY ${route}: ${(e as Error).message}`)
+        return processRoute(route, true)
+      }
       console.warn(`  FAIL ${route}: ${(e as Error).message}`)
+      return false
+    }
+  }
+
+  for (const route of ALL_ROUTES) {
+    const success = await processRoute(route)
+    if (success) {
+      ok++
+    } else {
       fail++
+    }
+    if ((ok + fail) % 10 === 0 || (ok + fail) === ALL_ROUTES.length) {
+      process.stdout.write(`  ${ok + fail}/${ALL_ROUTES.length} routes processed (${ok} OK, ${fail} FAIL)\n`)
     }
   }
 
   await browser.close()
   previewServer.httpServer.close()
 
-  // Hinweis: sitemap.xml wird vom generate-sitemap-Plugin in vite.config.ts
-  // erzeugt (respektiert excludeFromCatalog) — hier bewusst nichts schreiben.
+  // Generate prerendered dist/404.html with noindex for GitHub Pages SPA fallback
+  const homepageHtmlPath = join(DIST, 'index.html')
+  if (existsSync(homepageHtmlPath)) {
+    const rootHtml = readFileSync(homepageHtmlPath, 'utf-8')
+    const html404 = rootHtml.replace('</head>', '<meta name="robots" content="noindex"></head>')
+    writeFileSync(join(DIST, '404.html'), html404, 'utf-8')
+    console.log('✅ Generated prerendered dist/404.html with noindex')
+  }
+
+  // Hinweis: sitemap.xml wird von scripts/generate-sitemap.ts erzeugt
+  // — hier bewusst nichts schreiben.
 
   console.log(`\nPrerender complete: ${ok} OK, ${fail} failed.`)
-  if (ok === 0) process.exit(1)
+  if (fail > 0 || ok === 0) process.exit(1)
 }
 
 run().catch(e => { console.error(e); process.exit(1) })

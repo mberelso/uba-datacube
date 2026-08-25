@@ -16,6 +16,7 @@ import io
 import json
 import re
 import sys
+import time
 import urllib.request
 import zipfile
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -55,12 +56,18 @@ BL_NAME = {
 }
 
 
-def fetch(url):
-    req = urllib.request.Request(
-        url,
-        headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
-    )
-    return urllib.request.urlopen(req, timeout=30).read()
+def fetch(url, tries=3):
+    for i in range(tries):
+        try:
+            req = urllib.request.Request(
+                url,
+                headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
+            )
+            return urllib.request.urlopen(req, timeout=30).read()
+        except Exception:
+            if i == tries - 1:
+                raise
+            time.sleep(2 ** i)
 
 
 def parse_stations():
@@ -145,8 +152,8 @@ def station_daily_max(sid, fname, rfname):
             for d, v in parse_txk(rraw).items():
                 if d not in out or v > out[d]:
                     out[d] = v
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"  ! Hinweis: Station {sid} Recent-Fetch fehlgeschlagen ({e})")
     return out
 
 
@@ -169,14 +176,15 @@ def main():
     print(f"Stationen: {len(sids)} ({sum(s in fmap for s in sids)} hist, {len(rfmap)} akt)")
 
     bl_day = {c: {} for c in BL_NAME}
+    errors = []
 
     def process_station(sid):
         name, bl, lat, lon = stations[sid]
         try:
             dmax = station_daily_max(sid, fmap.get(sid), rfmap.get(sid))
-            return sid, bl, name, lat, lon, dmax
+            return sid, bl, name, lat, lon, dmax, None
         except Exception as e:
-            return sid, bl, name, lat, lon, {}
+            return sid, bl, name, lat, lon, {}, str(e)
 
     completed = 0
     print("⚡ Verarbeite Stationen in parallelen Worker-Threads...")
@@ -184,7 +192,9 @@ def main():
         futures = {executor.submit(process_station, sid): sid for sid in sids}
         for future in as_completed(futures):
             completed += 1
-            sid, bl, name, lat, lon, dmax = future.result()
+            sid, bl, name, lat, lon, dmax, err = future.result()
+            if err:
+                errors.append((sid, err))
             day = bl_day[bl]
             for d, v in dmax.items():
                 cur = day.get(d)
@@ -192,6 +202,13 @@ def main():
                     day[d] = (v, name, lat, lon)
             if completed % 200 == 0 or completed == len(sids):
                 print(f"  {completed}/{len(sids)} Stationen verarbeitet...")
+
+    if errors:
+        print(f"⚠️ {len(errors)} Stationen fehlgeschlagen:")
+        for sid, err in errors[:10]:
+            print(f"   Station {sid}: {err}")
+        if len(errors) > len(sids) * 0.1:
+            sys.exit(f"❌ {len(errors)} Stationen (>10%) fehlgeschlagen — Abbruch, Datei wird nicht überschrieben.")
 
     states = []
     nat_record = {"temp": -999}
@@ -245,6 +262,19 @@ def main():
         "national": nat_record,
         "states": states,
     }
+
+    # Sanity check against existing out_file before writing
+    if out_file.exists() and out_file.stat().st_size > 1000:
+        try:
+            old = json.loads(out_file.read_text(encoding="utf-8"))
+            old_temp = old.get("national", {}).get("temp", 0)
+            new_temp = nat_record.get("temp", 0)
+            if new_temp < old_temp - 0.5:
+                sys.exit(f"❌ Sanity check failed: Nationaler Rekord gesunken ({old_temp} °C -> {new_temp} °C)")
+        except Exception as e:
+            if "Sanity check" in str(e):
+                raise
+
     out_file.write_text(json.dumps(out, separators=(",", ":"), ensure_ascii=False), encoding="utf-8")
     print(f"\n✅ Geschrieben: {out_file} ({out_file.stat().st_size / 1e6:.2f} MB)")
     print(f"Datenstand bis: {data_through}")

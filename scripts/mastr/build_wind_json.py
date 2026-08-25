@@ -3,6 +3,7 @@
 # Objekt-Listen und direkt Canvas-tauglich.
 #
 # Voraussetzung: scripts/mastr/phase0_download.py wurde ausgeführt.
+import os
 import sys
 import io
 import json
@@ -12,7 +13,8 @@ from pathlib import Path
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-DB = Path.home() / ".open-MaStR" / "data" / "sqlite" / "open-mastr.db"
+DB_PATH = os.environ.get("MASTR_DB_PATH")
+DB = Path(DB_PATH) if DB_PATH else Path.home() / ".open-MaStR" / "data" / "sqlite" / "open-mastr.db"
 OUT = Path(__file__).resolve().parents[2] / "public" / "wind_units.json"
 
 STATUS = {"In Betrieb": 0, "Vorübergehend stillgelegt": 0, "Endgültig stillgelegt": 1, "In Planung": 2}

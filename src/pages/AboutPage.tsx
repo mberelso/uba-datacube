@@ -121,6 +121,27 @@ export default function AboutPage() {
         ))}
       </div>
 
+      {/* Support Box */}
+      <div className="mt-10 p-6 rounded-2xl bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border border-amber-500/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+          <div className="text-sm font-semibold text-slate-800 flex items-center gap-2">
+            <span>☕ Gefällt dir Umweltpuls?</span>
+          </div>
+          <p className="text-xs text-slate-600 mt-1 max-w-[50ch]">
+            Umweltpuls ist vollständig kostenlos, werbefrei und quelloffen. Wenn du das Projekt unterstützen möchtest, freuen wir uns über einen Kaffee!
+          </p>
+        </div>
+        <a
+          href="https://ko-fi.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold transition-colors shadow-sm shrink-0"
+        >
+          <span>Unterstützen auf Ko-Fi</span>
+          <ArrowSquareOut size={14} />
+        </a>
+      </div>
+
       {/* Links */}
       <div className="mt-10 pt-6 border-t border-slate-200 flex flex-wrap gap-4 text-sm">
         <a

@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import DashboardPage from './pages/DashboardPage'
+import { RouteErrorBoundary } from './components/RouteErrorBoundary'
 
 const CatalogPage       = lazy(() => import('./pages/CatalogPage'))
 const DatasetPage       = lazy(() => import('./pages/DatasetPage'))
@@ -42,17 +43,17 @@ function Layout() {
       <div style={{ flex: 1 }}>
         <Suspense fallback={<PageFallback />}>
           <Routes>
-            <Route path="/" element={<DashboardPage />} />
-            <Route path="/analysen" element={<AnalysePage />} />
-            <Route path="/regionen" element={<RegionalPage />} />
-            <Route path="/vergleich" element={<ComparePage />} />
-            <Route path="/wind" element={<WindPage />} />
-            <Route path="/solar" element={<SolarPage />} />
-            <Route path="/hitze" element={<HeatPage />} />
-            <Route path="/catalog" element={<CatalogPage />} />
-            <Route path="/dataset/:id" element={<DatasetPage />} />
-            <Route path="/about" element={<AboutPage />} />
-            <Route path="/social-preview" element={<SocialPreviewPage />} />
+            <Route path="/" element={<RouteErrorBoundary><DashboardPage /></RouteErrorBoundary>} />
+            <Route path="/analysen" element={<RouteErrorBoundary><AnalysePage /></RouteErrorBoundary>} />
+            <Route path="/regionen" element={<RouteErrorBoundary><RegionalPage /></RouteErrorBoundary>} />
+            <Route path="/vergleich" element={<RouteErrorBoundary><ComparePage /></RouteErrorBoundary>} />
+            <Route path="/wind" element={<RouteErrorBoundary><WindPage /></RouteErrorBoundary>} />
+            <Route path="/solar" element={<RouteErrorBoundary><SolarPage /></RouteErrorBoundary>} />
+            <Route path="/hitze" element={<RouteErrorBoundary><HeatPage /></RouteErrorBoundary>} />
+            <Route path="/catalog" element={<RouteErrorBoundary><CatalogPage /></RouteErrorBoundary>} />
+            <Route path="/dataset/:id" element={<RouteErrorBoundary><DatasetPage /></RouteErrorBoundary>} />
+            <Route path="/about" element={<RouteErrorBoundary><AboutPage /></RouteErrorBoundary>} />
+            <Route path="/social-preview" element={<RouteErrorBoundary><SocialPreviewPage /></RouteErrorBoundary>} />
           </Routes>
         </Suspense>
       </div>

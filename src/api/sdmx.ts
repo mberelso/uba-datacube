@@ -1,10 +1,18 @@
 const BASE = 'https://daten.uba.de/release/rest'
 
 const memoryCache = new Map<string, { timestamp: number; data: unknown }>()
+const jsonInflightCache = new Map<string, Promise<unknown>>()
 
 const defaultHeaders: Record<string, string> = typeof window === 'undefined' ? {
   'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
 } : {}
+
+export function splitFlowRef(flowRef: string): { agencyID: string; id: string; version: string } {
+  const parts = flowRef.split(',')
+  if (parts.length >= 3) return { agencyID: parts[0], id: parts[1], version: parts[2] }
+  if (parts.length === 2) return { agencyID: parts[0], id: parts[1], version: '1.0' }
+  return { agencyID: 'UBA', id: flowRef, version: '1.0' }
+}
 
 async function cachedFetchJson<T>(url: string, headers?: Record<string, string>, ttlMs = 60 * 60 * 1000): Promise<T> {
   const now = Date.now()
@@ -13,51 +21,63 @@ async function cachedFetchJson<T>(url: string, headers?: Record<string, string>,
     return mem.data as T
   }
 
-  const cacheKey = `uba_cache_${url}`
-  if (typeof sessionStorage !== 'undefined') {
-    try {
-      const item = sessionStorage.getItem(cacheKey)
-      if (item) {
-        const parsed = JSON.parse(item) as { timestamp: number; data: unknown }
-        if (now - parsed.timestamp < ttlMs) {
-          memoryCache.set(url, parsed)
-          return parsed.data as T
-        }
-      }
-    } catch {
-      // SessionStorage unavailable
-    }
+  const existingPromise = jsonInflightCache.get(url)
+  if (existingPromise) {
+    return existingPromise as Promise<T>
   }
 
-  try {
-    const r = await fetch(url, { headers: { ...defaultHeaders, ...headers } })
-    if (!r.ok) throw new Error(`API-Fehler ${r.status}`)
-    const json = (await r.json()) as T
-    const entry = { timestamp: now, data: json }
-    memoryCache.set(url, entry)
-    if (typeof sessionStorage !== 'undefined') {
-      try {
-        sessionStorage.setItem(cacheKey, JSON.stringify(entry))
-      } catch {
-        // Memory cache fallback
-      }
-    }
-    return json
-  } catch (err) {
-    if (mem) return mem.data as T
+  const load = async (): Promise<T> => {
+    const cacheKey = `uba_cache_${url}`
     if (typeof sessionStorage !== 'undefined') {
       try {
         const item = sessionStorage.getItem(cacheKey)
         if (item) {
-          const parsed = JSON.parse(item) as { data: unknown }
-          return parsed.data as T
+          const parsed = JSON.parse(item) as { timestamp: number; data: unknown }
+          if (now - parsed.timestamp < ttlMs) {
+            memoryCache.set(url, parsed)
+            return parsed.data as T
+          }
         }
       } catch {
-        // Ignore
+        // SessionStorage unavailable
       }
     }
-    throw err
+
+    try {
+      const r = await fetch(url, { headers: { ...defaultHeaders, ...headers } })
+      if (!r.ok) throw new Error(`API-Fehler ${r.status}`)
+      const json = (await r.json()) as T
+      const entry = { timestamp: now, data: json }
+      memoryCache.set(url, entry)
+      if (typeof sessionStorage !== 'undefined') {
+        try {
+          sessionStorage.setItem(cacheKey, JSON.stringify(entry))
+        } catch {
+          // Memory cache fallback
+        }
+      }
+      return json
+    } catch (err) {
+      if (mem) return mem.data as T
+      if (typeof sessionStorage !== 'undefined') {
+        try {
+          const item = sessionStorage.getItem(cacheKey)
+          if (item) {
+            const parsed = JSON.parse(item) as { data: unknown }
+            return parsed.data as T
+          }
+        } catch {
+          // Ignore
+        }
+      }
+      throw err
+    }
   }
+
+  const p = load()
+  jsonInflightCache.set(url, p as Promise<unknown>)
+  p.finally(() => jsonInflightCache.delete(url))
+  return p
 }
 
 export interface TimePoint { year: string; value: number }
@@ -124,8 +144,10 @@ async function fetchSdmxJson(flowRef: string, key = 'all'): Promise<{ series: Re
   const tvals: SdmxDimensionValue[] = timeDim?.values ?? []
   
   const series = dsets[0]?.series ?? {}
-  console.log(`[SDMX] Found ${Object.keys(series).length} series and ${tvals.length} time points for ${fullRef}`)
-  
+  if (import.meta.env.DEV) {
+    console.log(`[SDMX] Found ${Object.keys(series).length} series and ${tvals.length} time points for ${fullRef}`)
+  }
+
   return {
     series,
     timeValues: tvals.map((v) => v.id ?? String(v)),
@@ -159,10 +181,8 @@ export async function fetchAveragedSeries(flowRef: string, key = 'all'): Promise
   }
 
   // Fallback: Use robust fetchData pipeline
-  const parts = flowRef.split(',')
-  const flowId = parts.length >= 2 ? parts[1] : flowRef
-  const version = parts.length >= 3 ? parts[2] : '1.0'
-  const result = await fetchData({ id: flowId, agencyID: 'UBA', version, name: '', description: '', category: 'klima' }, 'all')
+  const { agencyID, id: flowId, version } = splitFlowRef(flowRef)
+  const result = await fetchData({ id: flowId, agencyID, version, name: '', description: '', category: categoryFromId(flowId) }, 'all')
   const acc: Record<string, number[]> = {}
   for (const s of Object.values(result.seriesMap)) {
     for (const [yr, val] of Object.entries(s.observations)) {
@@ -198,10 +218,8 @@ export async function fetchSingleSeries(flowRef: string, key = 'all', seriesInde
   }
 
   // Fallback: Use robust fetchData pipeline
-  const parts = flowRef.split(',')
-  const flowId = parts.length >= 2 ? parts[1] : flowRef
-  const version = parts.length >= 3 ? parts[2] : '1.0'
-  const result = await fetchData({ id: flowId, agencyID: 'UBA', version, name: '', description: '', category: 'klima' }, 'all')
+  const { agencyID, id: flowId, version } = splitFlowRef(flowRef)
+  const result = await fetchData({ id: flowId, agencyID, version, name: '', description: '', category: categoryFromId(flowId) }, 'all')
   const firstSeries = Object.values(result.seriesMap)[seriesIndex] || Object.values(result.seriesMap)[0]
   if (!firstSeries) return []
 
@@ -234,6 +252,53 @@ export async function fetchCsvText(url: string): Promise<string> {
   return p
 }
 
+/** Canonical SDMX CSV Parser */
+export interface ParsedSdmxCsvRow {
+  codes: string[]
+  time: string
+  value: number | null
+}
+
+export interface ParsedSdmxCsv {
+  colIds: string[]
+  rows: ParsedSdmxCsvRow[]
+  byKey: Record<string, { codes: string[]; obs: Record<string, number | null> }>
+}
+
+export function parseSdmxCsv(text: string): ParsedSdmxCsv {
+  const lines = text.trim().split('\n')
+  if (lines.length === 0 || !lines[0].trim()) {
+    return { colIds: [], rows: [], byKey: {} }
+  }
+  const sep = lines[0].includes(';') ? ';' : ','
+  const header = lines[0].split(sep).map((h) => h.trim().replace(/\r/g, ''))
+  const timeCol = header.indexOf('TIME_PERIOD')
+  const valCol = header.indexOf('OBS_VALUE')
+  const colIds = timeCol !== -1 ? header.slice(1, timeCol) : header.slice(1, -1)
+
+  const rows: ParsedSdmxCsvRow[] = []
+  const byKey: Record<string, { codes: string[]; obs: Record<string, number | null> }> = {}
+
+  for (const line of lines.slice(1)) {
+    if (!line.trim()) continue
+    const cols = line.split(sep).map((c) => c.trim().replace(/\r/g, ''))
+    const codes = colIds.map((_c, i) => cols[i + 1] ?? '')
+    const time = timeCol !== -1 ? (cols[timeCol] ?? '') : ''
+    const rawVal = valCol !== -1 ? cols[valCol] : ''
+    const normalizedVal = rawVal ? rawVal.replace(',', '.') : ''
+    const val = normalizedVal !== '' ? parseFloat(normalizedVal) : null
+    const finalVal = val !== null && !isNaN(val) ? val : null
+
+    rows.push({ codes, time, value: finalVal })
+
+    const key = codes.join(':')
+    if (!byKey[key]) byKey[key] = { codes, obs: {} }
+    if (time) byKey[key].obs[time] = finalVal
+  }
+
+  return { colIds, rows, byKey }
+}
+
 export async function fetchCsvSeries(
   flowId: string,
   version = '1.0',
@@ -245,22 +310,10 @@ export async function fetchCsvSeries(
   } catch {
     text = await fetchCsvText(`https://daten.uba.de/release/rest/data/UBA,${cleanFlow},${version}/.?format=csv`)
   }
-  const lines = text.trim().split('\n')
-  const sep = lines[0].includes(';') ? ';' : ','
-  const header = lines[0].split(sep).map((h) => h.trim().replace(/\r/g, ''))
-  const timeCol = header.indexOf('TIME_PERIOD')
-  const valCol = header.indexOf('OBS_VALUE')
-  const colIds = header.slice(1, timeCol)
+  const parsed = parseSdmxCsv(text)
   const result: Record<string, { codes: string[]; colIds: string[]; obs: Record<string, number | null> }> = {}
-  for (const line of lines.slice(1)) {
-    if (!line.trim()) continue
-    const cols = line.split(sep).map((c) => c.trim().replace(/\r/g, ''))
-    const codes = colIds.map((_c, i) => cols[i + 1])
-    const key = codes.join(':')
-    const raw = cols[valCol]
-    const val = raw !== '' ? parseFloat(raw) : null
-    if (!result[key]) result[key] = { codes, colIds, obs: {} }
-    result[key].obs[cols[timeCol]] = isNaN(val as number) ? null : val
+  for (const [key, val] of Object.entries(parsed.byKey)) {
+    result[key] = { codes: val.codes, colIds: parsed.colIds, obs: val.obs }
   }
   return result
 }

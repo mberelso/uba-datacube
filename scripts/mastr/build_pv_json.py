@@ -10,6 +10,7 @@
 #                           Anlagenzahl pro Jahr, für animierte Choropleth.
 #   public/pv_summary.json  Nationale Jahresreihen für Dashboard/Analysen.
 import io
+import os
 import sys
 import json
 import gzip
@@ -24,7 +25,8 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="repla
 # Neuesten Gesamtdatenexport automatisch wählen (Dateiname enthält Download-Datum).
 # Wichtig: ein veralteter Export kann einzelne Sparten abgeschnitten enthalten —
 # immer den jüngsten nehmen.
-_XML_DIR = Path.home() / ".open-MaStR" / "data" / "xml_download"
+_XML_DIR_ENV = os.environ.get("MASTR_XML_DIR")
+_XML_DIR = Path(_XML_DIR_ENV) if _XML_DIR_ENV else Path.home() / ".open-MaStR" / "data" / "xml_download"
 ZIP = max(_XML_DIR.glob("Gesamtdatenexport_*.zip"), key=lambda p: p.name)
 PUB = Path(__file__).resolve().parents[2] / "public"
 SOURCE = "Marktstammdatenregister (MaStR), Bundesnetzagentur — Datenlizenz Deutschland dl-de/by-2-0"

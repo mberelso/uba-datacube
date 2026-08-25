@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet-async'
+import { SITE_NAME, DEFAULT_FULL_TITLE } from '../constants/seo'
 
-const SITE_NAME = 'Umweltpuls'
 const SITE_URL = 'https://www.umweltpuls.de'
 const DEFAULT_DESCRIPTION = 'Klimadaten, Emissionstrends und Umweltindikatoren des Umweltbundesamts — interaktiv erkunden, filtern und exportieren. Kostenlos und offen.'
 const DEFAULT_IMAGE = `${SITE_URL}/og-image.png`
@@ -28,7 +28,7 @@ interface SEOProps {
 }
 
 export function SEO({ title, description = DEFAULT_DESCRIPTION, path = '', image = DEFAULT_IMAGE, jsonLd }: SEOProps) {
-  const fullTitle = title ? `${title} | ${SITE_NAME}` : `${SITE_NAME} – Umweltdaten Deutschland interaktiv`
+  const fullTitle = title ? `${title} | ${SITE_NAME}` : DEFAULT_FULL_TITLE
   const url = `${SITE_URL}${path}`
 
   // Automatic BreadcrumbList Schema

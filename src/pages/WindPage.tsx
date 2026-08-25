@@ -76,6 +76,10 @@ export default function WindPage() {
           Drücke auf Play und sieh zu, wie der Ausbau an der Küste beginnt, sich ins Binnenland
           ausbreitet — und wie der Zubau 2018 dramatisch einbricht, bevor er wieder Fahrt aufnimmt.
         </p>
+        <div className="flex items-center gap-2 mt-3 text-xs text-slate-500">
+          <span className="inline-block w-2 h-2 rounded-full bg-emerald-500"></span>
+          <span>Datenstand: 11.06.2026 · Marktstammdatenregister (Bundesnetzagentur)</span>
+        </div>
         <div style={{ width: 40, height: 3, background: NORDIC.moss, borderRadius: 2, marginTop: 14 }} />
       </motion.div>
 

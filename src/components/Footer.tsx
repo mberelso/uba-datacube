@@ -28,6 +28,15 @@ export default function Footer() {
           Datenschutz
         </Link>
         {' · '}
+        <a
+          href="https://ko-fi.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-amber-600/80 hover:text-amber-600 transition-colors font-medium"
+        >
+          ☕ Projekt unterstützen
+        </a>
+        {' · '}
         <Link to="/about" className="text-slate-400 hover:text-slate-600 transition-colors">
           Kein UBA-Angebot
         </Link>

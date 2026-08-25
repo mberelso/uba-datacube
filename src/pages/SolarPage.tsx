@@ -83,6 +83,10 @@ export default function SolarPage() {
           Landkreis, die Punkte die großen Freiflächen-Solarparks. Drücke auf Play und sieh, wie aus
           dem EEG-Boom der frühen 2010er der explosionsartige Zubau ab 2022 wird.
         </p>
+        <div className="flex items-center gap-2 mt-3 text-xs text-slate-500">
+          <span className="inline-block w-2 h-2 rounded-full bg-emerald-500"></span>
+          <span>Datenstand: 23.06.2026 · Marktstammdatenregister (Bundesnetzagentur)</span>
+        </div>
         <div style={{ width: 40, height: 3, background: NORDIC.amber, borderRadius: 2, marginTop: 14 }} />
       </motion.div>
 

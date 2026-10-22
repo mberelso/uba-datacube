@@ -17,7 +17,7 @@
 - Create: `src/lib/mispel/constants.ts`
 - Test: `tests/unit/mispel/constants.test.ts`
 
-- [ ] **Step 1: Write the failing test for constants and defaults**
+- [x] **Step 1: Write the failing test for constants and defaults**
 
 ```typescript
 // tests/unit/mispel/constants.test.ts
@@ -41,12 +41,12 @@ describe('MISPEL_CONSTANTS', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx vitest run tests/unit/mispel/constants.test.ts`  
 Expected: FAIL (Cannot find module `constants`)
 
-- [ ] **Step 3: Implement `types.ts` and `constants.ts`**
+- [x] **Step 3: Implement `types.ts` and `constants.ts`**
 
 ```typescript
 // src/lib/mispel/types.ts
@@ -172,12 +172,12 @@ export const DEFAULT_PRESETS: MispelPreset[] = [
 ];
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npx vitest run tests/unit/mispel/constants.test.ts`  
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/lib/mispel/ types.ts constants.ts tests/unit/mispel/constants.test.ts
@@ -192,7 +192,7 @@ git commit -m "feat(mispel): add domain types and constants for BNetzA MiSpeL"
 - Create: `tests/unit/mispel/pauschal.test.ts`
 - Create: `src/lib/mispel/pauschal.ts`
 
-- [ ] **Step 1: Write the failing Golden Tests from BNetzA documentation**
+- [x] **Step 1: Write the failing Golden Tests from BNetzA documentation**
 
 ```typescript
 // tests/unit/mispel/pauschal.test.ts
@@ -298,12 +298,12 @@ describe('berechnePauschalOption - BNetzA Golden Tests', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx vitest run tests/unit/mispel/pauschal.test.ts`  
 Expected: FAIL (Cannot find module `pauschal`)
 
-- [ ] **Step 3: Implement `src/lib/mispel/pauschal.ts`**
+- [x] **Step 3: Implement `src/lib/mispel/pauschal.ts`**
 
 ```typescript
 // src/lib/mispel/pauschal.ts
@@ -444,12 +444,12 @@ export function berechnePauschalOption(k: MispelKonstellation): MispelPauschalEr
 }
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npx vitest run tests/unit/mispel/pauschal.test.ts`  
 Expected: PASS (all 5 Golden Tests pass)
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/lib/mispel/pauschal.ts tests/unit/mispel/pauschal.test.ts
@@ -464,7 +464,7 @@ git commit -m "feat(mispel): implement BNetzA Pauschaloption formula engine with
 - Create: `tests/unit/mispel/decisionTree.test.ts`
 - Create: `src/lib/mispel/decisionTree.ts`
 
-- [ ] **Step 1: Write test for eligibility rules**
+- [x] **Step 1: Write test for eligibility rules**
 
 ```typescript
 // tests/unit/mispel/decisionTree.test.ts
@@ -522,12 +522,12 @@ describe('pruefeEignungPauschaloption', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx vitest run tests/unit/mispel/decisionTree.test.ts`  
 Expected: FAIL
 
-- [ ] **Step 3: Implement `src/lib/mispel/decisionTree.ts`**
+- [x] **Step 3: Implement `src/lib/mispel/decisionTree.ts`**
 
 ```typescript
 // src/lib/mispel/decisionTree.ts
@@ -590,12 +590,12 @@ export function pruefeEignungPauschaloption(k: MispelKonstellation): EignungsPru
 }
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npx vitest run tests/unit/mispel/decisionTree.test.ts`  
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/lib/mispel/decisionTree.ts tests/unit/mispel/decisionTree.test.ts
@@ -610,7 +610,7 @@ git commit -m "feat(mispel): add eligibility and decision tree rules"
 - Create: `tests/unit/mispel/economics.test.ts`
 - Create: `src/lib/mispel/economics.ts`
 
-- [ ] **Step 1: Write test for economic calculation**
+- [x] **Step 1: Write test for economic calculation**
 
 ```typescript
 // tests/unit/mispel/economics.test.ts
@@ -641,12 +641,12 @@ describe('berechneWirtschaftlichkeit', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx vitest run tests/unit/mispel/economics.test.ts`  
 Expected: FAIL
 
-- [ ] **Step 3: Implement `src/lib/mispel/economics.ts`**
+- [x] **Step 3: Implement `src/lib/mispel/economics.ts`**
 
 ```typescript
 // src/lib/mispel/economics.ts
@@ -695,12 +695,12 @@ export function berechneWirtschaftlichkeit(
 }
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npx vitest run tests/unit/mispel/economics.test.ts`  
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/lib/mispel/economics.ts tests/unit/mispel/economics.test.ts
@@ -715,7 +715,7 @@ git commit -m "feat(mispel): add economic comparison engine"
 - Create: `src/components/mispel/MispelPresetSelector.tsx`
 - Create: `src/components/mispel/MispelInputs.tsx`
 
-- [ ] **Step 1: Implement `MispelPresetSelector.tsx`**
+- [x] **Step 1: Implement `MispelPresetSelector.tsx`**
 
 ```tsx
 // src/components/mispel/MispelPresetSelector.tsx
@@ -770,7 +770,7 @@ export const MispelPresetSelector: React.FC<Props> = ({ selectedId, onSelect, on
 };
 ```
 
-- [ ] **Step 2: Implement `MispelInputs.tsx`**
+- [x] **Step 2: Implement `MispelInputs.tsx`**
 
 ```tsx
 // src/components/mispel/MispelInputs.tsx
@@ -952,12 +952,12 @@ export const MispelInputs: React.FC<Props> = ({ konstellation, onChange }) => {
 };
 ```
 
-- [ ] **Step 3: Run typecheck to verify component types**
+- [x] **Step 3: Run typecheck to verify component types**
 
 Run: `npx tsc --noEmit`  
 Expected: 0 errors
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/components/mispel/MispelPresetSelector.tsx src/components/mispel/MispelInputs.tsx
@@ -974,7 +974,7 @@ git commit -m "feat(mispel): add preset selector and interactive input controls"
 - Create: `src/components/mispel/MispelFormulaAudit.tsx`
 - Create: `src/components/mispel/MispelStatusAlert.tsx`
 
-- [ ] **Step 1: Implement `MispelResultCards.tsx`**
+- [x] **Step 1: Implement `MispelResultCards.tsx`**
 
 ```tsx
 // src/components/mispel/MispelResultCards.tsx
@@ -1043,7 +1043,7 @@ export const MispelResultCards: React.FC<Props> = ({ wirtschaftlichkeit }) => {
 };
 ```
 
-- [ ] **Step 2: Implement `MispelEnergyBar.tsx` (BITV 2.0 konformer Stapelbalken)**
+- [x] **Step 2: Implement `MispelEnergyBar.tsx` (BITV 2.0 konformer Stapelbalken)**
 
 ```tsx
 // src/components/mispel/MispelEnergyBar.tsx
@@ -1146,7 +1146,7 @@ export const MispelEnergyBar: React.FC<Props> = ({ ergebnis, gesamteEinspeisung 
 };
 ```
 
-- [ ] **Step 3: Implement `MispelFormulaAudit.tsx` (Formel-Lupe)**
+- [x] **Step 3: Implement `MispelFormulaAudit.tsx` (Formel-Lupe)**
 
 ```tsx
 // src/components/mispel/MispelFormulaAudit.tsx
@@ -1218,7 +1218,7 @@ export const MispelFormulaAudit: React.FC<Props> = ({ schritte }) => {
 };
 ```
 
-- [ ] **Step 4: Implement `MispelStatusAlert.tsx`**
+- [x] **Step 4: Implement `MispelStatusAlert.tsx`**
 
 ```tsx
 // src/components/mispel/MispelStatusAlert.tsx
@@ -1252,12 +1252,12 @@ export const MispelStatusAlert: React.FC = () => {
 };
 ```
 
-- [ ] **Step 5: Run typecheck to verify all components compile**
+- [x] **Step 5: Run typecheck to verify all components compile**
 
 Run: `npx tsc --noEmit`  
 Expected: 0 errors
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/components/mispel/
@@ -1274,7 +1274,7 @@ git commit -m "feat(mispel): add result cards, BITV energy bar, formula audit, a
 - Modify: `src/components/Navbar.tsx`
 - Modify: `scripts/generate-sitemap.ts`
 
-- [ ] **Step 1: Create `src/pages/MispelPage.tsx`**
+- [x] **Step 1: Create `src/pages/MispelPage.tsx`**
 
 ```tsx
 // src/pages/MispelPage.tsx
@@ -1381,24 +1381,24 @@ const MispelPage: React.FC = () => {
 export default MispelPage;
 ```
 
-- [ ] **Step 2: Add Route to `src/App.tsx`**
+- [x] **Step 2: Add Route to `src/App.tsx`**
 
 Lazy-load `MispelPage` in `src/App.tsx` and register `<Route path="/mispel" element={<MispelPage />} />`.
 
-- [ ] **Step 3: Add Navigation item to `src/components/Navbar.tsx`**
+- [x] **Step 3: Add Navigation item to `src/components/Navbar.tsx`**
 
 Add link to `/mispel` with a badge "MiSpeL" next to "Solar", "Wind", etc.
 
-- [ ] **Step 4: Add `/mispel` to `scripts/generate-sitemap.ts`**
+- [x] **Step 4: Add `/mispel` to `scripts/generate-sitemap.ts`**
 
 Ensure `/mispel` is included in static routes.
 
-- [ ] **Step 5: Run tests and typecheck**
+- [x] **Step 5: Run tests and typecheck**
 
 Run: `npx tsc --noEmit && npm test`  
 Expected: PASS
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/pages/MispelPage.tsx src/App.tsx src/components/Navbar.tsx scripts/generate-sitemap.ts
@@ -1412,22 +1412,22 @@ git commit -m "feat(mispel): integrate MiSpeL simulator route and navigation lin
 **Files:**
 - Test: Full build, lint, and test suite
 
-- [ ] **Step 1: Run complete test suite**
+- [x] **Step 1: Run complete test suite**
 
 Run: `npm test`  
 Expected: All tests pass (including all MiSpeL Golden Tests).
 
-- [ ] **Step 2: Run linter and typechecker**
+- [x] **Step 2: Run linter and typechecker**
 
 Run: `npm run lint` and `npx tsc --noEmit`  
 Expected: 0 errors, 0 warnings.
 
-- [ ] **Step 3: Run production build and prerender check**
+- [x] **Step 3: Run production build and prerender check**
 
 Run: `npm run build`  
 Expected: Successful build, bundle created, sitemap includes `/mispel`.
 
-- [ ] **Step 4: Commit and finalize**
+- [x] **Step 4: Commit and finalize**
 
 ```bash
 git commit -m "chore: verify and finalize MiSpeL simulator stage 1"

@@ -1,6 +1,6 @@
 import React from 'react';
 import { DEFAULT_PRESETS } from '../../lib/mispel/constants';
-import { MispelPreset } from '../../lib/mispel/types';
+import type { MispelPreset } from '../../lib/mispel/types';
 import { House, Lightning, Sparkle } from '@phosphor-icons/react';
 
 interface Props {

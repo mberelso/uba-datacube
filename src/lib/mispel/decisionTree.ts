@@ -1,4 +1,4 @@
-import { MispelKonstellation } from './types';
+import type { MispelKonstellation } from './types';
 import { MISPEL_CONSTANTS } from './constants';
 
 export interface EignungsPruefung {
@@ -32,7 +32,7 @@ export function pruefeEignungPauschaloption(k: MispelKonstellation): EignungsPru
   }
 
   // 3. Formelsatz-Bestimmung
-  let formelsatz: 'P1' | 'P2' | 'P3' = 'P1';
+  let formelsatz: 'P1' | 'P2' | 'P3';
   if (k.skInstKWh > 0 && k.hasLadepunkt) {
     formelsatz = 'P3';
   } else if (k.hasLadepunkt) {

@@ -1,4 +1,4 @@
-import { MispelPreset } from './types';
+import type { MispelPreset } from './types';
 
 export const MISPEL_CONSTANTS = {
   AZ: '618-25-02',

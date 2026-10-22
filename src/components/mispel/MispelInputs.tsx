@@ -1,5 +1,5 @@
 import React from 'react';
-import { MispelKonstellation } from '../../lib/mispel/types';
+import type { MispelKonstellation } from '../../lib/mispel/types';
 import { Sun, BatteryCharging, ArrowUpRight, ArrowDownRight } from '@phosphor-icons/react';
 
 interface Props {

@@ -1,4 +1,4 @@
-import { MispelKonstellation, MispelPauschalErgebnis, MispelFormelSchritt } from './types';
+import type { MispelKonstellation, MispelPauschalErgebnis, MispelFormelSchritt } from './types';
 import { MISPEL_CONSTANTS } from './constants';
 
 export function berechnePauschalOption(k: MispelKonstellation): MispelPauschalErgebnis {
@@ -23,9 +23,9 @@ export function berechnePauschalOption(k: MispelKonstellation): MispelPauschalEr
   });
 
   // (P2) Rechengröße
-  let p2 = 0;
-  let p2Formel = '';
-  let p2Weg = '';
+  let p2: number;
+  let p2Formel: string;
+  let p2Weg: string;
   const p2_speicher = k.skInstKWh > 0 ? (MISPEL_CONSTANTS.FAKTOR_SPEICHER * (pinstEffektiv / k.skInstKWh)) : 0;
 
   if (k.skInstKWh > 0 && k.hasLadepunkt) {

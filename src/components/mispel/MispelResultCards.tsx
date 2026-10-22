@@ -1,5 +1,5 @@
 import React from 'react';
-import { MispelWirtschaftlichkeit } from '../../lib/mispel/types';
+import type { MispelWirtschaftlichkeit } from '../../lib/mispel/types';
 import { TrendUp, TrendDown, CheckCircle } from '@phosphor-icons/react';
 
 interface Props {

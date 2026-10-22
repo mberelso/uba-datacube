@@ -1,4 +1,4 @@
-import { MispelKonstellation, MispelPauschalErgebnis, MispelWirtschaftlichkeit } from './types';
+import type { MispelKonstellation, MispelPauschalErgebnis, MispelWirtschaftlichkeit } from './types';
 import { MISPEL_CONSTANTS } from './constants';
 
 export function berechneWirtschaftlichkeit(

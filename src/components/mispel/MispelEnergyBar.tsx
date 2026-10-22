@@ -1,5 +1,5 @@
 import React from 'react';
-import { MispelPauschalErgebnis } from '../../lib/mispel/types';
+import type { MispelPauschalErgebnis } from '../../lib/mispel/types';
 
 interface Props {
   ergebnis: MispelPauschalErgebnis;

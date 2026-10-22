@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MispelFormelSchritt } from '../../lib/mispel/types';
+import type { MispelFormelSchritt } from '../../lib/mispel/types';
 import { FileText, CaretDown, CaretUp, BookOpen } from '@phosphor-icons/react';
 
 interface Props {

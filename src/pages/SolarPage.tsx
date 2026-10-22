@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { ShareNetwork } from '@phosphor-icons/react'
+import { ShareNetwork, Lightning, ArrowRight } from '@phosphor-icons/react'
 import { SolarMap } from '../components/charts/SolarMap'
 import { SEO } from '../components/SEO'
 import { SocialCardModal } from '../components/social/SocialCardModal'
@@ -98,6 +99,29 @@ export default function SolarPage() {
       >
         <SolarMap />
       </motion.div>
+
+      {/* MiSpeL Banner */}
+      <div className="mt-8 bg-gradient-to-r from-sky-50 via-white to-sky-50/50 border border-sky-200/80 rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs">
+        <div>
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-sky-100 text-sky-800 text-[11px] font-bold mb-1.5">
+            <Lightning size={13} weight="fill" className="text-sky-600" />
+            <span>Neu: BNetzA-Festlegung MiSpeL (01.10.2026)</span>
+          </div>
+          <h3 className="text-base font-bold text-slate-900">
+            Haben Sie eine Solaranlage mit Heimspeicher oder E-Auto?
+          </h3>
+          <p className="text-xs text-slate-600 mt-1 max-w-2xl leading-relaxed">
+            Nutzen Sie die neue BNetzA-Pauschaloption: Laden Sie Ihren Speicher im Winter legal mit günstigem Netzstrom, ohne Ihre EEG-Einspeisevergütung zu verlieren.
+          </p>
+        </div>
+        <Link
+          to="/mispel"
+          className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold transition-all shadow-xs shrink-0 self-stretch sm:self-auto justify-center"
+        >
+          <span>Zum MiSpeL-Simulator</span>
+          <ArrowRight size={14} weight="bold" />
+        </Link>
+      </div>
     </div>
   )
 }

@@ -13,13 +13,16 @@
     "preview": "vite preview",
     "generate-descriptions": "npx tsx scripts/generate-descriptions.ts",
     "fetch-metadata": "npx tsx scripts/fetch-metadata.ts",
-    "generate-backgrounds": "npx tsx scripts/generate-backgrounds.ts"
+    "generate-backgrounds": "npx tsx scripts/generate-backgrounds.ts",
+    "test:openrouter": "npx tsx scripts/test-openrouter.ts",
+    "ask-glm": "npx tsx scripts/ask-glm.ts"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",
     "d3-geo": "^3.1.1",
     "framer-motion": "^12.38.0",
     "html-to-image": "^1.11.13",
+    "openai": "^7.9.0",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "react-helmet-async": "^3.0.0",

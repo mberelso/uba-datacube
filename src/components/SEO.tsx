@@ -45,6 +45,8 @@ export function SEO({ title, description = DEFAULT_DESCRIPTION, path = '', image
     breadcrumbs.push({ '@type': 'ListItem', position: 2, name: 'Windkraft-Ausbau', item: url })
   } else if (path === '/solar') {
     breadcrumbs.push({ '@type': 'ListItem', position: 2, name: 'Solar-Ausbau', item: url })
+  } else if (path === '/mispel') {
+    breadcrumbs.push({ '@type': 'ListItem', position: 2, name: 'MiSpeL-Simulator', item: url })
   } else if (path.startsWith('/dataset/')) {
     breadcrumbs.push({ '@type': 'ListItem', position: 2, name: 'Datenkatalog', item: `${SITE_URL}/catalog` })
     breadcrumbs.push({ '@type': 'ListItem', position: 3, name: title ?? 'Datensatz', item: url })

@@ -28,6 +28,10 @@ export default function Footer() {
           Datenschutz
         </Link>
         {' · '}
+        <Link to="/mispel" className="text-sky-600/90 hover:text-sky-700 transition-colors font-semibold">
+          ⚡ MiSpeL-Simulator
+        </Link>
+        {' · '}
         <a
           href="https://ko-fi.com"
           target="_blank"

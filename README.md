@@ -20,15 +20,24 @@ UBA-Datacube ist eine moderne Web-Applikation zur Visualisierung und Analyse von
   - **Guided Analytics UX**: Schließbare Onboarding-Tipps (`GuidedTip`), Info-Tooltips an Filtern und kontextsensitive Deep-Links zwischen Analysen und Rohdaten führen Nutzer sicher durch die Anwendung.
   - **Share-Funktion**: Jede Datensatzansicht kann per Share-Button als URL geteilt werden.
   - **Spezial-Analysen**: Maßgeschneiderte Ansichten für komplexe Datensätze (z. B. Waldbrände), die verschiedene Einheiten (Anzahl vs. Fläche) trennen und abgeleitete Metriken (wie "Brandintensität") on-the-fly berechnen, um echte Erkenntnisse zu liefern.
-  - **Wissenschaftliche Notation**: Extrem kleine Messwerte werden zur besseren Lesbarkeit automatisch skaliert (z. B. `1.2e-6`).
+  - **KI-Integration & OpenRouter (GLM 5.3 Flash)**: Automatisierte Skripte (`generate-descriptions.ts`, `test-openrouter.ts`, `ask-glm.ts`) nutzen **GLM 5.3 Flash (`z-ai/glm-5.3-flash`)** via OpenRouter zur Generierung redaktioneller Texte und Analysen.
+- **MiSpeL-Simulator für Heimspeicher (`/mispel`)**: Interaktiver Simulator und Rechner zur Umsetzung der BNetzA-Festlegung (Az. 618-25-02, Beschluss vom 01.10.2026).
+  - **Pauschaloption für Photovoltaik bis 30 kWp**: Erlaubt legalen Mischbetrieb (Beladung von PV-Heimspeichern mit günstigem Netzstrom z. B. über dynamische Tarife im Winter), ohne den Anspruch auf die gesetzliche EEG-Einspeisevergütung zu verlieren.
+  - **BNetzA-Rechenmodell (P1 bis P15)**: Präzise Umsetzung aller Formeln gem. Anlage 2 (Fördergrenze [G] bei 500 kWh/kWp, Indifferenzpuffer [I], Saldierungsgrenze [N] mit Befreiung von Netzentgelten und EnFG-Umlagen nach § 118 Abs. 6 EnWG).
+  - **Interaktiver 4-Stufen-Rechenweg**: Vollständig interaktiver Formel-Explorer mit Live-Werten aus Schiebereglern, Schritt-Navigation und transparenter Ausweisung von Mindererlösen bei extremen Überschusseinspeisungen.
+  - **Dynamisches Energiefluss-Diagramm (`MispelFlowDiagram.tsx`)**: Responsive Darstellung von Energiequellen (Photovoltaik & günstiger Netzbezug), zentralem Mischspeicher und amtlicher BNetzA-Einspeiseaufteilung.
+  - **SEO-Optimierung & Google Rich Snippets**: Schema.org `FAQPage`-Integration für ausklappbare Google-Suchergebnis-Snippets, `WebApplication`-Markup, statisches Prerendering (`dist/mispel/index.html`) und Aufnahme in die XML-Sitemap mit Priorität 0.9.
+- **Barrierefreiheit & BITV / WCAG 2.1 AA**: Interaktive D3-Karten (`GermanyMap.tsx`) bieten volle Tastatur-Steuerung (`tabIndex={0}`, `role="button"`), ARIA-Labels und einen 1-Klick-Umschalter auf barrierefreie HTML-Datentabellen.
+- **Barrierefreie Offline-Resilienz**: Automatischer `OfflineBanner` warnt bei Netzwerkunterbrechung, während Daten aus dem lokalen Speicher serviert werden.
 
 ## 🛠️ Tech Stack & Code-Qualität
 
 - **Frontend**: React 19
 - **Framework & Build**: Vite, TypeScript (strikte Typensicherheit ohne `any`)
-- **Performance & Splitting**: `React.lazy` Route-Code-Splitting, `RouteErrorBoundary` für automatische Chunk-Load-Recovery, dedizierte Vendor-Chunks (`vendor-react`, `vendor-recharts`, `vendor-d3`), In-Memory & SessionStorage API-Caching mit TTL und JSON Promise-Deduping.
+- **Performance & Splitting**: `React.lazy` Route-Code-Splitting für alle Seiten, `RouteErrorBoundary` für automatische Chunk-Load-Recovery, animierter `PageFallback` Skeleton Loader, dedizierte Vendor-Chunks (`vendor-react`, `vendor-recharts`, `vendor-d3`), In-Memory & SessionStorage API-Caching mit TTL und JSON Promise-Deduping.
+- **KI & Automatisierung**: OpenRouter API (`openai` SDK, Modell: `z-ai/glm-5.3-flash`)
 - **Visualisierung**: Recharts, D3-Geo
-- **Quality Gates & Testing**: Vitest Unit-Tests (`npm test`), ESLint (0 Errors, 0 Warnings), Static Type Checking (`tsc --noEmit`), GitHub Actions CI PR-Gate (`.github/workflows/ci.yml`), Playwright Prerendering (87/87 Routen statisch vorgeneriert mit automatischem 404.html Fallback) und automatischer Secret-Guard im Build.
+- **Quality Gates & Testing**: Vitest Unit-Tests (`npm test` - 27 Tests in 8 Testfiles, inklusive 5 Golden Tests gegen BNetzA-Referenztabellen), ESLint (0 Errors, 0 Warnings), Static Type Checking (`tsc --noEmit`), GitHub Actions CI PR-Gate (`.github/workflows/ci.yml`), Playwright Prerendering (91/91 Routen statisch vorgeneriert mit automatischem 404.html Fallback) und automatischer Secret-Guard im Build.
 - **Styling**: Vanilla CSS, TailwindCSS (mit modernen CSS-Variablen)
 - **API**: UBA SDMX REST API (SDMX-JSON v1/v2, kanonischer SDMX-CSV Parser)
 
@@ -67,3 +76,8 @@ Die UBA-API liefert Daten im SDMX-JSON Format. Da die API-Struktur zwischen vers
 - **Hook-Architektur & Rendering**: React-Hooks sind für reaktive Abfragen optimiert (`useMemo`, `useCallback`) ohne Mutationen von Ref-Werten während des Rendering-Passes.
 - **Spezial-Komponenten (Custom Views)**: Für Datensätze, bei denen Standard-Visualisierungen an ihre Grenzen stoßen (z. B. `DF_AGRICULTURE_FORESTRY_FOREST_FIRE_AREA` wegen gemischter Einheiten), existieren maßgeschneiderte Komponenten (wie `ForestFiresAnalysis.tsx`). Diese werden dynamisch eingebunden, nutzen synchrone Diagramme (`syncId`) und berechnen auf Basis des API-Responses abgeleitete Metriken für tiefere Einblicke.
 - **Automatisierte Daten-Pipelines**: Für Offline- und DWD-Stationsmessungen (z. B. Hitzerekorde auf `/hitze`) existiert eine Python-Datenpipeline (`scripts/dwd/build_heat_thresholds.py`). Diese wird per **GitHub Actions Cronjob** (`.github/workflows/deploy.yml`) jeden Montag um 04:00 Uhr UTC automatisch ausgeführt. Sie zieht frische Tageshöchstwerte (`recent/kl`), aktualisiert `public/heat_thresholds.json` und deployt die vorgenerierte Seite neu auf GitHub Pages.
+- **MiSpeL-Domain-Engine (`src/lib/mispel/`)**: Vollständig typisierte, mathematische Rechenarchitektur zur BNetzA-Festlegung Az. 618-25-02 (Beschluss 01.10.2026):
+  - `pauschal.ts`: Reine funktionale Rechen-Engine für die Formeln (P1) bis (P15) nach BNetzA Anlage 2. Liefert neben numerischen Netto-Ergebnissen ein detailliertes Audit-Protokoll (`MispelFormelSchritt[]`) mit formatierten Rechenwegen für volle Transparenz und Installateurs-Prüfung.
+  - `decisionTree.ts`: Regelbasierter Entscheidungsbaum zur Ermittlung der Berechtigung für die Pauschaloption (30 kWp-Grenze, Nicht-Anrechnung von Steckersolargeräten / Balkonkraftwerken gem. § 8 Abs. 5a EEG, Zählerkonstellationen).
+  - `economics.ts`: Gegenüberstellung von Status Quo (feste Einspeisevergütung) vs. MiSpeL-Pauschaloption (Einspeisevergütung bis 500 kWh/kWp, Spotmarkt-Vergütung für Überschuss, Netzentgelt- & Umlagenbefreiung nach § 118 Abs. 6 EnWG, Direktvermarktungskosten).
+  - `constants.ts`: BNetzA-Konstanten (500 kWh/kWp, Pufferfaktoren 0,1 und 0,2, maximale Pauschalleistung 30 kWp) und 1-Klick-Vorlagen für typische Anlagengrößen.

@@ -52,6 +52,7 @@ interface GeoJsonData {
 export function GermanyMap() {
   const [geoJson, setGeoJson] = useState<GeoJsonData | null>(null)
   const [tooltip, setTooltip] = useState<TooltipInfo | null>(null)
+  const [viewMode, setViewMode] = useState<'map' | 'table'>('map')
   const svgRef = useRef<SVGSVGElement>(null)
 
   useEffect(() => {
@@ -76,56 +77,109 @@ export function GermanyMap() {
 
   return (
     <div style={{ position: 'relative', userSelect: 'none' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10, fontSize: 11, color: '#64748b', flexWrap: 'wrap' }}>
-        <span style={{ whiteSpace: 'nowrap' }}>Ø Zuwachs Siedlungsfläche (inkl. Grün)</span>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-          <span>gering</span>
-          <div style={{
-            width: 100, height: 10, borderRadius: 3,
-            background: 'linear-gradient(to right, #fff5f5, #fbbf24, #dc2626)',
-            border: '1px solid #e2e8f0',
-          }} />
-          <span>hoch</span>
+      {/* Accessible View Toggle */}
+      <div className="flex items-center justify-between gap-3 mb-3">
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, color: '#64748b', flexWrap: 'wrap' }}>
+          <span style={{ whiteSpace: 'nowrap' }}>Ø Zuwachs Siedlungsfläche (inkl. Grün)</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <span>gering</span>
+            <div style={{
+              width: 100, height: 10, borderRadius: 3,
+              background: 'linear-gradient(to right, #fff5f5, #fbbf24, #dc2626)',
+              border: '1px solid #e2e8f0',
+            }} />
+            <span>hoch</span>
+          </div>
+          <span style={{ color: '#94a3b8' }}>· Ø 2016–2022</span>
         </div>
-        <span style={{ color: '#94a3b8' }}>· Ø 2016–2022, Ausreißer bereinigt</span>
+
+        <button
+          onClick={() => setViewMode(v => v === 'map' ? 'table' : 'map')}
+          className="px-2.5 py-1 text-[11px] font-semibold rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
+          aria-label={viewMode === 'map' ? 'Zur barrierefreien Datentabelle wechseln' : 'Zur visuellen Karte wechseln'}
+        >
+          {viewMode === 'map' ? '📊 Tabellenansicht' : '🗺️ Kartenansicht'}
+        </button>
       </div>
 
-      <svg
-        ref={svgRef}
-        viewBox="0 0 340 420"
-        style={{ width: '100%', maxWidth: 400, display: 'block' }}
-        onMouseLeave={() => setTooltip(null)}
-      >
-        {geoJson.features.map((feature) => {
-          const geoId: string = feature.properties.id
-          const code = GEO_TO_CODE[geoId]
-          const d = code ? SETTLEMENT_DATA[code] : undefined
-          const t = d ? Math.min(d.avgHaPerDay / MAX_GROWTH, 1) : 0
-          const fill = d ? heatColor(t) : '#f1f5f9'
-          const pathD = pathGen(feature as unknown as Parameters<NonNullable<typeof pathGen>>[0]) ?? ''
-          return (
-            <path
-              key={geoId}
-              d={pathD}
-              fill={fill}
-              stroke="#fff"
-              strokeWidth={1.5}
-              style={{ cursor: 'pointer' }}
-              onMouseEnter={e => {
-                if (!code) return
-                const rect = svgRef.current!.getBoundingClientRect()
-                setTooltip({
-                  code,
-                  svgX: (e.clientX - rect.left) / rect.width * 340,
-                  svgY: (e.clientY - rect.top) / rect.height * 420,
-                })
-              }}
-            />
-          )
-        })}
-      </svg>
+      {viewMode === 'table' ? (
+        <div className="overflow-x-auto my-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4">
+          <table className="w-full text-left text-xs border-collapse" aria-label="Siedlungsflächenzuwachs nach Bundesland">
+            <thead>
+              <tr className="border-b border-slate-200 dark:border-slate-800 font-bold text-slate-600 dark:text-slate-400">
+                <th className="py-2 px-3">Bundesland</th>
+                <th className="py-2 px-3 text-right">Ø Neubau (ha/Tag)</th>
+                <th className="py-2 px-3 text-right">Siedlungsfläche (2016)</th>
+                <th className="py-2 px-3 text-right">Siedlungsfläche (2022)</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+              {Object.entries(SETTLEMENT_DATA).map(([code, item]) => (
+                <tr key={code} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                  <td className="py-2 px-3 font-semibold text-slate-800 dark:text-slate-200">{item.name} ({code})</td>
+                  <td className="py-2 px-3 text-right font-mono text-amber-600 font-bold">{item.avgHaPerDay.toFixed(2)} ha</td>
+                  <td className="py-2 px-3 text-right font-mono text-slate-500">{item.km2Start.toFixed(0)} km²</td>
+                  <td className="py-2 px-3 text-right font-mono text-slate-500">{item.km2End.toFixed(0)} km²</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <svg
+          ref={svgRef}
+          viewBox="0 0 340 420"
+          style={{ width: '100%', maxWidth: 400, display: 'block' }}
+          onMouseLeave={() => setTooltip(null)}
+          role="img"
+          aria-label="Interaktive Deutschlandkarte zum Siedlungsflächenzuwachs der Bundesländer"
+        >
+          {geoJson.features.map((feature) => {
+            const geoId: string = feature.properties.id
+            const code = GEO_TO_CODE[geoId]
+            const d = code ? SETTLEMENT_DATA[code] : undefined
+            const t = d ? Math.min(d.avgHaPerDay / MAX_GROWTH, 1) : 0
+            const fill = d ? heatColor(t) : '#f1f5f9'
+            const pathD = pathGen(feature as unknown as Parameters<NonNullable<typeof pathGen>>[0]) ?? ''
+            
+            return (
+              <path
+                key={geoId}
+                d={pathD}
+                fill={fill}
+                stroke="#fff"
+                strokeWidth={1.5}
+                style={{ cursor: 'pointer', outline: 'none' }}
+                tabIndex={0}
+                role="button"
+                aria-label={d ? `${d.name}: Ø ${d.avgHaPerDay.toFixed(2)} Hektar pro Tag Neubau` : 'Bundesland'}
+                onMouseEnter={e => {
+                  if (!code) return
+                  const rect = svgRef.current!.getBoundingClientRect()
+                  setTooltip({
+                    code,
+                    svgX: (e.clientX - rect.left) / rect.width * 340,
+                    svgY: (e.clientY - rect.top) / rect.height * 420,
+                  })
+                }}
+                onFocus={() => {
+                  if (!code) return
+                  setTooltip({ code, svgX: 170, svgY: 210 })
+                }}
+                onBlur={() => setTooltip(null)}
+                onKeyDown={(e) => {
+                  if ((e.key === 'Enter' || e.key === ' ') && code) {
+                    e.preventDefault()
+                    setTooltip({ code, svgX: 170, svgY: 210 })
+                  }
+                }}
+              />
+            )
+          })}
+        </svg>
+      )}
 
-      {tooltip && tip && (
+      {tooltip && tip && viewMode === 'map' && (
         <div style={{
           position: 'absolute',
           left: `${(tooltip.svgX / 340) * 100}%`,

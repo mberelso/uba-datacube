@@ -13,17 +13,21 @@ export const MispelEnergyBar: React.FC<Props> = ({ ergebnis, gesamteEinspeisung 
   const saldierPct = Math.min((ergebnis.p10_saldierungsfaehigKWh / gesamt) * 100, 100 - foerderPct - indiffPct);
 
   return (
-    <div className="bg-slate-900/60 backdrop-blur-sm border border-slate-800 rounded-xl p-5 mb-6">
+    <div className="bg-white border border-slate-200/90 rounded-2xl p-6 mb-6 shadow-sm">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 gap-2">
-        <h4 className="text-slate-200 font-semibold text-sm">
-          Aufteilung der Netzeinspeisung nach BNetzA-Festlegung ({gesamt.toLocaleString('de-DE')} kWh)
-        </h4>
-        <span className="text-xs text-slate-400">Amtlicher Stapelbalken (BITV 2.0 Dreifachkodierung)</span>
+        <div>
+          <h4 className="text-slate-900 font-extrabold text-sm sm:text-base">
+            Aufteilung der Netzeinspeisung nach BNetzA-Festlegung ({gesamt.toLocaleString('de-DE')} kWh)
+          </h4>
+          <p className="text-xs text-slate-500">
+            Gesetzliche Zonenaufteilung gem. Anlage 2 (P1 bis P15)
+          </p>
+        </div>
       </div>
 
       {/* Stapelbalken */}
       <div
-        className="w-full h-8 rounded-lg overflow-hidden flex bg-slate-800 border border-slate-700/60"
+        className="w-full h-10 rounded-xl overflow-hidden flex bg-slate-100 border border-slate-300 shadow-inner my-3"
         role="img"
         aria-label={`Einspeisung aufgeteilt in ${ergebnis.p15_foerderfaehigKWh} kWh förderfähig, ${ergebnis.p3_indifferenzKWh} kWh indifferent, und ${ergebnis.p10_saldierungsfaehigKWh} kWh saldierungsfähig`}
       >
@@ -40,9 +44,9 @@ export const MispelEnergyBar: React.FC<Props> = ({ ergebnis, gesamteEinspeisung 
         <div
           style={{
             width: `${indiffPct}%`,
-            backgroundImage: 'repeating-linear-gradient(45deg, #b45309, #b45309 6px, #92400e 6px, #92400e 12px)',
+            backgroundImage: 'repeating-linear-gradient(45deg, #d97706, #d97706 6px, #b45309 6px, #b45309 12px)',
           }}
-          className="text-amber-100 font-mono font-bold text-xs flex items-center justify-center transition-all duration-300"
+          className="text-amber-50 font-mono font-bold text-xs flex items-center justify-center transition-all duration-300"
           title={`Indifferenzbereich [I]: ${ergebnis.p3_indifferenzKWh.toLocaleString('de-DE')} kWh`}
         >
           {indiffPct > 10 && <span>{ergebnis.p3_indifferenzKWh.toLocaleString('de-DE')} kWh [I]</span>}
@@ -53,10 +57,10 @@ export const MispelEnergyBar: React.FC<Props> = ({ ergebnis, gesamteEinspeisung 
           style={{
             width: `${saldierPct}%`,
             backgroundImage: 'radial-gradient(#38bdf8 1.5px, transparent 1.5px)',
-            backgroundColor: '#0369a1',
+            backgroundColor: '#0284c7',
             backgroundSize: '6px 6px',
           }}
-          className="text-sky-100 font-mono font-bold text-xs flex items-center justify-center transition-all duration-300"
+          className="text-sky-50 font-mono font-bold text-xs flex items-center justify-center transition-all duration-300"
           title={`Saldierungsfähig [N]: ${ergebnis.p10_saldierungsfaehigKWh.toLocaleString('de-DE')} kWh`}
         >
           {saldierPct > 10 && <span>{ergebnis.p10_saldierungsfaehigKWh.toLocaleString('de-DE')} kWh [N]</span>}
@@ -64,32 +68,37 @@ export const MispelEnergyBar: React.FC<Props> = ({ ergebnis, gesamteEinspeisung 
       </div>
 
       {/* Legende */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-4 text-xs">
-        <div className="flex items-center gap-2">
-          <span className="w-3.5 h-3.5 rounded bg-emerald-600 flex-shrink-0" />
-          <span className="text-slate-300">
-            <strong>[G] Förderfähig:</strong> {ergebnis.p15_foerderfaehigKWh.toLocaleString('de-DE')} kWh (EEG-Marktprämie)
-          </span>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4 text-xs">
+        <div className="flex items-start gap-2.5 p-2 rounded-lg bg-emerald-50/60 border border-emerald-200/70">
+          <span className="w-3.5 h-3.5 rounded bg-emerald-600 shrink-0 mt-0.5" />
+          <div className="text-slate-700">
+            <strong className="block text-emerald-950 font-bold">[G] Förderfähig: {ergebnis.p15_foerderfaehigKWh.toLocaleString('de-DE')} kWh</strong>
+            Garantierte EEG-Einspeisevergütung bis 500 kWh/kWp.
+          </div>
         </div>
-        <div className="flex items-center gap-2">
+
+        <div className="flex items-start gap-2.5 p-2 rounded-lg bg-amber-50/60 border border-amber-200/70">
           <span
-            className="w-3.5 h-3.5 rounded flex-shrink-0"
+            className="w-3.5 h-3.5 rounded shrink-0 mt-0.5"
             style={{
-              backgroundImage: 'repeating-linear-gradient(45deg, #b45309, #b45309 3px, #92400e 3px, #92400e 6px)',
+              backgroundImage: 'repeating-linear-gradient(45deg, #d97706, #d97706 3px, #b45309 3px, #b45309 6px)',
             }}
           />
-          <span className="text-slate-300">
-            <strong>[I] Indifferent:</strong> {ergebnis.p3_indifferenzKWh.toLocaleString('de-DE')} kWh (Pufferzone)
-          </span>
+          <div className="text-slate-700">
+            <strong className="block text-amber-950 font-bold">[I] Indifferent: {ergebnis.p3_indifferenzKWh.toLocaleString('de-DE')} kWh</strong>
+            Amtliche Pufferzone für Messtoleranzen und Schwankungen.
+          </div>
         </div>
-        <div className="flex items-center gap-2">
+
+        <div className="flex items-start gap-2.5 p-2 rounded-lg bg-sky-50/60 border border-sky-200/70">
           <span
-            className="w-3.5 h-3.5 rounded flex-shrink-0 bg-sky-700"
+            className="w-3.5 h-3.5 rounded shrink-0 mt-0.5 bg-sky-600"
             style={{ backgroundImage: 'radial-gradient(#38bdf8 1px, transparent 1px)', backgroundSize: '4px 4px' }}
           />
-          <span className="text-slate-300">
-            <strong>[N] Saldierungsfähig:</strong> {ergebnis.p10_saldierungsfaehigKWh.toLocaleString('de-DE')} kWh (spart Umlagen)
-          </span>
+          <div className="text-slate-700">
+            <strong className="block text-sky-950 font-bold">[N] Saldierungsfähig: {ergebnis.p10_saldierungsfaehigKWh.toLocaleString('de-DE')} kWh</strong>
+            Spart Netzentgelte und gesetzliche Umlagen nach § 118 EnWG.
+          </div>
         </div>
       </div>
     </div>

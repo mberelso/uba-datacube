@@ -19,6 +19,7 @@
  */
 
 import Anthropic from '@anthropic-ai/sdk'
+import OpenAI from 'openai'
 import * as fs from 'fs'
 import * as path from 'path'
 import * as https from 'https'
@@ -27,6 +28,20 @@ import { fileURLToPath } from 'url'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const CONTENT_FILE = path.join(__dirname, '../src/data/datasetContent.ts')
 const SDMX_BASE = 'https://daten.uba.de/release/rest'
+const ENV_FILE = path.join(__dirname, '../.env')
+
+if (fs.existsSync(ENV_FILE)) {
+  const envContent = fs.readFileSync(ENV_FILE, 'utf-8')
+  for (const line of envContent.split('\n')) {
+    const match = line.match(/^\s*([\w.-]+)\s*=\s*(.*)?\s*$/)
+    if (match) {
+      const key = match[1]
+      let value = match[2] || ''
+      if (value.startsWith('"') && value.endsWith('"')) value = value.slice(1, -1)
+      if (!process.env[key]) process.env[key] = value.trim()
+    }
+  }
+}
 
 // ─── CLI args ────────────────────────────────────────────────────────────────
 
@@ -140,14 +155,24 @@ Return ONLY a valid JSON object (no markdown, no explanation):
 
 // ─── Generate via Claude ──────────────────────────────────────────────────────
 
-async function generateContent(client: Anthropic, flow: RawFlow): Promise<GeneratedContent> {
-  const message = await client.messages.create({
-    model: 'claude-sonnet-4-6',
-    max_tokens: 1024,
-    messages: [{ role: 'user', content: buildPrompt(flow) }],
-  })
+async function generateContent(client: OpenAI | Anthropic, flow: RawFlow): Promise<GeneratedContent> {
+  let raw = ''
 
-  const raw = message.content[0].type === 'text' ? message.content[0].text : ''
+  if (client instanceof OpenAI) {
+    const completion = await client.chat.completions.create({
+      model: 'z-ai/glm-5.3-flash',
+      messages: [{ role: 'user', content: buildPrompt(flow) }],
+    })
+    raw = completion.choices[0]?.message?.content || ''
+  } else {
+    const message = await client.messages.create({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 1024,
+      messages: [{ role: 'user', content: buildPrompt(flow) }],
+    })
+    raw = message.content[0].type === 'text' ? message.content[0].text : ''
+  }
+
   // Strip markdown code fences if present
   const text = raw.replace(/^```(?:json)?\s*/m, '').replace(/\s*```\s*$/m, '').trim()
   const parsed = JSON.parse(text) as Record<string, string>
@@ -199,13 +224,32 @@ function appendToFile(entry: string) {
 // ─── Main ────────────────────────────────────────────────────────────────────
 
 async function main() {
-  const apiKey = process.env.ANTHROPIC_API_KEY
-  if (!apiKey) {
-    console.error('Error: ANTHROPIC_API_KEY environment variable not set.')
+  const openrouterKey = process.env.OPENROUTER_API_KEY
+  const anthropicKey = process.env.ANTHROPIC_API_KEY
+
+  if (!openrouterKey && !anthropicKey) {
+    console.error('Error: Neither OPENROUTER_API_KEY nor ANTHROPIC_API_KEY is set.')
     process.exit(1)
   }
 
-  const client = new Anthropic({ apiKey })
+  let useOpenRouter = false
+  let client: OpenAI | Anthropic
+
+  if (openrouterKey) {
+    useOpenRouter = true
+    client = new OpenAI({
+      baseURL: 'https://openrouter.ai/api/v1',
+      apiKey: openrouterKey,
+      defaultHeaders: {
+        'HTTP-Referer': 'https://uba-datacube.de',
+        'X-Title': 'UBA Datacube',
+      },
+    })
+    console.log('Using OpenRouter with model z-ai/glm-5.3-flash...')
+  } else {
+    client = new Anthropic({ apiKey: anthropicKey })
+    console.log('Using Anthropic Claude...')
+  }
 
   console.log('Fetching flows from UBA SDMX API...')
   const flows = await fetchFlows()

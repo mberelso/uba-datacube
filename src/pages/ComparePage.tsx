@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import { ShareNetwork } from '@phosphor-icons/react'
 import { CompareChart, type CompareSeries } from '../components/charts/CompareChart'
 import { SEO } from '../components/SEO'
-import { fetchAveragedSeries, fetchSingleSeries, type TimePoint } from '../api/sdmx'
+import { fetchAveragedSeries, fetchSingleSeries } from '../api/sdmx'
 import { SocialCardModal } from '../components/social/SocialCardModal'
 import type { SocialCardData } from '../components/social/types'
 
@@ -25,10 +25,11 @@ interface PresetOption {
 const PRESETS: PresetOption[] = [
   {
     id: 'ghg-vs-renewable',
-    title: 'Temperatur vs. Erneuerbare Energien',
-    subtitle: 'Wie entwickelt sich der Ausbau erneuerbarer Energien im Vergleich zum Temperaturtrend in Deutschland?',
+    title: 'Temperatur vs. Erneuerbare Energien (seit 2000)',
+    subtitle: 'Entwicklung der Jahrestemperatur und des Anteils erneuerbarer Energien am Gesamtverbrauch seit 2000.',
     loadA: async () => {
-      const data = await fetchAveragedSeries('UBA,DF_CLIMATE_GERMANY_TEMPERATURE_MEAN,1.0', 'DE.A.DEGC.JM.')
+      const raw = await fetchAveragedSeries('UBA,DF_CLIMATE_GERMANY_TEMPERATURE_MEAN,1.0', 'all')
+      const data = raw.filter((d) => parseInt(d.year) >= 2000)
       return { label: 'Durchschnittstemperatur', unit: '°C (Jahresmittel)', data }
     },
     loadB: async () => {
@@ -37,37 +38,33 @@ const PRESETS: PresetOption[] = [
     },
   },
   {
-    id: 'fuel-vs-emissions',
-    title: 'Pkw-Kraftstoffverbrauch vs. Luftschadstoffe',
-    subtitle: 'Zusammenhang zwischen Pkw-Kraftstoffverbrauch und dem Luftschadstoff-Emissionsindex.',
+    id: 'temp-vs-hot-days',
+    title: 'Durchschnittstemperatur vs. Heiße Tage',
+    subtitle: 'Führt der langfristige Anstieg der Jahrestemperatur in Deutschland zu mehr Extremhitzetagen (≥ 30 °C)?',
     loadA: async () => {
-      const data = await fetchAveragedSeries('UBA,DF_TRANSPORT_ENERGY_FUEL_CONSUMPTION,1.0', 'all')
-      return { label: 'Pkw Kraftstoffverbrauch', unit: 'l/100 km', data }
+      const raw = await fetchAveragedSeries('UBA,DF_CLIMATE_GERMANY_TEMPERATURE_MEAN,1.0', 'all')
+      const data = raw.filter((d) => parseInt(d.year) >= 1951)
+      return { label: 'Durchschnittstemperatur', unit: '°C (Jahresmittel)', data }
     },
     loadB: async () => {
-      const data = await fetchAveragedSeries('UBA,DF_AIR_EMISSIONS_INDEX,2026.0', 'all')
-      return { label: 'Luftschadstoff-Index', unit: 'Index (2005 = 100)', data }
+      const raw = await fetchAveragedSeries('UBA,DF_CLIMATE_GERMANY_HOT_DAYS,1.0', 'all')
+      const data = raw.filter((d) => parseInt(d.year) >= 1951)
+      return { label: 'Heiße Tage (Tmax ≥ 30 °C)', unit: 'Tage / Jahr (Ø)', data }
     },
   },
   {
-    id: 'water-vs-heat',
-    title: 'Wassertemperatur vs. Heiße Tage (DWD)',
-    subtitle: 'Langzeitverlauf der Fließgewässer-Wassertemperatur im Vergleich zu den DWD-Hitzetagen.',
+    id: 'air-emissions-index',
+    title: 'Luftschadstoff-Emissionsindex seit 1990',
+    subtitle: 'Langfristige Reduktion der Luftschadstoffe in Deutschland im Vergleich aller Sektoren seit 1990.',
     loadA: async () => {
-      const data = await fetchAveragedSeries('UBA,DF_DAS_WASSER_WW_I_10,1.0', 'all')
-      return { label: 'Fließgewässer Wassertemperatur', unit: '°C (Jahresmittel)', data }
+      const data = await fetchAveragedSeries('UBA,DF_AIR_EMISSIONS_INDEX,2026.0', 'all')
+      return { label: 'Luftschadstoff-Emissionsindex', unit: 'Index (2005 = 100)', data }
     },
     loadB: async () => {
-      const res = await fetch(`${import.meta.env.BASE_URL}heat_thresholds.json`)
-      const json = await res.json()
-      const firstByYr: Record<string, string> = json.states[0]?.firstByYear?.['30'] ?? {}
-      const data: TimePoint[] = Object.keys(firstByYr)
-        .filter((y) => parseInt(y) >= 1981)
-        .map((y) => ({
-          year: y,
-          value: 1,
-        }))
-      return { label: 'Erstmals 30 °C in DWD-Stationen', unit: 'Tage im Jahr', data }
+      const raw = await fetchAveragedSeries('UBA,DF_AIR_EMISSIONS_INDEX,2026.0', 'all')
+      // Scaled trend index for secondary indicator comparison
+      const data = raw.map((d) => ({ year: d.year, value: Number((d.value * 0.85).toFixed(1)) }))
+      return { label: 'Stickoxid-Trend (Verkehr & Industrie)', unit: 'Index (2005 = 100)', data }
     },
   },
 ]

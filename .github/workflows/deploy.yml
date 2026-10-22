@@ -45,18 +45,21 @@ jobs:
           git diff --cached --quiet || git commit -m "data: weekly DWD heat threshold refresh"
           git push
 
-      - name: Cache Chrome deb
-        uses: actions/cache@v4
-        with:
-          path: google-chrome-stable_current_amd64.deb
-          key: chrome-stable-v1
-
-      - name: Install Chrome for prerender
+      - name: Ensure Chrome for prerender
         run: |
-          [ -f google-chrome-stable_current_amd64.deb ] || wget -q --tries=3 https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-          sudo apt-get update -qq
-          sudo apt-get install -y ./google-chrome-stable_current_amd64.deb
-          echo "CHROMIUM_PATH=$(which google-chrome-stable)" >> $GITHUB_ENV
+          if which google-chrome-stable > /dev/null 2>&1; then
+            echo "CHROMIUM_PATH=$(which google-chrome-stable)" >> $GITHUB_ENV
+            echo "Using pre-installed google-chrome-stable: $(which google-chrome-stable)"
+          elif which google-chrome > /dev/null 2>&1; then
+            echo "CHROMIUM_PATH=$(which google-chrome)" >> $GITHUB_ENV
+            echo "Using pre-installed google-chrome: $(which google-chrome)"
+          else
+            echo "Installing Google Chrome..."
+            wget -q --tries=3 https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+            sudo apt-get update -qq
+            sudo apt-get install -y --allow-downgrades ./google-chrome-stable_current_amd64.deb
+            echo "CHROMIUM_PATH=$(which google-chrome-stable || which google-chrome)" >> $GITHUB_ENV
+          fi
 
       - run: npm ci
       - run: npm run build

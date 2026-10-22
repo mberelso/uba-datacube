@@ -220,6 +220,7 @@ function findChromium() {
   const candidates = [
     process.env.CHROMIUM_PATH,
     process.env.CHROME_PATH,
+    '/usr/bin/google-chrome-stable',
     '/usr/bin/google-chrome',
     '/usr/bin/chromium-browser',
     '/usr/bin/chromium',

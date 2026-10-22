@@ -11,6 +11,7 @@ export default function Navbar() {
     { to: '/', label: 'Dashboard' },
     { to: '/regionen', label: 'Regionen' },
     { to: '/analysen', label: 'Analysen' },
+    { to: '/mispel', label: 'MiSpeL-Simulator', badge: 'Neu' },
     { to: '/vergleich', label: 'Vergleich' },
     { to: '/catalog', label: 'Datenkatalog' },
     { to: '/about', label: 'Über das Projekt' },
@@ -45,9 +46,28 @@ export default function Navbar() {
                 fontWeight: isActive(l.to) ? 600 : 400,
                 textDecoration: 'none',
                 transition: 'all 0.15s',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
               }}
             >
-              {l.label}
+              <span>{l.label}</span>
+              {l.badge && (
+                <span
+                  style={{
+                    fontSize: 10,
+                    fontWeight: 700,
+                    background: '#0284c7',
+                    color: '#fff',
+                    padding: '1px 5px',
+                    borderRadius: 4,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.4px',
+                  }}
+                >
+                  {l.badge}
+                </span>
+              )}
             </Link>
           ))}
         </div>

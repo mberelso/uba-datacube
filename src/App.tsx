@@ -2,9 +2,10 @@ import { useEffect, lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
-import DashboardPage from './pages/DashboardPage'
 import { RouteErrorBoundary } from './components/RouteErrorBoundary'
+import { OfflineBanner } from './components/OfflineBanner'
 
+const DashboardPage     = lazy(() => import('./pages/DashboardPage'))
 const CatalogPage       = lazy(() => import('./pages/CatalogPage'))
 const DatasetPage       = lazy(() => import('./pages/DatasetPage'))
 const AnalysePage       = lazy(() => import('./pages/AnalysePage'))
@@ -15,11 +16,14 @@ const AboutPage         = lazy(() => import('./pages/AboutPage'))
 const ComparePage       = lazy(() => import('./pages/ComparePage'))
 const RegionalPage      = lazy(() => import('./pages/RegionalPage'))
 const SocialPreviewPage = lazy(() => import('./pages/SocialPreviewPage'))
+const MispelPage        = lazy(() => import('./pages/MispelPage'))
 
 function PageFallback() {
   return (
-    <div style={{ height: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b', fontSize: 14 }}>
-      Lade Seite…
+    <div className="min-h-[60vh] flex flex-col items-center justify-center p-8 text-center animate-pulse">
+      <div className="w-12 h-12 rounded-full border-3 border-sky-500/20 border-t-sky-600 animate-spin mb-4" />
+      <div className="h-4 w-48 bg-slate-200 dark:bg-slate-700 rounded mb-2" />
+      <div className="h-3 w-32 bg-slate-100 dark:bg-slate-800 rounded" />
     </div>
   )
 }
@@ -39,6 +43,7 @@ function Layout() {
   const hideChrome = pathname === '/social-preview'
   return (
     <div style={{ minHeight: '100vh', background: '#f8fafc', display: 'flex', flexDirection: 'column' }}>
+      <OfflineBanner />
       <Navbar />
       <div style={{ flex: 1 }}>
         <Suspense fallback={<PageFallback />}>
@@ -53,6 +58,7 @@ function Layout() {
             <Route path="/catalog" element={<RouteErrorBoundary><CatalogPage /></RouteErrorBoundary>} />
             <Route path="/dataset/:id" element={<RouteErrorBoundary><DatasetPage /></RouteErrorBoundary>} />
             <Route path="/about" element={<RouteErrorBoundary><AboutPage /></RouteErrorBoundary>} />
+            <Route path="/mispel" element={<RouteErrorBoundary><MispelPage /></RouteErrorBoundary>} />
             <Route path="/social-preview" element={<RouteErrorBoundary><SocialPreviewPage /></RouteErrorBoundary>} />
           </Routes>
         </Suspense>

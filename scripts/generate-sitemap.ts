@@ -21,6 +21,7 @@ const STATIC_ROUTES: RouteSpec[] = [
   { path: '/catalog', priority: 0.9, changefreq: 'daily' },
   { path: '/analysen', priority: 0.9, changefreq: 'weekly' },
   { path: '/vergleich', priority: 0.9, changefreq: 'weekly' },
+  { path: '/mispel', priority: 0.9, changefreq: 'weekly' },
   { path: '/hitze', priority: 0.9, changefreq: 'weekly' },
   { path: '/wind', priority: 0.8, changefreq: 'monthly' },
   { path: '/solar', priority: 0.8, changefreq: 'monthly' },

@@ -188,7 +188,7 @@ const DIST = join(ROOT, 'dist')
 const PORT = 4173
 const SITE_URL = 'https://www.umweltpuls.de'
 
-const STATIC_ROUTES = ['/', '/catalog', '/analysen', '/regionen', '/vergleich', '/wind', '/solar', '/hitze', '/about']
+const STATIC_ROUTES = ['/', '/catalog', '/analysen', '/regionen', '/vergleich', '/mispel', '/wind', '/solar', '/hitze', '/about']
 
 const STATIC_DESCRIPTIONS: Record<string, string> = {
   '/': 'Klimadaten, Emissionstrends und Umweltindikatoren des Umweltbundesamts — interaktiv erkunden, filtern und exportieren. Kostenlos und offen.',
@@ -196,6 +196,7 @@ const STATIC_DESCRIPTIONS: Record<string, string> = {
   '/analysen': 'Ausgewählte Umwelttrends: Temperaturentwicklung, Treibhausgase, Erneuerbare Energien und mehr — basierend auf Daten des Umweltbundesamts.',
   '/regionen': 'Regional-Explorer: Vergleiche Klimadaten, Hitzetage, Wind- und Solarausbau sowie Industrie-Emissionen aller 16 deutschen Bundesländer im Detail.',
   '/vergleich': 'Multivariate Umweltindikatoren-Analyse: Vergleiche zwei Umweltdatenreihen des UBA und DWD auf einer gemeinsamen Zeitachse mit Dual-Y-Achse.',
+  '/mispel': 'Interaktiver Simulator zur MiSpeL-Festlegung der Bundesnetzagentur (Az. 618-25-02): Pauschaloption, Indifferenzbereich und Netzentgeltprivilegien für Heimspeicher bis 30 kWp berechnen.',
   '/wind': 'Animierte Deutschlandkarte des Windkraft-Ausbaus seit 1990: alle Windenergieanlagen aus dem Marktstammdatenregister, Jahr für Jahr — an Land und auf See, mit Satellitenbildern vom Bau einzelner Windparks.',
   '/solar': 'Animierte Deutschlandkarte des Solar-Ausbaus seit 2000: über 4 Millionen Photovoltaik-Anlagen aus dem Marktstammdatenregister — installierte Leistung je Landkreis und die großen Freiflächen-Solarparks, Jahr für Jahr.',
   '/hitze': 'Animierte Landkreis-Karte der Hitze in Deutschland seit 1951: Heiße Tage (Tmax ≥ 30 °C) und Sommertage je Landkreis, aus den 1-km-Rasterdaten des Deutschen Wetterdiensts — der Klimawandel, Jahr für Jahr sichtbar.',

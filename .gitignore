@@ -11,6 +11,8 @@ node_modules
 dist
 dist-ssr
 *.local
+.env
+.env.*
 
 # Editor directories and files
 .vscode/*
@@ -29,6 +31,7 @@ scratch/
 .agent/
 .claude/
 .agents/
+.superpowers/
 skills-lock.json
 
 # Local Python test scripts

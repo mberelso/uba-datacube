@@ -40,7 +40,7 @@ const APP_JSON_LD = {
   '@context': 'https://schema.org',
   '@type': 'WebApplication',
   name: 'MiSpeL-Simulator für Heimspeicher',
-  url: 'https://www.umweltpuls.de/mispel',
+  url: 'https://www.umweltpuls.de/mispel/',
   applicationCategory: 'UtilityApplication',
   operatingSystem: 'All',
   description:

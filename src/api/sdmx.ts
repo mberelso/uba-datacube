@@ -2,10 +2,97 @@ const BASE = 'https://daten.uba.de/release/rest'
 
 const memoryCache = new Map<string, { timestamp: number; data: unknown }>()
 const jsonInflightCache = new Map<string, Promise<unknown>>()
+const xmlTextInflightCache = new Map<string, Promise<string>>()
 
 const defaultHeaders: Record<string, string> = typeof window === 'undefined' ? {
   'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
 } : {}
+
+async function cachedFetchText(url: string, headers?: Record<string, string>, ttlMs = 60 * 60 * 1000): Promise<string> {
+  const now = Date.now()
+  const mem = memoryCache.get(url)
+  if (mem && now - mem.timestamp < ttlMs && typeof mem.data === 'string') {
+    return mem.data
+  }
+  const existing = xmlTextInflightCache.get(url)
+  if (existing) return existing
+
+  const load = async (): Promise<string> => {
+    const cacheKey = `uba_cache_v2_xml_${url}`
+    if (typeof sessionStorage !== 'undefined') {
+      try {
+        const item = sessionStorage.getItem(cacheKey)
+        if (item) {
+          const parsed = JSON.parse(item) as { timestamp: number; data: string }
+          if (now - parsed.timestamp < ttlMs) {
+            memoryCache.set(url, parsed)
+            return parsed.data
+          }
+        }
+      } catch {
+        // Ignore
+      }
+    }
+    const r = await fetch(url, { headers: { ...defaultHeaders, ...headers } })
+    if (!r.ok) throw new Error(`API-Fehler ${r.status}`)
+    const text = await r.text()
+    const entry = { timestamp: now, data: text }
+    memoryCache.set(url, entry)
+    if (typeof sessionStorage !== 'undefined') {
+      try {
+        sessionStorage.setItem(cacheKey, JSON.stringify(entry))
+      } catch {
+        // Ignore
+      }
+    }
+    return text
+  }
+
+  const p = load()
+  xmlTextInflightCache.set(url, p)
+  p.finally(() => xmlTextInflightCache.delete(url))
+  return p
+}
+
+function decodeXmlEntities(str: string): string {
+  return str
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'")
+    .replace(/&amp;/g, '&')
+}
+
+function extractXmlLocalized(block: string, tagName: 'Name' | 'Description'): string {
+  const deMatch = block.match(new RegExp(`<common:${tagName}[^>]*xml:lang="de"[^>]*>([\\s\\S]*?)<\\/common:${tagName}>`))
+  if (deMatch) return decodeXmlEntities(deMatch[1].trim())
+  const enMatch = block.match(new RegExp(`<common:${tagName}[^>]*xml:lang="en"[^>]*>([\\s\\S]*?)<\\/common:${tagName}>`))
+  if (enMatch) return decodeXmlEntities(enMatch[1].trim())
+  const anyMatch = block.match(new RegExp(`<common:${tagName}[^>]*>([\\s\\S]*?)<\\/common:${tagName}>`))
+  return anyMatch ? decodeXmlEntities(anyMatch[1].trim()) : ''
+}
+
+function parseDataflowsFromXml(xml: string): Dataflow[] {
+  const blocks = [...xml.matchAll(/<structure:Dataflow\b([^>]*)>([\s\S]*?)<\/structure:Dataflow>/g)]
+  return blocks.map((m) => {
+    const attrs = m[1]
+    const inner = m[2]
+    const id = (attrs.match(/\bid="([^"]+)"/) ?? [])[1] ?? ''
+    const agencyID = (attrs.match(/\bagencyID="([^"]+)"/) ?? [])[1] ?? 'UBA'
+    const version = (attrs.match(/\bversion="([^"]+)"/) ?? [])[1] ?? '1.0'
+    const name = extractXmlLocalized(inner, 'Name') || id
+    const rawDesc = extractXmlLocalized(inner, 'Description')
+    const description = rawDesc.replace(/<[^>]+>/g, '').trim()
+    return {
+      id,
+      name,
+      description,
+      agencyID,
+      version,
+      category: categoryFromId(id),
+    }
+  })
+}
 
 export function splitFlowRef(flowRef: string): { agencyID: string; id: string; version: string } {
   const parts = flowRef.split(',')
@@ -431,6 +518,13 @@ function categoryFromId(id: string): string {
 }
 
 export async function fetchDataflows(): Promise<Dataflow[]> {
+  try {
+    const xml = await cachedFetchText(`${BASE}/dataflow/all/all/latest`, { Accept: 'application/xml' })
+    const parsed = parseDataflowsFromXml(xml)
+    if (parsed.length > 0) return parsed
+  } catch {
+    // Fallback to JSON if XML endpoint fails
+  }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const json = await cachedFetchJson<any>(`${BASE}/dataflow/all/all/latest`, { Accept: 'application/json' })
   const refs: Record<string, SdmxRef> = json.references ?? {}
@@ -445,22 +539,96 @@ export async function fetchDataflows(): Promise<Dataflow[]> {
 }
 
 export async function fetchSingleDataflow(id: string): Promise<Dataflow> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const json = await cachedFetchJson<any>(`${BASE}/dataflow/UBA/${id}/latest`, { Accept: 'application/json' })
-  const refs: Record<string, SdmxRef> = json.references ?? {}
-  const df = Object.values(refs).find((v) => v.id === id) ?? Object.values(refs)[0]
-  if (!df) throw new Error('Datensatz nicht gefunden')
+  try {
+    const xml = await cachedFetchText(`${BASE}/dataflow/UBA/${id}/latest`, { Accept: 'application/xml' })
+    const parsed = parseDataflowsFromXml(xml)
+    const df = parsed.find((v) => v.id === id) ?? parsed[0]
+    if (df) return df
+  } catch {
+    // Fallback to JSON or default flow metadata
+  }
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const json = await cachedFetchJson<any>(`${BASE}/dataflow/UBA/${id}/latest`, { Accept: 'application/json' })
+    const refs: Record<string, SdmxRef> = json.references ?? {}
+    const df = Object.values(refs).find((v) => v.id === id) ?? Object.values(refs)[0]
+    if (df) {
+      return {
+        id: df.id ?? id,
+        name: df.name ?? id,
+        description: (df.description ?? '').replace(/<[^>]+>/g, ''),
+        agencyID: df.agencyID ?? 'UBA',
+        version: df.version ?? '1.0',
+        category: categoryFromId(df.id ?? id),
+      }
+    }
+  } catch {
+    // Final fallback so data loading can still proceed via latest version
+  }
   return {
-    id: df.id ?? id,
-    name: df.name ?? id,
-    description: (df.description ?? '').replace(/<[^>]+>/g, ''),
-    agencyID: df.agencyID ?? 'UBA',
-    version: df.version ?? '1.0',
-    category: categoryFromId(df.id ?? id),
+    id,
+    name: id,
+    description: '',
+    agencyID: 'UBA',
+    version: 'latest',
+    category: categoryFromId(id),
   }
 }
 
 export async function fetchStructure(flow: Dataflow): Promise<DatasetStructure> {
+  try {
+    const xml = await cachedFetchText(
+      `${BASE}/dataflow/${flow.agencyID}/${flow.id}/latest?references=descendants`,
+      { Accept: 'application/xml' },
+    )
+    const conceptNames: Record<string, string> = {}
+    for (const m of xml.matchAll(/<structure:Concept\b[^>]*id="([^"]+)"[^>]*>([\s\S]*?)<\/structure:Concept>/g)) {
+      conceptNames[m[1]] = extractXmlLocalized(m[2], 'Name') || m[1]
+    }
+    const codelists: Record<string, DimensionValue[]> = {}
+    for (const m of xml.matchAll(/<structure:Codelist\b[^>]*id="([^"]+)"[^>]*>([\s\S]*?)<\/structure:Codelist>/g)) {
+      const clId = m[1]
+      const codes: DimensionValue[] = []
+      for (const cm of m[2].matchAll(/<structure:Code\b[^>]*id="([^"]+)"[^>]*>([\s\S]*?)<\/structure:Code>/g)) {
+        const codeId = cm[1]
+        codes.push({ id: codeId, name: extractXmlLocalized(cm[2], 'Name') || codeId })
+      }
+      codelists[clId] = codes
+    }
+    const dims: Dimension[] = []
+    for (const m of xml.matchAll(/<structure:Dimension\b([^>]*)>([\s\S]*?)<\/structure:Dimension>/g)) {
+      const attrs = m[1]
+      const inner = m[2]
+      const dimId = (attrs.match(/\bid="([^"]+)"/) ?? [])[1] ?? ''
+      const posStr = (attrs.match(/\bposition="([^"]+)"/) ?? [])[1] ?? '1'
+      const pos = Math.max(0, parseInt(posStr, 10) - 1)
+      const conceptId = (inner.match(/<Ref\b[^>]*id="([^"]+)"[^>]*class="Concept"/) ?? [])[1] ?? dimId
+      const clId = (inner.match(/<Ref\b[^>]*id="([^"]+)"[^>]*class="Codelist"/) ?? [])[1] ?? ''
+      dims.push({
+        id: dimId,
+        name: conceptNames[conceptId] ?? dimId,
+        position: pos,
+        values: clId ? (codelists[clId] ?? []) : [],
+      })
+    }
+    dims.sort((a, b) => a.position - b.position)
+    const timeDimMatch = xml.match(/<structure:TimeDimension\b([^>]*)>/)
+    const tdAttrs = timeDimMatch?.[1] ?? ''
+    const tdId = (tdAttrs.match(/\bid="([^"]+)"/) ?? [])[1] ?? 'TIME_PERIOD'
+    const tdPos = Math.max(0, parseInt((tdAttrs.match(/\bposition="([^"]+)"/) ?? [])[1] ?? '0', 10) - 1)
+    const parsedFlows = parseDataflowsFromXml(xml)
+    const df = parsedFlows.find((f) => f.id === flow.id) ?? parsedFlows[0]
+    if (dims.length > 0) {
+      return {
+        title: df?.name ?? flow.name,
+        description: df?.description ?? flow.description,
+        seriesDimensions: dims.filter((d) => d.id !== tdId),
+        timeDimension: { id: tdId, name: 'Zeitraum', position: tdPos, values: [] },
+      }
+    }
+  } catch {
+    // Fallback to JSON if XML structure fails
+  }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const json = await cachedFetchJson<any>(
     `${BASE}/dataflow/${flow.agencyID}/${flow.id}/latest?references=datastructure`,

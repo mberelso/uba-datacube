@@ -42,14 +42,15 @@ function generateSitemap() {
   const allRoutes = [...STATIC_ROUTES, ...datasetRoutes]
 
   const urlsXml = allRoutes
-    .map(
-      (r) => `  <url>
-    <loc>${SITE_URL}${r.path}</loc>
+    .map((r) => {
+      const normalizedPath = r.path === '/' ? '/' : (r.path.endsWith('/') ? r.path : `${r.path}/`)
+      return `  <url>
+    <loc>${SITE_URL}${normalizedPath}</loc>
     <lastmod>${TODAY}</lastmod>
     <changefreq>${r.changefreq}</changefreq>
     <priority>${r.priority.toFixed(1)}</priority>
   </url>`
-    )
+    })
     .join('\n')
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>

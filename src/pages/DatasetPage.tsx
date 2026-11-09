@@ -472,10 +472,40 @@ export default function DatasetPage() {
 
   // ── States ────────────────────────────────────────────────────────────────
 
-  if (loading) return <PageSkeleton />
+  const isForestFire = flow?.id === 'DF_AGRICULTURE_FORESTRY_FOREST_FIRE_AREA'
+  const canonicalId = flow?.id ?? (id ? decodeURIComponent(id) : '')
+  const seoTitle = content?.displayName ?? flow?.name ?? canonicalId
+  const seoDesc = content?.lead ?? `${seoTitle} — Umweltdatensatz des Umweltbundesamts. Interaktive Zeitreihen, Trends und Rohdaten auf umweltpuls.de.`
+
+  const seoElement = canonicalId ? (
+    <SEO
+      title={seoTitle}
+      description={seoDesc}
+      path={`/dataset/${encodeURIComponent(canonicalId)}`}
+      jsonLd={{
+        '@context': 'https://schema.org',
+        '@type': 'Dataset',
+        name: seoTitle,
+        description: flow?.description || seoDesc,
+        url: `https://www.umweltpuls.de/dataset/${encodeURIComponent(canonicalId)}/`,
+        creator: { '@type': 'Organization', name: 'Umweltbundesamt', url: 'https://www.umweltbundesamt.de' },
+        publisher: { '@type': 'Organization', name: 'Umweltpuls', url: 'https://www.umweltpuls.de' },
+        inLanguage: 'de-DE',
+        license: 'https://www.govdata.de/dl-de/by-2-0',
+      }}
+    />
+  ) : null
+
+  if (loading) return (
+    <>
+      {seoElement}
+      <PageSkeleton />
+    </>
+  )
 
   if (error) return (
     <div className="max-w-[800px] mx-auto px-5 py-10">
+      {seoElement}
       <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-red-700 text-sm leading-relaxed mb-4">
         {error}
       </div>
@@ -485,9 +515,7 @@ export default function DatasetPage() {
     </div>
   )
 
-  if (!flow) return null
-
-  const isForestFire = flow.id === 'DF_AGRICULTURE_FORESTRY_FOREST_FIRE_AREA'
+  if (!flow) return seoElement
 
   return (
     <motion.div
@@ -496,22 +524,7 @@ export default function DatasetPage() {
       transition={{ type: 'spring', stiffness: 100, damping: 22 }}
       className="max-w-[1100px] mx-auto px-5 py-6"
     >
-      <SEO
-        title={content?.displayName ?? flow.name}
-        description={content?.lead ?? `${flow.name} — Umweltdatensatz des Umweltbundesamts. Interaktive Zeitreihen, Trends und Rohdaten auf umweltpuls.de.`}
-        path={`/dataset/${encodeURIComponent(flow.id)}`}
-        jsonLd={{
-          '@context': 'https://schema.org',
-          '@type': 'Dataset',
-          name: flow.name,
-          description: flow.description || `${flow.name} — Umweltdatensatz des Umweltbundesamts.`,
-          url: `https://www.umweltpuls.de/dataset/${encodeURIComponent(flow.id)}`,
-          creator: { '@type': 'Organization', name: 'Umweltbundesamt', url: 'https://www.umweltbundesamt.de' },
-          publisher: { '@type': 'Organization', name: 'Umweltpuls', url: 'https://www.umweltpuls.de' },
-          inLanguage: 'de-DE',
-          license: 'https://www.govdata.de/dl-de/by-2-0',
-        }}
-      />
+      {seoElement}
       {/* ── Breadcrumb ───────────────────────────────────────────────────── */}
       <div className="flex items-center gap-2 text-[12px] text-slate-400 mb-5">
         <Link

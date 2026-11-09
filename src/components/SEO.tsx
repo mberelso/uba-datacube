@@ -29,14 +29,19 @@ interface SEOProps {
 
 export function SEO({ title, description = DEFAULT_DESCRIPTION, path = '', image = DEFAULT_IMAGE, jsonLd }: SEOProps) {
   const fullTitle = title ? `${title} | ${SITE_NAME}` : DEFAULT_FULL_TITLE
-  const url = `${SITE_URL}${path}`
+  const normalizedPath = !path || path === '/' ? '/' : (path.endsWith('/') ? path : `${path}/`)
+  const url = `${SITE_URL}${normalizedPath}`
 
   // Automatic BreadcrumbList Schema
   const breadcrumbs: Array<{ '@type': string; position: number; name: string; item: string }> = [
-    { '@type': 'ListItem', position: 1, name: 'Startseite', item: SITE_URL }
+    { '@type': 'ListItem', position: 1, name: 'Startseite', item: `${SITE_URL}/` }
   ]
   if (path === '/catalog') {
     breadcrumbs.push({ '@type': 'ListItem', position: 2, name: 'Datenkatalog', item: url })
+  } else if (path === '/analysen') {
+    breadcrumbs.push({ '@type': 'ListItem', position: 2, name: 'Analysen', item: url })
+  } else if (path === '/regionen') {
+    breadcrumbs.push({ '@type': 'ListItem', position: 2, name: 'Regional-Explorer', item: url })
   } else if (path === '/vergleich') {
     breadcrumbs.push({ '@type': 'ListItem', position: 2, name: 'Datenvergleich', item: url })
   } else if (path === '/hitze') {
@@ -47,8 +52,10 @@ export function SEO({ title, description = DEFAULT_DESCRIPTION, path = '', image
     breadcrumbs.push({ '@type': 'ListItem', position: 2, name: 'Solar-Ausbau', item: url })
   } else if (path === '/mispel') {
     breadcrumbs.push({ '@type': 'ListItem', position: 2, name: 'MiSpeL-Simulator', item: url })
+  } else if (path === '/about') {
+    breadcrumbs.push({ '@type': 'ListItem', position: 2, name: 'Über das Projekt', item: url })
   } else if (path.startsWith('/dataset/')) {
-    breadcrumbs.push({ '@type': 'ListItem', position: 2, name: 'Datenkatalog', item: `${SITE_URL}/catalog` })
+    breadcrumbs.push({ '@type': 'ListItem', position: 2, name: 'Datenkatalog', item: `${SITE_URL}/catalog/` })
     breadcrumbs.push({ '@type': 'ListItem', position: 3, name: title ?? 'Datensatz', item: url })
   }
 
@@ -62,7 +69,7 @@ export function SEO({ title, description = DEFAULT_DESCRIPTION, path = '', image
   if (jsonLd) {
     if (Array.isArray(jsonLd)) schemas.push(...jsonLd)
     else schemas.push(jsonLd)
-  } else if (path === '') {
+  } else if (!path || path === '/') {
     schemas.push(JSON.parse(WEBSITE_JSONLD))
   }
   if (breadcrumbJsonLd) schemas.push(breadcrumbJsonLd)

@@ -10,7 +10,8 @@ UBA-Datacube ist eine moderne Web-Applikation zur Visualisierung und Analyse von
 - **Regional-Explorer & Bundesland-Dashboard (`/regionen`)**: Interaktiver Vergleich aller 16 deutschen Bundesländer mit 4 zentralen Umweltindikatoren (Heiße Tage, Windkraft-Ausbau MW, Solarenergie-Ausbau MW, PRTR-Industrie-Emissionen), regionalen Klimafakten und direkter Tabellensortierung.
 - **1-Klick Social-Infografik-Export & Story-Card-Generator**: Auf allen Hauptseiten (`/regionen`, `/vergleich`, `/dataset/:id`, `/hitze`, `/wind`, `/solar`) können Besucher per Klick hochauflösende Story-Cards (1080×1920 px im Instagram/LinkedIn-Format) mit Umweltpuls-Branding, Metriken und Sparklines erzeugen und direkt via `navigator.share` oder Download teilen.
 - **SEO-Booster & Google Rich Snippets**:
-  - **Sitemap-Generator (`public/sitemap.xml`)**: Automatischer Build-Schritt (`scripts/generate-sitemap.ts`) erzeugt für alle 89 gerenderten Routen eine XML-Sitemap mit Prioritäten und Datumsstempeln.
+  - **Sitemap-Generator (`public/sitemap.xml`)**: Automatischer Build-Schritt (`scripts/generate-sitemap.ts`) erzeugt für alle 88 indexierbaren Routen eine XML-Sitemap mit konsistenten Trailing-Slash-URLs (`/`), Prioritäten und Datumsstempeln.
+  - **Kanonische URL-Konsistenz (GitHub Pages Trailing-Slash)**: `SEO.tsx`, `generate-sitemap.ts` und `prerender.ts` verwenden einheitlich kanonische URLs mit abschließendem Schrägstrich (`https://www.umweltpuls.de/<route>/`), exakt passend zu den `301`-Weiterleitungen von GitHub Pages.
   - **Robots.txt (`public/robots.txt`)**: Vollständige Crawler-Freigabe für Suchmaschinenbot-Indexing.
   - **JSON-LD Schema Integration (`src/components/SEO.tsx`)**: Automatische Generierung von `BreadcrumbList` (Pfad-Hierarchie im Google-Snippet), `FAQPage` Rich Snippets für Q&A-Dropdowns in den Google-Suchergebnissen sowie `Dataset`-Schemas für Google Dataset Search.
 - **Datenvergleich & Indikatoren-Analyse (`/vergleich`)**: Interaktive Gegenüberstellung zweier Umwelt-Indikatoren auf einer gemeinsamen Zeitachse mit Dual-Y-Achse, relativem Trendmodus (% Index = 100), automatischer Pearson-Korrelationsberechnung und kombinierter CSV-Exportfunktion. Kuratierte Presets vergleichen offizielle Deutschland-Zeitreihen (Temperatur vs. Erneuerbare Energien seit 2004, Temperatur vs. Heiße Tage seit 1951 sowie Gesamt-Luftschadstoff-Emissionsindex vs. Stickoxide NOₓ seit 1990).
@@ -39,7 +40,7 @@ UBA-Datacube ist eine moderne Web-Applikation zur Visualisierung und Analyse von
 - **Visualisierung**: Recharts, D3-Geo
 - **Quality Gates & Testing**: Vitest Unit-Tests (`npm test` - 27 Tests in 8 Testfiles, inklusive 5 Golden Tests gegen BNetzA-Referenztabellen), ESLint (0 Errors, 0 Warnings), Static Type Checking (`tsc --noEmit`), GitHub Actions CI PR-Gate (`.github/workflows/ci.yml`), Playwright Prerendering (91/91 Routen statisch vorgeneriert mit automatischem 404.html Fallback) und automatischer Secret-Guard im Build.
 - **Styling**: Vanilla CSS, TailwindCSS (mit modernen CSS-Variablen)
-- **API**: UBA SDMX REST API (SDMX-JSON v1/v2, kanonischer SDMX-CSV Parser)
+- **API**: UBA SDMX REST API (SDMX-XML 2.1 Struktur-/Metadaten-Parser, SDMX-JSON v1/v2 Daten-Parser, kanonischer SDMX-CSV Parser)
 
 ## 📦 Lokale Entwicklung
 

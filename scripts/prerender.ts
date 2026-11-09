@@ -91,7 +91,7 @@ function buildJsonLd(route: string): string | null {
       '@type': 'Dataset',
       name: 'Hitze in Deutschland seit 1951',
       description: 'Heiße Tage (Tmax ≥ 30 °C) und Sommertage (Tmax ≥ 25 °C) je Landkreis in Deutschland von 1951 bis heute, aggregiert aus den gegitterten 1-km-Jahresrastern des Deutschen Wetterdiensts und als animierte Karte dargestellt.',
-      url: `${siteUrl}/hitze`,
+      url: `${siteUrl}/hitze/`,
       inLanguage: 'de-DE',
       keywords: ['Hitze', 'Heiße Tage', 'Sommertage', 'Klimawandel', 'Hitzewellen', 'DWD', 'Deutschland', 'Klimadaten'],
       creator: { '@type': 'GovernmentOrganization', name: 'Deutscher Wetterdienst', url: 'https://www.dwd.de' },
@@ -120,7 +120,7 @@ function buildJsonLd(route: string): string | null {
       description: isWind
         ? 'Standort, Leistung und Inbetriebnahmejahr aller Windenergieanlagen in Deutschland seit 1990, aufbereitet aus dem Marktstammdatenregister der Bundesnetzagentur und als animierte Karte dargestellt.'
         : 'Installierte Photovoltaik-Leistung je Landkreis und Standorte der Freiflächen-Solarparks in Deutschland seit 2000, aufbereitet aus dem Marktstammdatenregister der Bundesnetzagentur und als animierte Karte dargestellt.',
-      url: `${siteUrl}${route}`,
+      url: `${siteUrl}${route}/`,
       inLanguage: 'de-DE',
       keywords: isWind
         ? ['Windkraft', 'Windenergie', 'Windkraftanlagen', 'Energiewende', 'Marktstammdatenregister', 'Deutschland', 'Erneuerbare Energien']
@@ -149,7 +149,7 @@ function buildJsonLd(route: string): string | null {
       '@type': 'Dataset',
       name: c.displayName ?? id,
       description: c.lead ? trimDesc(c.lead, 300) : (c.headline ?? ''),
-      url: `${siteUrl}/dataset/${encodeURIComponent(id)}`,
+      url: `${siteUrl}/dataset/${encodeURIComponent(id)}/`,
       inLanguage: 'de-DE',
       creator: {
         '@type': 'Organization',
@@ -240,7 +240,8 @@ function findChromium() {
  * For dataset routes, descriptions come from DATASET_CONTENT.lead (handled separately).
  */
 function patchRouteMeta(html: string, route: string): string {
-  const fullUrl = `${SITE_URL}${route}`
+  const normalizedRoute = route === '/' ? '/' : (route.endsWith('/') ? route : `${route}/`)
+  const fullUrl = `${SITE_URL}${normalizedRoute}`
 
   const titleMatch = html.match(/<title[^>]*>(.*?)<\/title>/i)
   const pageTitle = titleMatch?.[1] ?? ''
@@ -310,18 +311,29 @@ async function run() {
       await page.goto(`${base}${route}`, { waitUntil: 'domcontentloaded', timeout: 20000 })
 
       // Wait for React to render and Helmet to flush page-specific meta tags.
-      // We check that og:title has been set to something other than the generic title.
+      // We check that og:title has been set to something other than the generic title,
+      // and for dataset/catalog pages we wait until the initial flow metadata has rendered.
       await page.waitForFunction(
         (defaultTitle) => {
           if (!document.documentElement.dataset.prerenderReady) return false
-          if (window.location.pathname === '/') return true
+          const p = window.location.pathname
+          if (p === '/') return true
           const ogTitle = document.querySelector('meta[property="og:title"]')?.getAttribute('content') ?? ''
-          return ogTitle.length > 0 && ogTitle !== defaultTitle
+          if (!ogTitle.length || ogTitle === defaultTitle) return false
+          if (p.startsWith('/dataset/')) {
+            // Wait until PageSkeleton has been replaced by real dataset content
+            return !document.querySelector('.animate-pulse') && !!document.querySelector('h1')
+          }
+          if (p === '/catalog') {
+            // Wait until catalog cards have rendered beyond the 3 static special flows
+            return document.querySelectorAll('a[href^="/dataset/"]').length > 10
+          }
+          return true
         },
         DEFAULT_FULL_TITLE,
-        { timeout: 8000 }
+        { timeout: 12000 }
       ).catch(() => {
-        console.warn(`  ⚠️ ${route}: Helmet-Flush-Timeout (og:title blieb generisch)`)
+        console.warn(`  ⚠️ ${route}: Helmet/Content-Flush-Timeout`)
       })
 
       // Deduplicate head tags in-browser.
@@ -430,11 +442,15 @@ async function run() {
   await browser.close()
   previewServer.httpServer.close()
 
-  // Generate prerendered dist/404.html with noindex for GitHub Pages SPA fallback
+  // Generate prerendered dist/404.html with noindex and without homepage canonical
+  // for GitHub Pages SPA fallback
   const homepageHtmlPath = join(DIST, 'index.html')
   if (existsSync(homepageHtmlPath)) {
     const rootHtml = readFileSync(homepageHtmlPath, 'utf-8')
-    const html404 = rootHtml.replace('</head>', '<meta name="robots" content="noindex"></head>')
+    const html404 = rootHtml
+      .replace(/<link[^>]*rel="canonical"[^>]*>/gi, '')
+      .replace(/<meta[^>]*property="og:url"[^>]*>/gi, '')
+      .replace('</head>', '<meta name="robots" content="noindex"></head>')
     writeFileSync(join(DIST, '404.html'), html404, 'utf-8')
     console.log('✅ Generated prerendered dist/404.html with noindex')
   }

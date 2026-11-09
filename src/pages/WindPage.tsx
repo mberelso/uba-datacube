@@ -51,13 +51,16 @@ export default function WindPage() {
             onClick={() =>
               setModalCard({
                 category: 'energie',
-                metric: '> 60 GW',
+                seriesName: 'Marktstammdatenregister',
+                metric: '> 62 GW',
                 metricLabel: 'Installierte Windleistung in Deutschland',
                 headline: 'Windkraft-Ausbau seit 1990',
-                story: 'Über 30.000 Windenergieanlagen an Land und auf See erzeugen heute den Großteil des deutschen Ökostroms. Niedersachsen führt den Ausbau an.',
+                story: 'Über 30.000 Windenergieanlagen an Land und auf See erzeugen heute den Großteil des deutschen Ökostroms. Niedersachsen führt den Ausbau mit über 12,9 GW an.',
                 sparkline: [2, 8, 18, 35, 48, 55, 62],
                 yearRange: '1990 – 2026',
                 datasetId: 'mastr-wind',
+                sharePath: 'wind',
+                unit: 'GW',
               })
             }
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-700 text-white text-12 font-semibold transition-colors cursor-pointer border-0 shadow-sm"

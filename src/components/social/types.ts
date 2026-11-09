@@ -41,6 +41,14 @@ export interface ChartPoint {
   value: number
 }
 
+export interface KpiCardItem {
+  label: string
+  value: string
+  sublabel?: string
+  color: string
+  rankBadge?: string
+}
+
 export interface SocialCardData {
   category: SocialCategory
   metric: string       // "−38 %"
@@ -50,8 +58,10 @@ export interface SocialCardData {
   sparkline: number[]  // rohe Datenpunkte
   yearRange: string    // "1990 – 2023"
   datasetId: string
+  sharePath?: string   // z. B. "regionen/hessen" oder "vergleich"
   backgroundUrl?: string
   unit?: string
   seriesName?: string
   chartPoints?: ChartPoint[]
+  kpiGrid?: KpiCardItem[]
 }

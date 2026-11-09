@@ -58,13 +58,16 @@ export default function SolarPage() {
             onClick={() =>
               setModalCard({
                 category: 'energie',
-                metric: '> 80 GW',
+                seriesName: 'Über 4 Mio. Anlagen',
+                metric: '> 88 GW',
                 metricLabel: 'Installierte Solarleistung in Deutschland',
                 headline: 'Der Solar-Boom seit 2000',
-                story: 'Über 4 Millionen Photovoltaik-Anlagen stehen auf deutschen Dächern und Feldern. Bayern ist Spitzenreiter mit über 21 GW installierter PV-Kapazität.',
-                sparkline: [5, 12, 28, 45, 60, 75, 88],
+                story: 'Über 4 Millionen Photovoltaik-Anlagen stehen auf deutschen Dächern, Balkonen und Feldern. Bayern ist Spitzenreiter mit über 21,5 GW installierter PV-Kapazität.',
+                sparkline: [1, 18, 38, 49, 59, 75, 88],
                 yearRange: '2000 – 2026',
                 datasetId: 'mastr-solar',
+                sharePath: 'solar',
+                unit: 'GW',
               })
             }
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-12 font-semibold transition-colors cursor-pointer border-0 shadow-sm"

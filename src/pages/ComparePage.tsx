@@ -432,18 +432,29 @@ export default function ComparePage() {
 
           {seriesA && seriesB && (
             <button
-              onClick={() =>
-                setModalCard({
+              onClick={() => {
+                const ptsA = seriesA.data
+                  .filter((d): d is { year: string; value: number } => typeof d.value === 'number')
+                  .map((d) => ({ year: d.year, value: d.value }))
+                const firstYear = ptsA[0]?.year ?? '1990'
+                const lastYear = ptsA[ptsA.length - 1]?.year ?? '2025'
+                return setModalCard({
                   category: 'vergleich',
-                  metric: 'Zusammenhang',
+                  seriesName: `${firstYear} – ${lastYear}`,
+                  metric: `${ptsA.length} Jahre`,
                   metricLabel: `${seriesA.label} vs. ${seriesB.label}`,
-                  headline: matchingPreset?.title ?? `${seriesA.label} vs. ${seriesB.label}`,
-                  story: matchingPreset?.subtitle ?? `Zeitreihen-Vergleich zwischen ${seriesA.label} (${seriesA.unit}) und ${seriesB.label} (${seriesB.unit}).`,
-                  sparkline: seriesA.data.slice(0, 10).map((d) => d.value ?? 0),
-                  yearRange: 'Zeitanalyse',
+                  headline: matchingPreset?.title ?? `${seriesA.label} & ${seriesB.label}`,
+                  story:
+                    matchingPreset?.subtitle ??
+                    `Langzeit-Vergleich zwischen ${seriesA.label} (${seriesA.unit}) und ${seriesB.label} (${seriesB.unit}) von ${firstYear} bis ${lastYear}.`,
+                  sparkline: ptsA.map((d) => d.value),
+                  yearRange: `${firstYear} – ${lastYear}`,
                   datasetId: matchingPreset?.id ?? `${idA}-vs-${idB}`,
+                  sharePath: `vergleich/?a=${idA}&b=${idB}`,
+                  unit: seriesA.unit,
+                  chartPoints: ptsA,
                 })
-              }
+              }}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold transition-colors cursor-pointer border-0 shadow-sm"
             >
               <ShareNetwork size={14} weight="bold" />

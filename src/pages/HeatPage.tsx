@@ -80,13 +80,25 @@ export default function HeatPage() {
             onClick={() =>
               setModalCard({
                 category: 'klima',
-                metric: 'Verdreifacht',
-                metricLabel: 'Anzahl Heiße Tage seit 1950',
+                seriesName: 'DWD 1-km-Raster',
+                metric: '3× mehr',
+                metricLabel: 'Heiße Tage (≥ 30 °C) seit den 1950ern',
                 headline: 'Hitze in Deutschland seit 1951',
-                story: 'Die Zahl der Heißen Tage (≥ 30 °C) hat sich im bundesweiten Mittel mehr als verdreifacht. Der Oberrheingraben und Brandenburg verzeichnen die höchsten Werte.',
-                sparkline: [5, 7, 8, 12, 11, 15, 19],
+                story: 'Die Zahl der Heißen Tage hat sich im bundesweiten Mittel mehr als verdreifacht. Der Oberrheingraben und Brandenburg verzeichnen regelmäßig über 20 Heiße Tage pro Sommer.',
+                sparkline: [3.4, 5.1, 7.8, 19.2, 11.4, 20.1, 18.6],
                 yearRange: '1951 – 2025',
                 datasetId: 'dwd-heat',
+                sharePath: 'hitze',
+                unit: 'Tage',
+                chartPoints: [
+                  { year: '1951', value: 3.4 },
+                  { year: '1976', value: 10.2 },
+                  { year: '1994', value: 12.8 },
+                  { year: '2003', value: 19.2 },
+                  { year: '2015', value: 17.6 },
+                  { year: '2018', value: 20.4 },
+                  { year: '2025', value: 18.9 },
+                ],
               })
             }
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-12 font-semibold transition-colors cursor-pointer border-0 shadow-sm"

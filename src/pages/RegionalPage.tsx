@@ -205,18 +205,55 @@ export default function RegionalPage() {
               </div>
 
                 <button
-                  onClick={() =>
+                  onClick={() => {
+                    const rankHot = [...statesList].sort((a, b) => b.hotDaysAvg - a.hotDaysAvg).findIndex(s => s.code === selectedState.code) + 1
+                    const rankWind = [...statesList].sort((a, b) => b.windCapacityMw - a.windCapacityMw).findIndex(s => s.code === selectedState.code) + 1
+                    const rankSolar = [...statesList].sort((a, b) => b.solarCapacityMw - a.solarCapacityMw).findIndex(s => s.code === selectedState.code) + 1
+                    const rankPrtr = [...statesList].sort((a, b) => b.prtrEmissionsKt - a.prtrEmissionsKt).findIndex(s => s.code === selectedState.code) + 1
+
                     setModalCard({
                       category: 'region',
-                      metric: `${selectedState.hotDaysAvg}`,
-                      metricLabel: 'Heiße Tage / Jahr (Ø)',
-                      headline: `${selectedState.name}: Klimadaten im Überblick`,
-                      story: `Mit ${selectedState.windCapacityMw.toLocaleString('de-DE')} MW Windkraft und ${selectedState.solarCapacityMw.toLocaleString('de-DE')} MW Solar-Leistung verzeichnet ${selectedState.name} im Schnitt ${selectedState.hotDaysAvg} Heiße Tage pro Jahr.`,
+                      seriesName: `${selectedState.icon} ${selectedState.capital}`,
+                      metric: `${selectedState.hotDaysAvg.toLocaleString('de-DE')} Tage`,
+                      metricLabel: `Heiße Tage ≥ 30 °C / Jahr (Platz ${rankHot} von 16)`,
+                      headline: `${selectedState.name}: Klima & Energiewende`,
+                      story: `${selectedState.description} ${selectedState.highlights[0]}.`,
                       sparkline: [selectedState.hotDaysAvg, selectedState.windCapacityMw / 100, selectedState.solarCapacityMw / 100, selectedState.prtrEmissionsKt],
-                      yearRange: 'Datenstand 2026',
+                      yearRange: '2018 – 2026',
                       datasetId: `region-${selectedState.code}`,
+                      sharePath: `regionen/${selectedState.slug}`,
+                      kpiGrid: [
+                        {
+                          label: '🔥 Hitzerekord',
+                          value: `${selectedState.allTimeRecord.temp.toLocaleString('de-DE')} °C`,
+                          sublabel: `${selectedState.allTimeRecord.location} (${selectedState.allTimeRecord.year})`,
+                          color: '#f43f5e',
+                          rankBadge: `Hitze #${rankHot}/16`,
+                        },
+                        {
+                          label: '☀️ Photovoltaik',
+                          value: `${selectedState.solarCapacityMw.toLocaleString('de-DE')} MW`,
+                          sublabel: 'Installierte PV-Leistung (MaStR)',
+                          color: '#f59e0b',
+                          rankBadge: `Platz #${rankSolar}/16`,
+                        },
+                        {
+                          label: '💨 Windenergie',
+                          value: `${selectedState.windCapacityMw.toLocaleString('de-DE')} MW`,
+                          sublabel: 'Onshore-Windkraft (MaStR)',
+                          color: '#38bdf8',
+                          rankBadge: `Platz #${rankWind}/16`,
+                        },
+                        {
+                          label: '🏭 Industrie (PRTR)',
+                          value: `${selectedState.prtrEmissionsKt.toLocaleString('de-DE')} kt`,
+                          sublabel: 'Gemeldete Schadstoffe / Jahr',
+                          color: '#10b981',
+                          rankBadge: `Rang #${rankPrtr}/16`,
+                        },
+                      ],
                     })
-                  }
+                  }}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-sky-500 hover:bg-sky-600 text-white text-12 font-semibold transition-colors cursor-pointer border-0 shadow-sm"
                 >
                   <ShareNetwork size={14} weight="bold" />

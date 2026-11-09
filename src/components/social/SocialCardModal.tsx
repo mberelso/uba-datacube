@@ -12,6 +12,21 @@ const BG_VARIANTS: Record<string, { file: string; label: string }[]> = {
   luft:      [{ file: 'luft-1.jpg', label: 'Wolken' }, { file: 'luft-2.jpg', label: 'Industrie' }],
   boden:     [{ file: 'boden-1.jpg', label: 'Waldboden' }, { file: 'boden-2.jpg', label: 'Acker' }],
   flaeche:   [{ file: 'flaeche-1.jpg', label: 'Aerial' }, { file: 'flaeche-2.jpg', label: 'Waldgrenze' }],
+  region:    [
+    { file: 'flaeche-1.jpg', label: 'Landschaft' },
+    { file: 'energie-1.jpg', label: 'Windkraft' },
+    { file: 'energie-2.jpg', label: 'Solarpark' },
+    { file: 'klima-1.jpg', label: 'Klima' },
+  ],
+  vergleich: [
+    { file: 'klima-1.jpg', label: 'Klima' },
+    { file: 'energie-1.jpg', label: 'Energie' },
+    { file: 'luft-1.jpg', label: 'Atmosphäre' },
+  ],
+  default:   [
+    { file: 'flaeche-1.jpg', label: 'Natur' },
+    { file: 'klima-1.jpg', label: 'Klima' },
+  ],
 }
 
 const PREVIEW_SCALE = 0.33
@@ -27,14 +42,19 @@ export function SocialCardModal({ data: baseData, onClose }: {
   onClose: () => void
 }) {
   const cardRef = useRef<HTMLDivElement>(null)
-  const [bgUrl, setBgUrl] = useState<string | undefined>(undefined)
+  const base = import.meta.env.BASE_URL.replace(/\/$/, '')
+
+  // Standardmäßig das erste verfügbare Hintergrundbild vorauswählen, damit die Karte sofort atmosphärisch wirkt
+  const defaultBgFile = (BG_VARIANTS[baseData.category] ?? BG_VARIANTS.default)?.[0]?.file
+  const [bgUrl, setBgUrl] = useState<string | undefined>(
+    defaultBgFile ? `${base}/social-bg/${defaultBgFile}` : undefined
+  )
   const [availableBgs, setAvailableBgs] = useState<string[]>([])
   const [busy, setBusy] = useState(false)
   const [hint, setHint] = useState('')
 
   const data: SocialCardData = { ...baseData, backgroundUrl: bgUrl }
   const accent = CATEGORY_COLORS[data.category]
-  const base = import.meta.env.BASE_URL.replace(/\/$/, '')
 
   // Prüfe welche Hintergrundbilder vorhanden sind
   useEffect(() => {

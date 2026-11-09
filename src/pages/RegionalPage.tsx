@@ -1,11 +1,11 @@
 import { useState, useMemo } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   MapPin, Flame, Wind, Sun, Factory,
   CaretRight, CheckCircle, Scales, MagnifyingGlass, ShareNetwork
 } from '@phosphor-icons/react'
-import { BUNDESLAENDER, type BundeslandInfo } from '../utils/bundeslaender'
+import { BUNDESLAENDER, getBundeslandBySlug, type BundeslandInfo } from '../utils/bundeslaender'
 import { SEO } from '../components/SEO'
 import { SocialCardModal } from '../components/social/SocialCardModal'
 import type { SocialCardData } from '../components/social/types'
@@ -51,7 +51,10 @@ const REGIONAL_FAQ_JSONLD = {
 }
 
 export default function RegionalPage() {
-  const [selectedCode, setSelectedCode] = useState<string>('NW') // Default to NRW or user selection
+  const { slug } = useParams<{ slug?: string }>()
+  const stateFromSlug = useMemo(() => getBundeslandBySlug(slug), [slug])
+
+  const [selectedCode, setSelectedCode] = useState<string>(() => stateFromSlug?.code || 'NW')
   const [search, setSearch] = useState<string>('')
   const [sortKey, setSortKey] = useState<'hotDaysAvg' | 'windCapacityMw' | 'solarCapacityMw' | 'prtrEmissionsKt'>('hotDaysAvg')
   const [sortAsc, setSortAsc] = useState<boolean>(false)
@@ -75,15 +78,23 @@ export default function RegionalPage() {
     })
   }, [statesList, sortKey, sortAsc])
 
-  const selectedState: BundeslandInfo = BUNDESLAENDER[selectedCode] || BUNDESLAENDER['NW']
+  const selectedState: BundeslandInfo = stateFromSlug || BUNDESLAENDER[selectedCode] || BUNDESLAENDER['NW']
+
+  const seoTitle = stateFromSlug
+    ? `Umweltdaten ${selectedState.name} — Hitze, Windkraft & Solar im Vergleich`
+    : 'Regional-Explorer — Wie grün ist dein Bundesland?'
+  const seoDesc = stateFromSlug
+    ? `Klimadaten und Energiewende in ${selectedState.name} (${selectedState.capital}): Ø ${selectedState.hotDaysAvg} Heiße Tage/Jahr, ${selectedState.windCapacityMw.toLocaleString('de-DE')} MW Windkraft, ${selectedState.solarCapacityMw.toLocaleString('de-DE')} MW Photovoltaik und Hitzerekord ${selectedState.allTimeRecord.temp} °C.`
+    : 'Vergleiche Klimadaten, Hitzetage, Windkraft- und Solarausbau sowie Industrie-Emissionen aller 16 deutschen Bundesländer im Detail.'
+  const seoPath = stateFromSlug ? `/regionen/${selectedState.slug}` : '/regionen'
 
   return (
     <div className="max-w-[1200px] mx-auto px-5 py-8">
       {modalCard && <SocialCardModal data={modalCard} onClose={() => setModalCard(null)} />}
       <SEO
-        title="Regional-Explorer — Wie grün ist dein Bundesland?"
-        description="Vergleiche Klimadaten, Hitzetage, Windkraft- und Solarausbau sowie Industrie-Emissionen aller 16 deutschen Bundesländer im Detail."
-        path="/regionen"
+        title={seoTitle}
+        description={seoDesc}
+        path={seoPath}
         image="https://www.umweltpuls.de/og-image.png"
         jsonLd={REGIONAL_FAQ_JSONLD}
       />
@@ -98,7 +109,7 @@ export default function RegionalPage() {
         <div className="flex items-center gap-2 mb-1">
           <MapPin size={18} weight="bold" style={{ color: NORDIC.blue }} />
           <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.1em', color: NORDIC.blue }}>
-            REGIONAL-DASHBOARD
+            {stateFromSlug ? `REGIONAL-DASHBOARD · ${selectedState.name.toUpperCase()}` : 'REGIONAL-DASHBOARD'}
           </span>
         </div>
         <h1
@@ -111,7 +122,7 @@ export default function RegionalPage() {
             marginBottom: 6,
           }}
         >
-          Wie grün ist dein Bundesland?
+          {stateFromSlug ? `Umweltdaten & Klimabilanz: ${selectedState.name}` : 'Wie grün ist dein Bundesland?'}
         </h1>
         <p style={{ fontSize: 14, color: NORDIC.stone, fontWeight: 400, maxWidth: 780, lineHeight: 1.6 }}>
           Hitze-Hotspots, Windräder, Solarparks und Industrie-Emissionen: Wähle ein Bundesland aus, um alle lokalen
@@ -140,12 +151,13 @@ export default function RegionalPage() {
 
         <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-2">
           {filteredStates.map((st) => {
-            const isSelected = st.code === selectedCode
+            const isSelected = st.code === selectedState.code
             return (
-              <button
+              <Link
                 key={st.code}
+                to={`/regionen/${st.slug}`}
                 onClick={() => setSelectedCode(st.code)}
-                className={`flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all cursor-pointer ${
+                className={`flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all cursor-pointer no-underline ${
                   isSelected
                     ? 'bg-slate-900 border-slate-900 text-white shadow-md scale-[1.02]'
                     : 'bg-white border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50'
@@ -156,7 +168,7 @@ export default function RegionalPage() {
                 <span className={`text-[10px] ${isSelected ? 'text-slate-300' : 'text-slate-400'}`}>
                   {st.code}
                 </span>
-              </button>
+              </Link>
             )
           })}
         </div>
@@ -427,7 +439,7 @@ export default function RegionalPage() {
             </thead>
             <tbody className="divide-y divide-slate-100 font-medium">
               {sortedStates.map((st) => {
-                const isSelected = st.code === selectedCode
+                const isSelected = st.code === selectedState.code
                 return (
                   <tr
                     key={st.code}
@@ -438,7 +450,13 @@ export default function RegionalPage() {
                     <td className="py-3 px-4 flex items-center gap-2">
                       <span className="text-18">{st.icon}</span>
                       <div>
-                        <div className="text-slate-900 font-bold">{st.name}</div>
+                        <Link
+                          to={`/regionen/${st.slug}`}
+                          onClick={() => setSelectedCode(st.code)}
+                          className="text-slate-900 font-bold hover:text-sky-600 no-underline"
+                        >
+                          {st.name}
+                        </Link>
                         <div className="text-11 text-slate-400 font-mono">{st.code} · {st.capital}</div>
                       </div>
                     </td>
@@ -455,12 +473,13 @@ export default function RegionalPage() {
                       {st.prtrEmissionsKt.toLocaleString('de-DE')} <span className="text-11 text-slate-400 font-normal">kt</span>
                     </td>
                     <td className="py-3 px-4 text-right">
-                      <button
+                      <Link
+                        to={`/regionen/${st.slug}`}
                         onClick={() => setSelectedCode(st.code)}
-                        className="px-2.5 py-1 text-11 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors border-0 cursor-pointer"
+                        className="px-2.5 py-1 text-11 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors no-underline inline-block"
                       >
-                        Auswählen
-                      </button>
+                        Ansehen
+                      </Link>
                     </td>
                   </tr>
                 )

@@ -33,7 +33,7 @@ export default function Footer() {
         </Link>
         {' · '}
         <a
-          href="https://ko-fi.com"
+          href="https://ko-fi.com/mberelso"
           target="_blank"
           rel="noopener noreferrer"
           className="text-amber-600/80 hover:text-amber-600 transition-colors font-medium"

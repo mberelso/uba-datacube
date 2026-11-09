@@ -18,6 +18,7 @@ import { join, resolve } from 'path'
 import { fileURLToPath } from 'url'
 import { DATASET_CONTENT } from '../src/data/datasetContent.ts'
 import { DEFAULT_FULL_TITLE } from '../src/constants/seo.ts'
+import { BUNDESLAENDER } from '../src/utils/bundeslaender.ts'
 
 /** Trim a description to max 155 chars, breaking at a word boundary. */
 function trimDesc(text: string, max = 155): string {
@@ -190,6 +191,10 @@ const SITE_URL = 'https://www.umweltpuls.de'
 
 const STATIC_ROUTES = ['/', '/catalog', '/analysen', '/regionen', '/vergleich', '/mispel', '/wind', '/solar', '/hitze', '/about']
 
+const REGIONAL_ROUTES = Object.values(BUNDESLAENDER).map(
+  st => `/regionen/${st.slug}`
+)
+
 const STATIC_DESCRIPTIONS: Record<string, string> = {
   '/': 'Klimadaten, Emissionstrends und Umweltindikatoren des Umweltbundesamts — interaktiv erkunden, filtern und exportieren. Kostenlos und offen.',
   '/catalog': 'Alle Umweltdatensätze des Umweltbundesamts auf einen Blick — durchsuchen, filtern und interaktiv erkunden.',
@@ -201,6 +206,12 @@ const STATIC_DESCRIPTIONS: Record<string, string> = {
   '/solar': 'Animierte Deutschlandkarte des Solar-Ausbaus seit 2000: über 4 Millionen Photovoltaik-Anlagen aus dem Marktstammdatenregister — installierte Leistung je Landkreis und die großen Freiflächen-Solarparks, Jahr für Jahr.',
   '/hitze': 'Animierte Landkreis-Karte der Hitze in Deutschland seit 1951: Heiße Tage (Tmax ≥ 30 °C) und Sommertage je Landkreis, aus den 1-km-Rasterdaten des Deutschen Wetterdiensts — der Klimawandel, Jahr für Jahr sichtbar.',
   '/about': 'Hintergründe, FAQ und Impressum zu Umweltpuls — einem privaten, nicht-kommerziellen Aufbereitungsprojekt für Umweltdaten des Umweltbundesamts.',
+  ...Object.fromEntries(
+    Object.values(BUNDESLAENDER).map((st) => [
+      `/regionen/${st.slug}`,
+      `Klimadaten und Energiewende in ${st.name} (${st.capital}): Ø ${st.hotDaysAvg} Heiße Tage/Jahr, ${st.windCapacityMw.toLocaleString('de-DE')} MW Windkraft, ${st.solarCapacityMw.toLocaleString('de-DE')} MW Photovoltaik und Hitzerekord ${st.allTimeRecord.temp} °C.`,
+    ])
+  ),
 }
 
 /** Routen mit eigenem OG-Bild (sonst Default og-image.png). */
@@ -214,7 +225,7 @@ const ROUTE_IMAGES: Record<string, string> = {
 const DATASET_ROUTES = Object.keys(DATASET_CONTENT).map(
   id => `/dataset/${encodeURIComponent(id)}`
 )
-const ALL_ROUTES = [...STATIC_ROUTES, ...DATASET_ROUTES]
+const ALL_ROUTES = [...STATIC_ROUTES, ...REGIONAL_ROUTES, ...DATASET_ROUTES]
 
 function findChromium() {
   const candidates = [

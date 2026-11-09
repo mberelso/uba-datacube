@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { SEO } from '../components/SEO';
 import { MispelExplainer } from '../components/mispel/MispelExplainer';
 import { MispelFlowDiagram } from '../components/mispel/MispelFlowDiagram';
@@ -13,7 +14,7 @@ import { DEFAULT_PRESETS, MISPEL_FAQS } from '../lib/mispel/constants';
 import { berechnePauschalOption } from '../lib/mispel/pauschal';
 import { berechneWirtschaftlichkeit } from '../lib/mispel/economics';
 import { pruefeEignungPauschaloption } from '../lib/mispel/decisionTree';
-import { ShieldCheck, Sparkle, WarningCircle } from '@phosphor-icons/react';
+import { ShieldCheck, Sparkle, WarningCircle, ShareNetwork, Check } from '@phosphor-icons/react';
 
 const NORDIC = {
   navy: '#1B2B3A',
@@ -53,9 +54,37 @@ const APP_JSON_LD = {
 };
 
 const MispelPage: React.FC = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [copiedLink, setCopiedLink] = useState(false);
+
+  const initialFromUrl = useMemo(() => {
+    const kwp = Number(searchParams.get('kwp'));
+    const speicher = Number(searchParams.get('speicher'));
+    const einspeisung = Number(searchParams.get('einspeisung'));
+    const netzbezug = Number(searchParams.get('netzbezug'));
+    const verg = Number(searchParams.get('verg'));
+    const strompreis = Number(searchParams.get('strompreis'));
+    const wallbox = searchParams.get('wallbox');
+    const bkw = Number(searchParams.get('bkw'));
+
+    if (!searchParams.has('kwp') && !searchParams.has('speicher')) return null;
+    const base = DEFAULT_PRESETS[0].konstellation;
+    return {
+      pinstKWp: !Number.isNaN(kwp) && kwp > 0 ? kwp : base.pinstKWp,
+      hasSteckersolar: !Number.isNaN(bkw) && bkw > 0,
+      pinstSteckersolarKWp: !Number.isNaN(bkw) && bkw > 0 ? bkw : base.pinstSteckersolarKWp,
+      skInstKWh: !Number.isNaN(speicher) && speicher >= 0 ? speicher : base.skInstKWh,
+      hasLadepunkt: wallbox === '1' || wallbox === 'true',
+      jahresEinspeisungKWh: !Number.isNaN(einspeisung) && einspeisung >= 0 ? einspeisung : base.jahresEinspeisungKWh,
+      jahresNetzbezugKWh: !Number.isNaN(netzbezug) && netzbezug >= 0 ? netzbezug : base.jahresNetzbezugKWh,
+      anzulegenderWertCt: !Number.isNaN(verg) && verg > 0 ? verg : base.anzulegenderWertCt,
+      strompreisCt: !Number.isNaN(strompreis) && strompreis > 0 ? strompreis : base.strompreisCt,
+    };
+  }, [searchParams]);
+
   const [selectedPresetId, setSelectedPresetId] = useState<string>('efh-standard');
-  const [isCustom, setIsCustom] = useState<boolean>(false);
-  const [konstellation, setKonstellation] = useState(DEFAULT_PRESETS[0].konstellation);
+  const [isCustom, setIsCustom] = useState<boolean>(() => Boolean(initialFromUrl));
+  const [konstellation, setKonstellation] = useState(() => initialFromUrl || DEFAULT_PRESETS[0].konstellation);
 
   const handleSelectPreset = (preset: typeof DEFAULT_PRESETS[0]) => {
     setSelectedPresetId(preset.id);
@@ -66,6 +95,26 @@ const MispelPage: React.FC = () => {
   const handleInputChange = (updated: typeof konstellation) => {
     setIsCustom(true);
     setKonstellation(updated);
+  };
+
+  const handleShareCalculation = () => {
+    const params = new URLSearchParams({
+      kwp: String(konstellation.pinstKWp),
+      speicher: String(konstellation.skInstKWh),
+      einspeisung: String(konstellation.jahresEinspeisungKWh),
+      netzbezug: String(konstellation.jahresNetzbezugKWh),
+      verg: String(konstellation.anzulegenderWertCt),
+      strompreis: String(konstellation.strompreisCt),
+      wallbox: konstellation.hasLadepunkt ? '1' : '0',
+    });
+    if (konstellation.hasSteckersolar) {
+      params.set('bkw', String(konstellation.pinstSteckersolarKWp));
+    }
+    setSearchParams(params, { replace: true });
+    const shareUrl = `${window.location.origin}/mispel/?${params.toString()}`;
+    navigator.clipboard?.writeText(shareUrl);
+    setCopiedLink(true);
+    setTimeout(() => setCopiedLink(false), 2500);
   };
 
   // Berechnung des mathematischen Modells (P1 bis P15)
@@ -105,16 +154,37 @@ const MispelPage: React.FC = () => {
           </span>
         </div>
 
-        <h1
-          style={{ color: NORDIC.navy }}
-          className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-2"
-        >
-          MiSpeL-Simulator für Heimspeicher
-        </h1>
-        <p className="text-slate-600 text-sm sm:text-base max-w-3xl leading-relaxed">
-          Berechnen und visualisieren Sie die neue BNetzA-Pauschaloption für Photovoltaikanlagen bis 30&nbsp;kWp:
-          Nutzen Sie legalen Mischbetrieb mit dynamischen Stromtarifen, ohne Ihre EEG-Einspeisevergütung zu gefährden.
-        </p>
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h1
+              style={{ color: NORDIC.navy }}
+              className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-2"
+            >
+              MiSpeL-Simulator für Heimspeicher
+            </h1>
+            <p className="text-slate-600 text-sm sm:text-base max-w-3xl leading-relaxed">
+              Berechnen und visualisieren Sie die neue BNetzA-Pauschaloption für Photovoltaikanlagen bis 30&nbsp;kWp:
+              Nutzen Sie legalen Mischbetrieb mit dynamischen Stromtarifen, ohne Ihre EEG-Einspeisevergütung zu gefährden.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={handleShareCalculation}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold shadow-sm transition-all cursor-pointer shrink-0 border-0"
+          >
+            {copiedLink ? (
+              <>
+                <Check size={15} weight="bold" className="text-emerald-400" />
+                <span>Berechnungs-Link kopiert!</span>
+              </>
+            ) : (
+              <>
+                <ShareNetwork size={15} weight="bold" />
+                <span>Berechnung als Link teilen</span>
+              </>
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Status-Hinweis zur Übergangsfrist */}

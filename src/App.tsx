@@ -51,6 +51,7 @@ function Layout() {
             <Route path="/" element={<RouteErrorBoundary><DashboardPage /></RouteErrorBoundary>} />
             <Route path="/analysen" element={<RouteErrorBoundary><AnalysePage /></RouteErrorBoundary>} />
             <Route path="/regionen" element={<RouteErrorBoundary><RegionalPage /></RouteErrorBoundary>} />
+            <Route path="/regionen/:slug" element={<RouteErrorBoundary><RegionalPage /></RouteErrorBoundary>} />
             <Route path="/vergleich" element={<RouteErrorBoundary><ComparePage /></RouteErrorBoundary>} />
             <Route path="/wind" element={<RouteErrorBoundary><WindPage /></RouteErrorBoundary>} />
             <Route path="/solar" element={<RouteErrorBoundary><SolarPage /></RouteErrorBoundary>} />

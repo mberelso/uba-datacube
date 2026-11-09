@@ -42,6 +42,9 @@ export function SEO({ title, description = DEFAULT_DESCRIPTION, path = '', image
     breadcrumbs.push({ '@type': 'ListItem', position: 2, name: 'Analysen', item: url })
   } else if (path === '/regionen') {
     breadcrumbs.push({ '@type': 'ListItem', position: 2, name: 'Regional-Explorer', item: url })
+  } else if (path.startsWith('/regionen/')) {
+    breadcrumbs.push({ '@type': 'ListItem', position: 2, name: 'Regional-Explorer', item: `${SITE_URL}/regionen/` })
+    breadcrumbs.push({ '@type': 'ListItem', position: 3, name: title ?? 'Bundesland', item: url })
   } else if (path === '/vergleich') {
     breadcrumbs.push({ '@type': 'ListItem', position: 2, name: 'Datenvergleich', item: url })
   } else if (path === '/hitze') {

@@ -1,5 +1,6 @@
 export interface BundeslandInfo {
   code: string
+  slug: string
   name: string
   capital: string
   population: string
@@ -18,6 +19,7 @@ export interface BundeslandInfo {
 export const BUNDESLAENDER: Record<string, BundeslandInfo> = {
   BW: {
     code: 'BW',
+    slug: 'baden-wuerttemberg',
     name: 'Baden-Württemberg',
     capital: 'Stuttgart',
     population: '11,3 Mio.',
@@ -37,6 +39,7 @@ export const BUNDESLAENDER: Record<string, BundeslandInfo> = {
   },
   BY: {
     code: 'BY',
+    slug: 'bayern',
     name: 'Bayern',
     capital: 'München',
     population: '13,4 Mio.',
@@ -56,6 +59,7 @@ export const BUNDESLAENDER: Record<string, BundeslandInfo> = {
   },
   BE: {
     code: 'BE',
+    slug: 'berlin',
     name: 'Berlin',
     capital: 'Berlin',
     population: '3,8 Mio.',
@@ -75,6 +79,7 @@ export const BUNDESLAENDER: Record<string, BundeslandInfo> = {
   },
   BB: {
     code: 'BB',
+    slug: 'brandenburg',
     name: 'Brandenburg',
     capital: 'Potsdam',
     population: '2,6 Mio.',
@@ -94,6 +99,7 @@ export const BUNDESLAENDER: Record<string, BundeslandInfo> = {
   },
   HB: {
     code: 'HB',
+    slug: 'bremen',
     name: 'Bremen',
     capital: 'Bremen',
     population: '0,68 Mio.',
@@ -113,6 +119,7 @@ export const BUNDESLAENDER: Record<string, BundeslandInfo> = {
   },
   HH: {
     code: 'HH',
+    slug: 'hamburg',
     name: 'Hamburg',
     capital: 'Hamburg',
     population: '1,9 Mio.',
@@ -132,6 +139,7 @@ export const BUNDESLAENDER: Record<string, BundeslandInfo> = {
   },
   HE: {
     code: 'HE',
+    slug: 'hessen',
     name: 'Hessen',
     capital: 'Wiesbaden',
     population: '6,4 Mio.',
@@ -151,6 +159,7 @@ export const BUNDESLAENDER: Record<string, BundeslandInfo> = {
   },
   MV: {
     code: 'MV',
+    slug: 'mecklenburg-vorpommern',
     name: 'Mecklenburg-Vorpommern',
     capital: 'Schwerin',
     population: '1,6 Mio.',
@@ -170,6 +179,7 @@ export const BUNDESLAENDER: Record<string, BundeslandInfo> = {
   },
   NI: {
     code: 'NI',
+    slug: 'niedersachsen',
     name: 'Niedersachsen',
     capital: 'Hannover',
     population: '8,1 Mio.',
@@ -189,6 +199,7 @@ export const BUNDESLAENDER: Record<string, BundeslandInfo> = {
   },
   NW: {
     code: 'NW',
+    slug: 'nordrhein-westfalen',
     name: 'Nordrhein-Westfalen',
     capital: 'Düsseldorf',
     population: '18,1 Mio.',
@@ -208,6 +219,7 @@ export const BUNDESLAENDER: Record<string, BundeslandInfo> = {
   },
   RP: {
     code: 'RP',
+    slug: 'rheinland-pfalz',
     name: 'Rheinland-Pfalz',
     capital: 'Mainz',
     population: '4,2 Mio.',
@@ -227,6 +239,7 @@ export const BUNDESLAENDER: Record<string, BundeslandInfo> = {
   },
   SL: {
     code: 'SL',
+    slug: 'saarland',
     name: 'Saarland',
     capital: 'Saarbrücken',
     population: '0,99 Mio.',
@@ -246,6 +259,7 @@ export const BUNDESLAENDER: Record<string, BundeslandInfo> = {
   },
   SN: {
     code: 'SN',
+    slug: 'sachsen',
     name: 'Sachsen',
     capital: 'Dresden',
     population: '4,1 Mio.',
@@ -265,6 +279,7 @@ export const BUNDESLAENDER: Record<string, BundeslandInfo> = {
   },
   ST: {
     code: 'ST',
+    slug: 'sachsen-anhalt',
     name: 'Sachsen-Anhalt',
     capital: 'Magdeburg',
     population: '2,2 Mio.',
@@ -284,6 +299,7 @@ export const BUNDESLAENDER: Record<string, BundeslandInfo> = {
   },
   SH: {
     code: 'SH',
+    slug: 'schleswig-holstein',
     name: 'Schleswig-Holstein',
     capital: 'Kiel',
     population: '2,9 Mio.',
@@ -303,6 +319,7 @@ export const BUNDESLAENDER: Record<string, BundeslandInfo> = {
   },
   TH: {
     code: 'TH',
+    slug: 'thueringen',
     name: 'Thüringen',
     capital: 'Erfurt',
     population: '2,1 Mio.',
@@ -321,3 +338,12 @@ export const BUNDESLAENDER: Record<string, BundeslandInfo> = {
     ],
   },
 }
+
+export function getBundeslandBySlug(slug: string | undefined): BundeslandInfo | undefined {
+  if (!slug) return undefined
+  const lower = slug.toLowerCase().trim()
+  return Object.values(BUNDESLAENDER).find(
+    (b) => b.slug === lower || b.code.toLowerCase() === lower
+  )
+}
+

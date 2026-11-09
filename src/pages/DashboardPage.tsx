@@ -7,13 +7,14 @@ import {
 } from 'recharts'
 import {
   Thermometer, Factory, Lightning, Fire,
-  BookOpen, Translate, ChartBar, ArrowRight, Warning, Wind, SunHorizon,
+  BookOpen, Translate, ChartBar, ArrowRight, Info, Wind, SunHorizon, MapPin, Calculator, Scales,
 } from '@phosphor-icons/react'
 import { fetchData, fetchSingleDataflow } from '../api/sdmx'
 import { CubeMark } from '../components/CubeMark'
 import { SEO } from '../components/SEO'
 import { CATEGORIES } from '../utils/categories'
 import { DATASET_CONTENT } from '../data/datasetContent'
+import { BUNDESLAENDER } from '../utils/bundeslaender'
 import heroBg from '../assets/hero_background.png'
 
 // Count datasets per category from static content (no API call needed)
@@ -660,22 +661,111 @@ export default function DashboardPage() {
 
       </motion.div>
 
-      {/* ── Disclaimer ───────────────────────────────────────────────────── */}
+      {/* ── Transparenz-Hinweis (dezent) ────────────────────────────────── */}
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4, type: 'spring', stiffness: 120, damping: 24 }}
-        className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-5 py-4 mb-8 text-sm"
+        className="flex items-center justify-between flex-wrap gap-2 rounded-xl border border-slate-200/80 bg-white/80 px-4 py-2.5 mb-8 text-xs text-slate-600 shadow-xs"
       >
-        <Warning size={16} weight="duotone" className="text-amber-500 shrink-0 mt-0.5" />
-        <p className="text-amber-800 leading-relaxed m-0">
-          <strong className="font-semibold">Kein UBA-Angebot.</strong>{' '}
-          Dieses Projekt ist ein privates Vorhaben ohne Verbindung zum Umweltbundesamt. Es stellt lediglich öffentliche Daten aus der UBA-API nutzerfreundlich dar.{' '}
-          <Link to="/about" className="underline font-medium hover:text-amber-900">
-            Mehr erfahren →
-          </Link>
-        </p>
+        <div className="flex items-center gap-2">
+          <Info size={15} weight="duotone" className="text-sky-600 shrink-0" />
+          <span>
+            <strong className="font-semibold text-slate-800">Unabhängiges Open-Data-Projekt:</strong>{' '}
+            Alle Kennzahlen stammen live aus den offiziellen Schnittstellen von Umweltbundesamt (UBA), DWD &amp; Bundesnetzagentur (kein amtliches Behördenangebot).
+          </span>
+        </div>
+        <Link to="/about" className="text-sky-600 font-semibold hover:text-sky-700 no-underline shrink-0">
+          Über das Projekt →
+        </Link>
       </motion.div>
+
+      {/* ── Interaktive Tools & Regional-Schnellcheck ────────────────────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-12">
+        {/* Card 1: Bundesland-Schnellcheck (2 cols on lg) */}
+        <div className="lg:col-span-2 rounded-[1.5rem] border border-slate-200/80 bg-white p-6 shadow-[0_4px_24px_-8px_rgba(0,0,0,0.06)] flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <span className="inline-flex items-center gap-1.5 text-[11px] font-bold tracking-wider uppercase text-sky-600">
+                <MapPin size={14} weight="bold" /> Vor deiner Haustür
+              </span>
+              <Link to="/regionen" className="text-xs font-semibold text-sky-600 hover:text-sky-700 no-underline flex items-center gap-1">
+                Alle 16 Bundesländer vergleichen <ArrowRight size={12} weight="bold" />
+              </Link>
+            </div>
+            <h2 className="text-[19px] font-extrabold text-slate-900 tracking-tight m-0 mb-1.5">
+              Wie steht dein Bundesland bei Hitze, Wind &amp; Solar da?
+            </h2>
+            <p className="text-xs text-slate-500 m-0 mb-4">
+              Wähle dein Bundesland für lokale Hitzerekorde, installierte Photovoltaik- und Windkraftleistung sowie Industrie-Emissionen:
+            </p>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              {Object.values(BUNDESLAENDER).map((st) => (
+                <Link
+                  key={st.code}
+                  to={`/regionen/${st.slug}`}
+                  className="flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200/80 bg-slate-50/60 hover:bg-sky-50/70 hover:border-sky-300 text-slate-800 transition-all no-underline group"
+                >
+                  <span className="text-base shrink-0">{st.icon}</span>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-[12px] font-bold truncate group-hover:text-sky-700">{st.name}</div>
+                    <div className="text-[10px] text-slate-400 font-mono">
+                      {st.hotDaysAvg} Hitzetage · {(st.solarCapacityMw / 1000).toLocaleString('de-DE', { maximumFractionDigits: 1 })} GW PV
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Card 2: MiSpeL-Simulator & Datenvergleich Teaser */}
+        <div className="flex flex-col gap-4">
+          <Link
+            to="/mispel"
+            className="flex-1 rounded-[1.5rem] p-6 no-underline text-white shadow-[0_4px_24px_-8px_rgba(0,0,0,0.08)] flex flex-col justify-between group transition-transform hover:-translate-y-0.5"
+            style={{ background: 'linear-gradient(135deg, #1B2B3A 0%, #0f172a 100%)' }}
+          >
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-amber-400/20 text-amber-300">
+                  <Calculator size={13} weight="bold" /> Neu ab 10/2026
+                </span>
+                <span className="text-[11px] font-mono text-slate-400">BNetzA Az. 618-25-02</span>
+              </div>
+              <h3 className="text-[17px] font-extrabold text-white tracking-tight m-0 mb-2">
+                MiSpeL-Simulator für PV &amp; Heimspeicher
+              </h3>
+              <p className="text-xs text-slate-300 leading-relaxed m-0 mb-4">
+                EEG-Pauschaloption (500 kWh/kWp), Abgrenzungsoption &amp; Saldierung nach EnWG § 118 Abs. 6 interaktiv für deine Anlage durchrechnen.
+              </p>
+            </div>
+            <span className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-300 group-hover:gap-2.5 transition-all">
+              Jetzt Anlage simulieren <ArrowRight size={13} weight="bold" />
+            </span>
+          </Link>
+
+          <Link
+            to="/vergleich"
+            className="rounded-[1.5rem] border border-slate-200/80 bg-white p-5 no-underline shadow-[0_4px_24px_-8px_rgba(0,0,0,0.06)] flex items-center justify-between gap-4 group hover:border-sky-300 transition-all"
+          >
+            <div>
+              <div className="inline-flex items-center gap-1.5 text-[10px] font-bold tracking-wider uppercase text-sky-600 mb-1">
+                <Scales size={13} weight="bold" /> Dual-Achsen-Analyse
+              </div>
+              <h3 className="text-[15px] font-extrabold text-slate-900 tracking-tight m-0 mb-1">
+                Klima- &amp; Energiedaten frei korrelieren
+              </h3>
+              <p className="text-xs text-slate-500 m-0">
+                Vergleiche Temperatur, Emissionen &amp; Erneuerbare auf einer gemeinsamen Zeitachse.
+              </p>
+            </div>
+            <div className="w-9 h-9 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center shrink-0 group-hover:bg-sky-600 group-hover:text-white transition-colors">
+              <ArrowRight size={16} weight="bold" />
+            </div>
+          </Link>
+        </div>
+      </div>
 
       {/* ── Feature row ──────────────────────────────────────────────────── */}
       <motion.div

@@ -2,6 +2,7 @@ import { writeFileSync } from 'fs'
 import { join, resolve } from 'path'
 import { fileURLToPath } from 'url'
 import { DATASET_CONTENT } from '../src/data/datasetContent.ts'
+import { BUNDESLAENDER } from '../src/utils/bundeslaender.ts'
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
 const ROOT = resolve(__dirname, '..')
@@ -31,6 +32,12 @@ const STATIC_ROUTES: RouteSpec[] = [
 function generateSitemap() {
   console.log('🗺️ Generating sitemap.xml for Umweltpuls...')
 
+  const regionalRoutes: RouteSpec[] = Object.values(BUNDESLAENDER).map((st) => ({
+    path: `/regionen/${st.slug}`,
+    priority: 0.8,
+    changefreq: 'weekly',
+  }))
+
   const datasetRoutes: RouteSpec[] = Object.keys(DATASET_CONTENT)
     .filter((id) => !DATASET_CONTENT[id]?.excludeFromCatalog)
     .map((id) => ({
@@ -39,7 +46,7 @@ function generateSitemap() {
       changefreq: 'weekly',
     }))
 
-  const allRoutes = [...STATIC_ROUTES, ...datasetRoutes]
+  const allRoutes = [...STATIC_ROUTES, ...regionalRoutes, ...datasetRoutes]
 
   const urlsXml = allRoutes
     .map((r) => {

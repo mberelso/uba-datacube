@@ -100,6 +100,7 @@ export interface DatasetContent {
 export const DATASET_CONTENT: Record<string, DatasetContent> = {
 
 DF_CLIMATE_GERMANY_TEMPERATURE_MEAN: {
+    displayName: 'Durchschnittstemperatur in Deutschland seit 1881',
     headline: 'Deutschland wird wärmer – und der Trend beschleunigt sich.',
     lead: 'Die mittlere Lufttemperatur in 2 Metern Höhe ist der wichtigste Einzelindikator für den Klimawandel in Deutschland. Der Deutsche Wetterdienst erhebt diese Werte seit über 140 Jahren flächendeckend – die längste konsistente Messreihe, die wir haben.',
     trend: 'Im Vergleich zum vorindustriellen Referenzzeitraum (1881–1910) ist Deutschland bereits um rund 1,7 °C wärmer geworden. Die wärmsten zehn Jahre seit Messbeginn liegen alle nach 2000.',

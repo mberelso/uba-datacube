@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { ShareNetwork } from '@phosphor-icons/react'
 import { HeatMap } from '../components/charts/HeatMap'
 import { HeatRecords } from '../components/charts/HeatRecords'
+import { ExploreFurtherSection } from '../components/ExploreFurtherSection'
 import { SEO } from '../components/SEO'
 import { SocialCardModal } from '../components/social/SocialCardModal'
 import type { SocialCardData } from '../components/social/types'
@@ -135,6 +136,8 @@ export default function HeatPage() {
         </p>
         <HeatRecords />
       </motion.div>
+
+      <ExploreFurtherSection currentPage="hitze" />
     </div>
   )
 }

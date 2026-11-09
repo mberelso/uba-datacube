@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { ShareNetwork } from '@phosphor-icons/react'
 import { WindTurbineMap } from '../components/charts/WindTurbineMap'
 import { WindParkStories } from '../components/charts/WindParkStories'
+import { ExploreFurtherSection } from '../components/ExploreFurtherSection'
 import { SEO } from '../components/SEO'
 import { SocialCardModal } from '../components/social/SocialCardModal'
 import type { SocialCardData } from '../components/social/types'
@@ -100,6 +101,8 @@ export default function WindPage() {
       >
         <WindParkStories />
       </motion.div>
+
+      <ExploreFurtherSection currentPage="wind" />
     </div>
   )
 }

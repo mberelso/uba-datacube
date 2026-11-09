@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react'
 import { geoMercator, geoPath } from 'd3-geo'
-import { Play, Pause } from '@phosphor-icons/react'
+import { Play, Pause, MagnifyingGlass, X } from '@phosphor-icons/react'
 
 // Datenformate aus scripts/mastr/build_pv_json.py
 interface KreiseData {
@@ -76,6 +76,8 @@ export function SolarMap() {
   const [playing, setPlaying] = useState(false)
   const [showPoints, setShowPoints] = useState(true)
   const [hover, setHover] = useState<{ name: string; gw: number; count: number } | null>(null)
+  const [selectedAgs, setSelectedAgs] = useState<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState('')
   const [year, setYear] = useState(END_YEAR)
 
   const yearRef = useRef<number>(END_YEAR)
@@ -200,6 +202,28 @@ export function SolarMap() {
   const maxNew = Math.max(...summary.newCount)
   const freiflaechenBis = points.units.year.filter((y, i) => y > 0 && y <= year && points.units.status[i] === 0 && (points.units.endYear[i] === 0 || points.units.endYear[i] > year)).length
 
+  const kreisList = Object.entries(kreise.kreise)
+    .map(([ags, rec]) => ({ ags, name: rec.name }))
+    .sort((a, b) => a.name.localeCompare(b.name, 'de'))
+
+  const searchMatches = searchQuery.trim().length > 1
+    ? kreisList.filter(k => k.name.toLowerCase().includes(searchQuery.trim().toLowerCase())).slice(0, 8)
+    : []
+
+  const selectedKreis = selectedAgs && kreise.kreise[selectedAgs] ? kreise.kreise[selectedAgs] : null
+  const selectedGw = selectedKreis ? selectedKreis.cumGw[idx] : null
+  const selectedCount = selectedKreis ? selectedKreis.cumCount[idx] : null
+
+  let selectedRank: number | null = null
+  let totalRanked = 0
+  if (selectedKreis && selectedGw != null) {
+    const allVals = Object.values(kreise.kreise)
+      .map(k => k.cumGw[idx] ?? 0)
+      .sort((a, b) => b - a)
+    totalRanked = allVals.length
+    selectedRank = allVals.findIndex(v => v <= selectedGw) + 1
+  }
+
   return (
     <div className="grid gap-6 grid-cols-1 lg:grid-cols-[minmax(0,560px)_1fr]">
       {/* ── Karte ──────────────────────────────────────────────────────── */}
@@ -209,13 +233,16 @@ export function SolarMap() {
             const k = kreise.kreise[f.properties.ags]
             const gw = k ? k.cumGw[idx] : 0
             const fill = gw > 0 ? rampColor(Math.sqrt(gw / maxKreisGw)) : COLORS.land
+            const isSelected = f.properties.ags === selectedAgs
             return (
               <path
                 key={`${f.properties.ags}-${fi}`}
                 d={pathGen(f as unknown as Parameters<NonNullable<typeof pathGen>>[0]) ?? ''}
                 fill={fill}
-                stroke={COLORS.border}
-                strokeWidth={0.4}
+                stroke={isSelected ? '#0f172a' : COLORS.border}
+                strokeWidth={isSelected ? 2.2 : 0.4}
+                className="cursor-pointer"
+                onClick={() => setSelectedAgs(prev => prev === f.properties.ags ? null : f.properties.ags)}
                 onMouseEnter={() => setHover(k ? { name: k.name, gw: k.cumGw[idx], count: k.cumCount[idx] } : null)}
                 onMouseLeave={() => setHover(null)}
               />
@@ -235,6 +262,79 @@ export function SolarMap() {
 
       {/* ── Steuerung + Statistik ──────────────────────────────────────── */}
       <div className="flex flex-col gap-5">
+        {/* Landkreis-Schnellsuche */}
+        <div className="relative">
+          <div className="text-[11px] text-slate-400 uppercase tracking-wider font-semibold mb-1.5">
+            Deinen Landkreis oder deine Stadt finden
+          </div>
+          <div className="relative flex items-center">
+            <MagnifyingGlass size={15} className="absolute left-3 text-slate-400 pointer-events-none" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="z. B. Leipzig, München, Emsland, Landshut…"
+              className="w-full pl-9 pr-8 py-2 rounded-xl border border-slate-200 bg-slate-50/70 focus:bg-white text-[12px] text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-amber-400 transition-colors"
+            />
+            {(searchQuery || selectedAgs) && (
+              <button
+                type="button"
+                onClick={() => { setSearchQuery(''); setSelectedAgs(null) }}
+                className="absolute right-2.5 text-slate-400 hover:text-slate-600 cursor-pointer border-0 bg-transparent p-0.5"
+                title="Auswahl zurücksetzen"
+              >
+                <X size={14} weight="bold" />
+              </button>
+            )}
+          </div>
+          {searchMatches.length > 0 && (
+            <div className="absolute z-20 left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden max-h-56 overflow-y-auto">
+              {searchMatches.map(k => (
+                <button
+                  key={k.ags}
+                  type="button"
+                  onClick={() => {
+                    setSelectedAgs(k.ags)
+                    setSearchQuery('')
+                  }}
+                  className="w-full text-left px-3.5 py-2 text-[12px] text-slate-700 hover:bg-amber-50 hover:text-amber-900 flex items-center justify-between cursor-pointer border-0 bg-transparent"
+                >
+                  <span className="font-medium">{k.name}</span>
+                  <span className="text-[11px] text-slate-400 tabular-nums">
+                    {(kreise.kreise[k.ags]?.cumGw[idx] ?? 0).toLocaleString('de-DE', { maximumFractionDigits: 2 })} GW ({year})
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
+
+          {selectedKreis && (
+            <div className="mt-2.5 p-3.5 rounded-xl bg-amber-50/80 border border-amber-200/80 flex items-center justify-between gap-3">
+              <div>
+                <div className="text-[11px] font-bold uppercase tracking-wider text-amber-800">
+                  Ausgewählter Landkreis ({year})
+                </div>
+                <div className="text-sm font-extrabold text-slate-900 mt-0.5">
+                  {selectedKreis.name}
+                </div>
+                <div className="text-[11px] text-slate-600 mt-0.5">
+                  {(selectedCount ?? 0).toLocaleString('de-DE')} PV-Anlagen
+                  {selectedRank != null && totalRanked > 0 && (
+                    <> · <strong>Platz {selectedRank}</strong> von {totalRanked} Kreisen</>
+                  )}
+                </div>
+              </div>
+              <div className="text-right shrink-0">
+                <div className="text-2xl font-extrabold tabular-nums text-amber-600">
+                  {(selectedGw ?? 0).toLocaleString('de-DE', { maximumFractionDigits: 2 })} GW
+                </div>
+                <div className="text-[10px] font-semibold uppercase text-amber-800">
+                  Solar-Leistung
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
         <div>
           <div className="text-[52px] font-extrabold tracking-tight tabular-nums leading-none" style={{ color: COLORS.navy }}>
             {year}

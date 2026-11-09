@@ -194,6 +194,19 @@ export function SocialCardModal({ data: baseData, onClose }: {
           {busy ? 'Bereite vor…' : '↑ Story teilen'}
         </button>
 
+        {/* Dezenter Ko-Fi Hinweis im Export-Erfolgsmoment */}
+        <div style={{ marginTop: 12, textAlign: 'center', fontFamily: 'Geist, sans-serif', fontSize: 11, color: 'rgba(255,255,255,0.45)' }}>
+          Kostenloser Export ohne Wasserzeichen ·{' '}
+          <a
+            href="https://ko-fi.com/mberelso"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: '#fbbf24', textDecoration: 'none', fontWeight: 600 }}
+          >
+            ☕ Gefällt dir Umweltpuls? Auf Ko-Fi unterstützen
+          </a>
+        </div>
+
         {/* Hidden full-size für Export */}
         <div style={{ position: 'fixed', left: -9999, top: 0, pointerEvents: 'none' }}>
           <div ref={cardRef}><SocialCardStory data={data} /></div>

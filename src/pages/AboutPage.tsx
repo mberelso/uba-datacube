@@ -132,7 +132,7 @@ export default function AboutPage() {
           </p>
         </div>
         <a
-          href="https://ko-fi.com"
+          href="https://ko-fi.com/mberelso"
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold transition-colors shadow-sm shrink-0"

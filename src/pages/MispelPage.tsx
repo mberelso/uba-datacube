@@ -14,7 +14,7 @@ import { DEFAULT_PRESETS, MISPEL_FAQS } from '../lib/mispel/constants';
 import { berechnePauschalOption } from '../lib/mispel/pauschal';
 import { berechneWirtschaftlichkeit } from '../lib/mispel/economics';
 import { pruefeEignungPauschaloption } from '../lib/mispel/decisionTree';
-import { ShieldCheck, Sparkle, WarningCircle, ShareNetwork, Check } from '@phosphor-icons/react';
+import { ShieldCheck, Sparkle, WarningCircle, ShareNetwork, Check, Coffee } from '@phosphor-icons/react';
 
 const NORDIC = {
   navy: '#1B2B3A',
@@ -248,6 +248,38 @@ const MispelPage: React.FC = () => {
         ergebnis={ergebnis}
         wirtschaftlichkeit={wirtschaftlichkeit}
       />
+
+      {/* Unterstützer-Box im Erfolgs-Moment nach der Berechnung */}
+      <div className="my-8 p-5 sm:p-6 rounded-2xl bg-gradient-to-r from-amber-50 via-white to-sky-50/40 border border-amber-200/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs">
+        <div>
+          <div className="text-sm font-bold text-slate-800 flex items-center gap-2">
+            <Coffee size={18} weight="fill" className="text-amber-500" />
+            <span>Hat Ihnen der MiSpeL-Simulator bei Ihrer Planung geholfen?</span>
+          </div>
+          <p className="text-xs text-slate-600 mt-1 max-w-2xl leading-relaxed">
+            Dieser Rechner wurde unabhängig entwickelt, ist zu 100&nbsp;% kostenlos, werbefrei und speichert keine Daten. Wenn Sie das Projekt unterstützen oder die Berechnung im PV-Forum teilen möchten, freuen wir uns sehr!
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+          <button
+            type="button"
+            onClick={handleShareCalculation}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-semibold transition-colors cursor-pointer"
+          >
+            {copiedLink ? <Check size={14} weight="bold" className="text-emerald-600" /> : <ShareNetwork size={14} weight="bold" />}
+            <span>{copiedLink ? 'Link kopiert!' : 'Berechnung teilen'}</span>
+          </button>
+          <a
+            href="https://ko-fi.com/mberelso"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold transition-colors shadow-xs"
+          >
+            <Coffee size={15} weight="fill" />
+            <span>Kaffee auf Ko-Fi spendieren</span>
+          </a>
+        </div>
+      </div>
 
       {/* SEO-Optimierte FAQ-Sektion mit Google Rich Snippets */}
       <MispelFaq />

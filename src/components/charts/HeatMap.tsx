@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react'
 import { geoMercator, geoPath } from 'd3-geo'
-import { Play, Pause } from '@phosphor-icons/react'
+import { Play, Pause, MagnifyingGlass, X } from '@phosphor-icons/react'
 
 // Datenformat aus scripts/dwd/build_heat_json.py
 type Metric = 'hotDays' | 'summerDays'
@@ -64,6 +64,8 @@ export function HeatMap() {
   const [playing, setPlaying] = useState(false)
   const [metric, setMetric] = useState<Metric>('hotDays')
   const [hover, setHover] = useState<{ name: string; value: number | null } | null>(null)
+  const [selectedAgs, setSelectedAgs] = useState<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState('')
   const [year, setYear] = useState(2025)
 
   const yearRef = useRef<number>(2025)
@@ -142,6 +144,28 @@ export function HeatMap() {
   const natVal = natSeries[Math.max(0, Math.min(natSeries.length - 1, year - summary.years[0]))]
   const maxNat = Math.max(...natSeries)
 
+  const kreisList = Object.entries(data.kreise)
+    .map(([ags, rec]) => ({ ags, name: rec.name }))
+    .sort((a, b) => a.name.localeCompare(b.name, 'de'))
+
+  const searchMatches = searchQuery.trim().length > 1
+    ? kreisList.filter(k => k.name.toLowerCase().includes(searchQuery.trim().toLowerCase())).slice(0, 8)
+    : []
+
+  const selectedKreis = selectedAgs && data.kreise[selectedAgs] ? data.kreise[selectedAgs] : null
+  const selectedVal = selectedKreis ? selectedKreis[metric][idx] : null
+
+  let selectedRank: number | null = null
+  let totalRanked = 0
+  if (selectedKreis && selectedVal != null) {
+    const allVals = Object.values(data.kreise)
+      .map(k => k[metric][idx])
+      .filter((v): v is number => v != null)
+      .sort((a, b) => b - a)
+    totalRanked = allVals.length
+    selectedRank = allVals.findIndex(v => v <= selectedVal) + 1
+  }
+
   return (
     <div className="grid gap-6 grid-cols-1 lg:grid-cols-[minmax(0,560px)_1fr]">
       {/* ── Karte ──────────────────────────────────────────────────────── */}
@@ -151,13 +175,16 @@ export function HeatMap() {
             const k = data.kreise[f.properties.ags]
             const v = k ? k[metric][idx] : null
             const fill = v != null ? rampColor(v / maxScale) : COLORS.land
+            const isSelected = f.properties.ags === selectedAgs
             return (
               <path
                 key={`${f.properties.ags}-${fi}`}
                 d={pathGen(f as unknown as Parameters<NonNullable<typeof pathGen>>[0]) ?? ''}
                 fill={fill}
-                stroke={COLORS.border}
-                strokeWidth={0.4}
+                stroke={isSelected ? '#0f172a' : COLORS.border}
+                strokeWidth={isSelected ? 2.2 : 0.4}
+                className="cursor-pointer"
+                onClick={() => setSelectedAgs(prev => prev === f.properties.ags ? null : f.properties.ags)}
                 onMouseEnter={() => setHover(k ? { name: k.name, value: k[metric][idx] } : null)}
                 onMouseLeave={() => setHover(null)}
               />
@@ -176,6 +203,79 @@ export function HeatMap() {
 
       {/* ── Steuerung + Statistik ──────────────────────────────────────── */}
       <div className="flex flex-col gap-5">
+        {/* Landkreis-Schnellsuche */}
+        <div className="relative">
+          <div className="text-[11px] text-slate-400 uppercase tracking-wider font-semibold mb-1.5">
+            Deinen Landkreis oder deine Stadt finden
+          </div>
+          <div className="relative flex items-center">
+            <MagnifyingGlass size={15} className="absolute left-3 text-slate-400 pointer-events-none" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="z. B. Leipzig, München, Breisgau, Emsland…"
+              className="w-full pl-9 pr-8 py-2 rounded-xl border border-slate-200 bg-slate-50/70 focus:bg-white text-[12px] text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-rose-400 transition-colors"
+            />
+            {(searchQuery || selectedAgs) && (
+              <button
+                type="button"
+                onClick={() => { setSearchQuery(''); setSelectedAgs(null) }}
+                className="absolute right-2.5 text-slate-400 hover:text-slate-600 cursor-pointer border-0 bg-transparent p-0.5"
+                title="Auswahl zurücksetzen"
+              >
+                <X size={14} weight="bold" />
+              </button>
+            )}
+          </div>
+          {searchMatches.length > 0 && (
+            <div className="absolute z-20 left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden max-h-56 overflow-y-auto">
+              {searchMatches.map(k => (
+                <button
+                  key={k.ags}
+                  type="button"
+                  onClick={() => {
+                    setSelectedAgs(k.ags)
+                    setSearchQuery('')
+                  }}
+                  className="w-full text-left px-3.5 py-2 text-[12px] text-slate-700 hover:bg-rose-50 hover:text-rose-900 flex items-center justify-between cursor-pointer border-0 bg-transparent"
+                >
+                  <span className="font-medium">{k.name}</span>
+                  <span className="text-[11px] text-slate-400 tabular-nums">
+                    {data.kreise[k.ags]?.[metric][idx]?.toLocaleString('de-DE', { maximumFractionDigits: 1 }) ?? '–'} Tage ({year})
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
+
+          {selectedKreis && (
+            <div className="mt-2.5 p-3.5 rounded-xl bg-rose-50/70 border border-rose-200/80 flex items-center justify-between gap-3">
+              <div>
+                <div className="text-[11px] font-bold uppercase tracking-wider text-rose-700">
+                  Ausgewählter Landkreis ({year})
+                </div>
+                <div className="text-sm font-extrabold text-slate-900 mt-0.5">
+                  {selectedKreis.name}
+                </div>
+                <div className="text-[11px] text-slate-600 mt-0.5">
+                  Ø Deutschland ({year}): {natVal?.toLocaleString('de-DE', { maximumFractionDigits: 1 })} Tage
+                  {selectedRank != null && totalRanked > 0 && (
+                    <> · <strong>Platz {selectedRank}</strong> von {totalRanked} Kreisen</>
+                  )}
+                </div>
+              </div>
+              <div className="text-right shrink-0">
+                <div className="text-2xl font-extrabold tabular-nums text-rose-600">
+                  {selectedVal != null ? selectedVal.toLocaleString('de-DE', { maximumFractionDigits: 1 }) : '–'}
+                </div>
+                <div className="text-[10px] font-semibold uppercase text-rose-700">
+                  {METRIC_LABEL[metric]}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
         {/* Metrik-Umschalter */}
         <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-0.5 self-start">
           {(Object.keys(METRIC_LABEL) as Metric[]).map(m => (

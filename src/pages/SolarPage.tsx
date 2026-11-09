@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { ShareNetwork, Lightning, ArrowRight } from '@phosphor-icons/react'
 import { SolarMap } from '../components/charts/SolarMap'
+import { ExploreFurtherSection } from '../components/ExploreFurtherSection'
 import { SEO } from '../components/SEO'
 import { SocialCardModal } from '../components/social/SocialCardModal'
 import type { SocialCardData } from '../components/social/types'
@@ -122,6 +123,8 @@ export default function SolarPage() {
           <ArrowRight size={14} weight="bold" />
         </Link>
       </div>
+
+      <ExploreFurtherSection currentPage="solar" />
     </div>
   )
 }

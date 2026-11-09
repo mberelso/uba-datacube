@@ -156,7 +156,7 @@ Return ONLY a valid JSON object (no markdown, no explanation):
 // ─── Generate via Claude ──────────────────────────────────────────────────────
 
 async function generateContent(client: OpenAI | Anthropic, flow: RawFlow): Promise<GeneratedContent> {
-  let raw = ''
+  let raw: string
 
   if (client instanceof OpenAI) {
     const completion = await client.chat.completions.create({
@@ -232,11 +232,9 @@ async function main() {
     process.exit(1)
   }
 
-  let useOpenRouter = false
   let client: OpenAI | Anthropic
 
   if (openrouterKey) {
-    useOpenRouter = true
     client = new OpenAI({
       baseURL: 'https://openrouter.ai/api/v1',
       apiKey: openrouterKey,

@@ -51,7 +51,7 @@ export function CompareChart({ seriesA, seriesB, mode }: CompareChartProps) {
     const mapA = new Map(seriesA.data.map((d) => [d.year, d.value]))
     const mapB = new Map(seriesB.data.map((d) => [d.year, d.value]))
 
-    const allYears = Array.from(new Set([...mapA.keys(), ...mapB.keys()])).sort()
+    const allYears = Array.from(new Set([...mapA.keys(), ...mapB.keys()])).sort((a, b) => Number(a) - Number(b))
 
     // Base values for index mode (first valid non-zero observation in each series)
     const firstA = seriesA.data.find((d) => typeof d.value === 'number' && !isNaN(d.value) && d.value !== 0)?.value ?? 1

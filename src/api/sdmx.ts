@@ -27,7 +27,7 @@ async function cachedFetchJson<T>(url: string, headers?: Record<string, string>,
   }
 
   const load = async (): Promise<T> => {
-    const cacheKey = `uba_cache_${url}`
+    const cacheKey = `uba_cache_v2_${url}`
     if (typeof sessionStorage !== 'undefined') {
       try {
         const item = sessionStorage.getItem(cacheKey)
@@ -135,7 +135,7 @@ async function fetchSdmxJson(flowRef: string, key = 'all'): Promise<{ series: Re
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const json = await cachedFetchJson<any>(url, { Accept: 'application/vnd.sdmx.data+json;version=2.0,application/json' })
   const env = json.data ?? json
-  const structs: Array<{ dimensions?: { observation?: SdmxDimension[]; series?: SdmxDimension[] } }> = env.structures ?? (json.structure ? [json.structure] : [])
+  const structs: Array<{ dimensions?: { observation?: SdmxDimension[]; series?: SdmxDimension[] } }> = env.structures ?? (env.structure ? [env.structure] : (json.structure ? [json.structure] : []))
   const dsets: Array<{ series?: Record<string, SdmxSeriesData> }> = env.dataSets ?? []
   
   // Find time dimension values more robustly
@@ -521,7 +521,7 @@ export async function fetchData(flow: Dataflow, key = 'all'): Promise<{
   // Support both SDMX-JSON v1 and v2 envelopes
   const envelope = json.data ?? json
   const datasets: Array<{ series?: Record<string, SdmxSeriesData> }> = envelope.dataSets ?? []
-  const structures: Array<{ dimensions?: { series?: SdmxDimension[]; observation?: SdmxDimension[] } }> = envelope.structures ?? (json.structure ? [json.structure] : [])
+  const structures: Array<{ dimensions?: { series?: SdmxDimension[]; observation?: SdmxDimension[] } }> = envelope.structures ?? (envelope.structure ? [envelope.structure] : (json.structure ? [json.structure] : []))
 
   const struct = structures[0]
 

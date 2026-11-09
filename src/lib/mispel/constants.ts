@@ -64,3 +64,42 @@ export const DEFAULT_PRESETS: MispelPreset[] = [
     },
   },
 ];
+
+export interface MispelFaqItem {
+  question: string;
+  answer: string;
+}
+
+export const MISPEL_FAQS: MispelFaqItem[] = [
+  {
+    question: 'Was bedeutet die Abkürzung MiSpeL?',
+    answer:
+      'MiSpeL steht für „Marktintegration von Speichern und Ladepunkten“. Es handelt sich um ein offizielles Festlegungsverfahren der Bundesnetzagentur (Az. 618-25-02, Beschluss vom 01.10.2026), das die energiewirtschaftlichen und messrechtlichen Rahmenbedingungen für den Mischbetrieb von Heimspeichern und bidirektionalen Ladeeinrichtungen (V2G) bundesweit einheitlich regelt.',
+  },
+  {
+    question: 'Darf ich meinen PV-Heimspeicher jetzt legal mit günstigem Netzstrom laden?',
+    answer:
+      'Ja. Bisher verhinderte das starre „Ausschließlichkeitsprinzip“ im EEG das Laden aus dem Stromnetz: Wer günstigen Winterstrom aus dem Netz einspeicherte, verlor den gesetzlichen Anspruch auf die EEG-Vergütung für den ins Netz gespeisten Solarstrom. Mit der neuen BNetzA-Pauschaloption ist der Mischbetrieb für private Photovoltaikanlagen bis 30 kWp nun ausdrücklich legalisiert.',
+  },
+  {
+    question: 'Wie viele Kilowattstunden Einspeisung behalten garantiert die EEG-Vergütung?',
+    answer:
+      'Nach Formel (P1) der Anlage 2 gelten pauschal bis zu 500 kWh pro Kilowattpeak (kWp) installierter Photovoltaikleistung als förderfähiger Solarstrom ([G]). Für eine typische 10-kWp-Anlage sind somit exakt 5.000 kWh Netzeinspeisung pro Kalenderjahr geschützt und erhalten die vereinbarte Einspeisevergütung.',
+  },
+  {
+    question: 'Was passiert mit der Netzeinspeisung oberhalb der 500-kWh/kWp-Grenze?',
+    answer:
+      'Einspeisemengen, die über der Fördergrenze und dem Indifferenzpuffer ([I]) liegen, werden nach § 118 Abs. 6 EnWG mit Ihrem jährlichen Netzbezug saldiert ([N]). Für diese Strommenge erhalten Sie zwar keine EEG-Vergütung, werden jedoch vollständig von Netzentgelten und gesetzlichen EnFG-Umlagen befreit (Ersparnis ca. 7,5 ct/kWh). Freie Restmengen werden an der Strombörse zum Marktwert vergütet.',
+  },
+  {
+    question: 'Zählen Balkonkraftwerke (Steckersolargeräte) zur 30-kWp-Obergrenze?',
+    answer:
+      'Nein. Gemäß den Tenorziffern der Festlegung und § 8 Abs. 5a EEG werden steckerfertige Solargeräte bis 800 Watt (0,8 kWp) nicht auf die 30-kWp-Grenze für die Pauschaloption angerechnet. Eine Dachanlage mit genau 30 kWp und zusätzlichem Balkonkraftwerk bleibt uneingeschränkt berechtigt.',
+  },
+  {
+    question: 'Welche Übergangsfristen und Bedingungen müssen beachtet werden?',
+    answer:
+      'Bis zum 30.09.2027 gilt eine Übergangsregelung (Tenorziffer 9 a), nach der die Pauschaloption mit Einverständnis des zuständigen Netz- und Messstellenbetreibers angewendet wird. Zudem wird die formelle Regelung nach § 19 Abs. 3c EEG ab dem Monat nach der beihilferechtlichen Genehmigung durch die EU-Kommission voll wirksam.',
+  },
+];
+

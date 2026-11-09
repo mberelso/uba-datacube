@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import { ShareNetwork } from '@phosphor-icons/react'
 import { CompareChart, type CompareSeries } from '../components/charts/CompareChart'
 import { SEO } from '../components/SEO'
-import { fetchAveragedSeries, fetchSingleSeries } from '../api/sdmx'
+import { fetchSingleSeries } from '../api/sdmx'
 import { SocialCardModal } from '../components/social/SocialCardModal'
 import type { SocialCardData } from '../components/social/types'
 
@@ -25,11 +25,11 @@ interface PresetOption {
 const PRESETS: PresetOption[] = [
   {
     id: 'ghg-vs-renewable',
-    title: 'Temperatur vs. Erneuerbare Energien (seit 2000)',
-    subtitle: 'Entwicklung der Jahrestemperatur und des Anteils erneuerbarer Energien am Gesamtverbrauch seit 2000.',
+    title: 'Temperatur vs. Erneuerbare Energien (seit 2004)',
+    subtitle: 'Entwicklung der Jahrestemperatur und des Anteils erneuerbarer Energien am Bruttoendenergieverbrauch seit 2004.',
     loadA: async () => {
-      const raw = await fetchAveragedSeries('UBA,DF_CLIMATE_GERMANY_TEMPERATURE_MEAN,1.0', 'all')
-      const data = raw.filter((d) => parseInt(d.year) >= 2000)
+      const raw = await fetchSingleSeries('UBA,DF_CLIMATE_GERMANY_TEMPERATURE_MEAN,1.0', 'DE.A.DEGC.JM.DE')
+      const data = raw.filter((d) => parseInt(d.year) >= 2004)
       return { label: 'Durchschnittstemperatur', unit: '°C (Jahresmittel)', data }
     },
     loadB: async () => {
@@ -42,12 +42,12 @@ const PRESETS: PresetOption[] = [
     title: 'Durchschnittstemperatur vs. Heiße Tage',
     subtitle: 'Führt der langfristige Anstieg der Jahrestemperatur in Deutschland zu mehr Extremhitzetagen (≥ 30 °C)?',
     loadA: async () => {
-      const raw = await fetchAveragedSeries('UBA,DF_CLIMATE_GERMANY_TEMPERATURE_MEAN,1.0', 'all')
+      const raw = await fetchSingleSeries('UBA,DF_CLIMATE_GERMANY_TEMPERATURE_MEAN,1.0', 'DE.A.DEGC.JM.DE')
       const data = raw.filter((d) => parseInt(d.year) >= 1951)
       return { label: 'Durchschnittstemperatur', unit: '°C (Jahresmittel)', data }
     },
     loadB: async () => {
-      const raw = await fetchAveragedSeries('UBA,DF_CLIMATE_GERMANY_HOT_DAYS,1.0', 'all')
+      const raw = await fetchSingleSeries('UBA,DF_CLIMATE_GERMANY_HOT_DAYS,1.0', 'DE.A.DAYS.JW.DE')
       const data = raw.filter((d) => parseInt(d.year) >= 1951)
       return { label: 'Heiße Tage (Tmax ≥ 30 °C)', unit: 'Tage / Jahr (Ø)', data }
     },
@@ -55,16 +55,14 @@ const PRESETS: PresetOption[] = [
   {
     id: 'air-emissions-index',
     title: 'Luftschadstoff-Emissionsindex seit 1990',
-    subtitle: 'Langfristige Reduktion der Luftschadstoffe in Deutschland im Vergleich aller Sektoren seit 1990.',
+    subtitle: 'Langfristige Reduktion der Luftschadstoffe in Deutschland (Gesamtindex vs. Stickoxide NOₓ) seit 1990.',
     loadA: async () => {
-      const data = await fetchAveragedSeries('UBA,DF_AIR_EMISSIONS_INDEX,2026.0', 'all')
-      return { label: 'Luftschadstoff-Emissionsindex', unit: 'Index (2005 = 100)', data }
+      const data = await fetchSingleSeries('UBA,DF_AIR_EMISSIONS_INDEX,2026.0', 'A.NA.AM.DE')
+      return { label: 'Luftschadstoff-Emissionsindex (Gesamt)', unit: 'Index (2005 = 100)', data }
     },
     loadB: async () => {
-      const raw = await fetchAveragedSeries('UBA,DF_AIR_EMISSIONS_INDEX,2026.0', 'all')
-      // Scaled trend index for secondary indicator comparison
-      const data = raw.map((d) => ({ year: d.year, value: Number((d.value * 0.85).toFixed(1)) }))
-      return { label: 'Stickoxid-Trend (Verkehr & Industrie)', unit: 'Index (2005 = 100)', data }
+      const data = await fetchSingleSeries('UBA,DF_AIR_EMISSIONS_INDEX,2026.0', 'A.NOx_NO2.IND2005.DE')
+      return { label: 'Stickoxid-Emissionen (NOₓ)', unit: 'Index (2005 = 100)', data }
     },
   },
 ]

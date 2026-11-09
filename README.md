@@ -13,7 +13,7 @@ UBA-Datacube ist eine moderne Web-Applikation zur Visualisierung und Analyse von
   - **Sitemap-Generator (`public/sitemap.xml`)**: Automatischer Build-Schritt (`scripts/generate-sitemap.ts`) erzeugt für alle 89 gerenderten Routen eine XML-Sitemap mit Prioritäten und Datumsstempeln.
   - **Robots.txt (`public/robots.txt`)**: Vollständige Crawler-Freigabe für Suchmaschinenbot-Indexing.
   - **JSON-LD Schema Integration (`src/components/SEO.tsx`)**: Automatische Generierung von `BreadcrumbList` (Pfad-Hierarchie im Google-Snippet), `FAQPage` Rich Snippets für Q&A-Dropdowns in den Google-Suchergebnissen sowie `Dataset`-Schemas für Google Dataset Search.
-- **Datenvergleich & Indikatoren-Analyse (`/vergleich`)**: Interaktive Gegenüberstellung zweier Umwelt-Indikatoren auf einer gemeinsamen Zeitachse mit Dual-Y-Achse, relativem Trendmodus (% Index = 100), automatischer Pearson-Korrelationsberechnung und kombinierter CSV-Exportfunktion.
+- **Datenvergleich & Indikatoren-Analyse (`/vergleich`)**: Interaktive Gegenüberstellung zweier Umwelt-Indikatoren auf einer gemeinsamen Zeitachse mit Dual-Y-Achse, relativem Trendmodus (% Index = 100), automatischer Pearson-Korrelationsberechnung und kombinierter CSV-Exportfunktion. Kuratierte Presets vergleichen offizielle Deutschland-Zeitreihen (Temperatur vs. Erneuerbare Energien seit 2004, Temperatur vs. Heiße Tage seit 1951 sowie Gesamt-Luftschadstoff-Emissionsindex vs. Stickoxide NOₓ seit 1990).
 - **Smart Data Discovery**:
   - **Dimensionale Filter**: Komplexe Datensätze (z. B. mit >6000 Serien) können komfortabel über Dropdown-Menüs gefiltert werden.
   - **Smart Defaults**: Das System berechnet automatisch die relevantesten Datenreihen (Hauptemittenten) und wählt diese beim Laden eines Datensatzes als Startansicht aus.
@@ -70,7 +70,7 @@ Die UBA-API liefert Daten im SDMX-JSON Format. Da die API-Struktur zwischen vers
 - **API-Caching (2-Stufen)**: `cachedFetchJson` cached API-Responses in-Memory und in `sessionStorage` (1 Std. TTL). Beim erneuten Betreten von Seiten oder Tab-Wechseln werden Daten sofort ohne Netzwerkverzögerung geladen.
 - **Typensicherheit**: Vollständig typisierte SDMX-Netzwerk- und Struktur-Interfaces (`RawSDMXHeader`, `RawSDMXStructure`, `RawSDMXDataSet`, `Dataflow`, `Dimension`).
 - **Code-Splitting**: Alle Hauptseiten (`AnalysePage`, `CatalogPage`, `WindPage`, `SolarPage`, `HeatPage` etc.) werden dynamisch per `React.lazy` geladen. Das initiale Hauptbundle wurde dadurch um über 55 % verkleinert.
-- **Zeitdimensionen**: Werden flexibel über ihre Rolle (`time`) oder ID (`TIME_PERIOD`) identifiziert.
+- **Zeitdimensionen**: Werden flexibel über ihre Rolle (`time`) oder ID (`TIME_PERIOD`) sowohl in `data.structures` (Array) als auch in `data.structure` (Singular-Objekt) identifiziert.
 - **Beobachtungen (Observations)**: Es werden sowohl klassische Arrays (`[Wert, Flag]`) als auch direkte numerische Werte unterstützt.
 - **Robustes Fallback**: Wenn eine Datenreihe komplett leer ist, wird sie vom System intelligent ignoriert, um "leere" Charts zu vermeiden.
 - **Hook-Architektur & Rendering**: React-Hooks sind für reaktive Abfragen optimiert (`useMemo`, `useCallback`) ohne Mutationen von Ref-Werten während des Rendering-Passes.

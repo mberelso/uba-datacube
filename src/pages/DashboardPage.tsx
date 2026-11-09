@@ -44,7 +44,7 @@ interface ChartPoint { year: string; value: number | null }
 const HIGHLIGHTS: HighlightConfig[] = [
   {
     flowId: 'DF_CLIMATE_GERMANY_TEMPERATURE_MEAN',
-    key: 'DE.A.DEGC.JM.',
+    key: 'DE.A.DEGC.JM.DE',
     title: 'Temperatur',
     subtitle: 'Jahresmittelwert Lufttemperatur 2m',
     Icon: Thermometer,

@@ -7,7 +7,11 @@ import {
   ArrowLineRight,
 } from '@phosphor-icons/react'
 
-import { fetchSingleDataflow, fetchData, fetchStructure, type Dataflow, type Dimension } from '../api/sdmx'
+import {
+  fetchSingleDataflow, fetchData, fetchStructure,
+  detectTimeGranularity, aggregateSeriesToYears,
+  type Dataflow, type Dimension,
+} from '../api/sdmx'
 import { type LazyDimensionConfig } from '../data/datasetContent'
 import { getCategoryMeta } from '../utils/categories'
 import ForestFiresAnalysis from '../components/ForestFiresAnalysis'
@@ -39,6 +43,7 @@ const KNOWN_LARGE_DATASETS = new Set([
   'DF_PRTR_WASTE_WATER',              // 2.617 Serien
   'DF_TRANSPORT_TRAFFIC_AREA_BUNDESLAND', // 2.004 Serien
   'DF_TRANSPORT_PUBLIC_PASSENGERS_BUS_TRAIN', // 160 Serien, Quartalsdaten
+  'DF_CLIMATE_ATMO_GHG_CONCENTRATION', // >400k stündliche Messpunkte
 ])
 
 type ChartType = 'line' | 'bar'
@@ -117,6 +122,7 @@ export default function DatasetPage() {
   const [error, setError] = useState('')
   const [chartType, setChartType] = useState<ChartType>('line')
   const [showAdvanced, setShowAdvanced] = useState(true)
+  const [aggregateYearly, setAggregateYearly] = useState(true)
   const [shareCopied, setShareCopied] = useState(false)
   const [exportOpen, setExportOpen] = useState(false)
   const [modalCard, setModalCard] = useState<SocialCardData | null>(null)
@@ -354,27 +360,39 @@ export default function DatasetPage() {
     [labelDimIds, respDimIds],
   )
 
+  const timeGranularity = useMemo(() => detectTimeGranularity(timeValues), [timeValues])
+  const isSubYearly = timeGranularity !== 'yearly'
+  const aggMode: 'mean' | 'sum' = flow?.id === 'DF_TRANSPORT_PUBLIC_PASSENGERS_BUS_TRAIN' ? 'sum' : 'mean'
+
+  const { effectiveSeriesMap, effectiveTimeValues } = useMemo(() => {
+    if (isSubYearly && aggregateYearly) {
+      const agg = aggregateSeriesToYears(seriesMap, aggMode)
+      return { effectiveSeriesMap: agg.seriesMap, effectiveTimeValues: agg.timeValues }
+    }
+    return { effectiveSeriesMap: seriesMap, effectiveTimeValues: timeValues }
+  }, [isSubYearly, aggregateYearly, seriesMap, timeValues, aggMode])
+
   const chartData = useMemo(() => {
-    if (!timeValues.length) return []
+    if (!effectiveTimeValues.length) return []
 
     if (isStacked) {
       // Required raw dimValues from defaultFilters (e.g. 'Passenger car' must appear in dimValues)
       const requiredRawVals = new Set(Object.values(defaultChartConfig!.defaultFilters ?? {}))
       // Build label → seriesKey map: series must contain all required raw vals AND exactly one stacked label
       const labelToKey: Record<string, string> = {}
-      for (const [key, s] of Object.entries(seriesMap)) {
+      for (const [key, s] of Object.entries(effectiveSeriesMap)) {
         const hasRequiredVals = requiredRawVals.size === 0 || [...requiredRawVals].every(v => s.dimValues.includes(v))
         if (!hasRequiredVals) continue
         const translatedVals = s.dimValues.map(applyLabelOverride)
         const matchingLabel = translatedVals.find(v => stackedLabels.has(v))
         if (matchingLabel && !labelToKey[matchingLabel]) labelToKey[matchingLabel] = key
       }
-      return timeValues.map(year => {
+      return effectiveTimeValues.map(year => {
         const point: Record<string, number | string | null> = { year }
         let hasData = false
         for (const { label } of defaultChartConfig!.stackedSeries!) {
           const key = labelToKey[label]
-          const val = key ? (seriesMap[key].observations[year] ?? null) : null
+          const val = key ? (effectiveSeriesMap[key].observations[year] ?? null) : null
           point[label] = val
           if (val !== null) hasData = true
         }
@@ -382,11 +400,11 @@ export default function DatasetPage() {
       }).filter(d => d.hasData).map(d => d.point)
     }
 
-    return timeValues.map((year) => {
+    return effectiveTimeValues.map((year) => {
       const point: Record<string, number | string | null> = { year }
       let hasData = false
       for (const key of selectedSeries) {
-        const s = seriesMap[key]
+        const s = effectiveSeriesMap[key]
         if (s) {
           const label = buildSeriesLabel(s, key, labelDimIndices, varyingDimIndices, applyLabelOverride)
           const val = s.observations[year] ?? null
@@ -396,7 +414,7 @@ export default function DatasetPage() {
       }
       return { point, hasData }
     }).filter(d => d.hasData).map(d => d.point)
-  }, [timeValues, selectedSeries, seriesMap, labelDimIndices, varyingDimIndices, applyLabelOverride, isStacked, defaultChartConfig, stackedLabels])
+  }, [effectiveTimeValues, selectedSeries, effectiveSeriesMap, labelDimIndices, varyingDimIndices, applyLabelOverride, isStacked, defaultChartConfig, stackedLabels])
 
   const filteredSeries = useMemo(() => {
     return Object.entries(seriesMap).filter(([, s]) =>
@@ -819,10 +837,36 @@ export default function DatasetPage() {
               </button>
             )}
 
+            {/* Sub-Yearly Aggregation Toggle (AP-20) */}
+            {isSubYearly && (
+              <div className="flex items-center gap-1 bg-sky-50 border border-sky-200/80 rounded-xl p-1">
+                <button
+                  onClick={() => setAggregateYearly(true)}
+                  className="px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all cursor-pointer border-0"
+                  style={{
+                    background: aggregateYearly ? '#0284c7' : 'transparent',
+                    color: aggregateYearly ? '#fff' : '#0369a1',
+                  }}
+                >
+                  Jahreswerte ({aggMode === 'sum' ? 'Summe' : 'Ø'})
+                </button>
+                <button
+                  onClick={() => setAggregateYearly(false)}
+                  className="px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all cursor-pointer border-0"
+                  style={{
+                    background: !aggregateYearly ? '#0284c7' : 'transparent',
+                    color: !aggregateYearly ? '#fff' : '#0369a1',
+                  }}
+                >
+                  {timeGranularity === 'quarterly' ? 'Quartalswerte' : timeGranularity === 'monthly' ? 'Monatswerte' : 'Original'}
+                </button>
+              </div>
+            )}
+
             {/* Stats + share */}
             <div className="ml-auto flex items-center gap-3">
               <span className="text-[11px] text-slate-400 font-mono tabular-nums">
-                {timeValues.length} Zeitpunkte · {selectedSeries.size} aktiv
+                {effectiveTimeValues.length} Zeitpunkte · {selectedSeries.size} aktiv
               </span>
               <button
                 onClick={() => setExportOpen(true)}

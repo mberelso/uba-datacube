@@ -95,7 +95,7 @@ export default function RegionalPage() {
         title={seoTitle}
         description={seoDesc}
         path={seoPath}
-        image="https://www.umweltpuls.de/og-image.png"
+        image="https://www.umweltpuls.de/og-regionen.png"
         jsonLd={REGIONAL_FAQ_JSONLD}
       />
 

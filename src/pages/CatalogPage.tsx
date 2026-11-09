@@ -12,6 +12,36 @@ const STATIC_DATASET_COUNT = Object.values(DATASET_CONTENT).filter(c => !c.exclu
 type CatalogFlow = Dataflow & { route?: string; badge?: string }
 const SPECIAL_FLOWS: CatalogFlow[] = [
   {
+    id: 'BNETZA_MISPEL_SIMULATOR',
+    name: 'MiSpeL-Simulator für PV & Heimspeicher (ab 10/2026)',
+    description: 'Interaktiver BNetzA-Pauschalrechner (Az. 618-25-02): Berechne EEG-Fördergrenze (500 kWh/kWp), Indifferenzpuffer und Netzentgelt-Saldierung für deinen Heimspeicher bis 30 kWp.',
+    agencyID: 'BNetzA',
+    version: '2026',
+    category: 'ENERGY',
+    route: '/mispel',
+    badge: '⚡ Interaktiver Rechner',
+  },
+  {
+    id: 'UBA_REGIONAL_EXPLORER',
+    name: 'Regional-Explorer — Alle 16 Bundesländer im Vergleich',
+    description: 'Vergleiche Heiße Tage, Hitzerekorde, installierte Windkraft- und Photovoltaik-Leistung sowie PRTR-Industrie-Emissionen für jedes deutsche Bundesland.',
+    agencyID: 'UBA / DWD',
+    version: '2026',
+    category: 'CLIMATE',
+    route: '/regionen',
+    badge: '📍 Regional-Dashboard',
+  },
+  {
+    id: 'UBA_COMPARE_BUILDER',
+    name: 'Datenvergleich & Indikatoren-Baukasten (Dual-Achse)',
+    description: 'Setze beliebige Umwelt- und Energiewende-Zeitreihen (Temperatur, Heiße Tage, Wind-/Solar-Ausbau, Luftschadstoffe) auf einer gemeinsamen Zeitachse mit Korrelationsanalyse in Beziehung.',
+    agencyID: 'UBA / DWD',
+    version: '2026',
+    category: 'CLIMATE',
+    route: '/vergleich',
+    badge: '📊 Analyse-Tool',
+  },
+  {
     id: 'MASTR_WIND_MAP',
     name: 'Windkraft-Ausbau in Deutschland seit 1990',
     description: 'Animierte Karte aller 41.000+ Windenergieanlagen aus dem Marktstammdatenregister der Bundesnetzagentur — Jahr für Jahr, an Land und auf See, inklusive geplanter Anlagen.',
@@ -73,14 +103,25 @@ export default function CatalogPage() {
   const [flows, setFlows]               = useState<Dataflow[]>([])
   const [loading, setLoading]           = useState(true)
   const [error, setError]               = useState('')
-  const [search, setSearch]             = useState('')
   const [searchParams, setSearchParams] = useSearchParams()
+  const [search, setSearch]             = useState(() => searchParams.get('q') ?? '')
   // Direkt aus der URL ableiten — so funktionieren auch Browser-Zurück
   // und Links wie /catalog?category=X, während die Seite bereits offen ist
   const activeCategory = searchParams.get('category')
 
   const handleCategoryClick = (catId: string | null) => {
-    setSearchParams(catId ? { category: catId } : {})
+    const next: Record<string, string> = {}
+    if (catId) next.category = catId
+    if (search.trim()) next.q = search.trim()
+    setSearchParams(next)
+  }
+
+  const handleSearchChange = (val: string) => {
+    setSearch(val)
+    const next: Record<string, string> = {}
+    if (activeCategory) next.category = activeCategory
+    if (val.trim()) next.q = val.trim()
+    setSearchParams(next, { replace: true })
   }
 
   useEffect(() => {
@@ -90,15 +131,21 @@ export default function CatalogPage() {
       .finally(() => setLoading(false))
   }, [])
 
-  const allFlows: CatalogFlow[] = [...flows, ...SPECIAL_FLOWS]
+  const allFlows: CatalogFlow[] = [...SPECIAL_FLOWS, ...flows]
 
   const filtered = allFlows.filter((f) => {
-    if (getDatasetContent(f.id)?.excludeFromCatalog) return false
-    const matchCat    = activeCategory ? f.category === activeCategory : true
-    const matchSearch = search
-      ? f.name.toLowerCase().includes(search.toLowerCase()) ||
-        f.id.toLowerCase().includes(search.toLowerCase())
-      : true
+    const content = getDatasetContent(f.id)
+    if (content?.excludeFromCatalog) return false
+    const matchCat = activeCategory ? f.category === activeCategory : true
+    if (!search.trim()) return matchCat
+    const q = search.toLowerCase().trim()
+    const matchSearch =
+      f.name.toLowerCase().includes(q) ||
+      f.id.toLowerCase().includes(q) ||
+      (f.description?.toLowerCase().includes(q) ?? false) ||
+      (content?.displayName?.toLowerCase().includes(q) ?? false) ||
+      (content?.headline?.toLowerCase().includes(q) ?? false) ||
+      (content?.lead?.toLowerCase().includes(q) ?? false)
     return matchCat && matchSearch
   })
 
@@ -170,9 +217,9 @@ export default function CatalogPage() {
           id="catalog-search-input"
           aria-label="Datensatz suchen"
           type="search"
-          placeholder="Datensatz suchen…"
+          placeholder="Datensatz, Thema oder Stichwort suchen (z. B. MiSpeL, Hitze, Feinstaub, Solar)…"
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => handleSearchChange(e.target.value)}
           style={{
             width: '100%',
             paddingLeft: 38, paddingRight: 14, paddingTop: 11, paddingBottom: 11,
@@ -323,7 +370,7 @@ export default function CatalogPage() {
                   Keine Datensätze gefunden.
                 </p>
                 <button
-                  onClick={() => { setSearch(''); handleCategoryClick(null) }}
+                  onClick={() => { setSearch(''); setSearchParams({}) }}
                   style={{
                     marginTop: 8, fontSize: 13, color: NORDIC.slate,
                     background: 'none', border: 'none', cursor: 'pointer',

@@ -673,6 +673,52 @@ export async function fetchStructure(flow: Dataflow): Promise<DatasetStructure> 
   }
 }
 
+export type TimeGranularity = 'yearly' | 'quarterly' | 'monthly' | 'subdaily'
+
+/** Detects whether a list of SDMX TIME_PERIOD strings is yearly or sub-yearly. */
+export function detectTimeGranularity(timeValues: string[]): TimeGranularity {
+  const sample = timeValues.find((t) => t && t.length > 4)
+  if (!sample) return 'yearly'
+  if (sample.includes('T') || sample.length > 10) return 'subdaily'
+  if (/^\d{4}-Q[1-4]$/i.test(sample)) return 'quarterly'
+  if (/^\d{4}-\d{2}/.test(sample)) return 'monthly'
+  return 'yearly'
+}
+
+/** Aggregates sub-yearly series observations to annual means (or sums). */
+export function aggregateSeriesToYears(
+  seriesMap: Record<string, { dimValues: string[]; observations: Record<string, number | null> }>,
+  mode: 'mean' | 'sum' = 'mean',
+): {
+  seriesMap: Record<string, { dimValues: string[]; observations: Record<string, number | null> }>
+  timeValues: string[]
+} {
+  const yearsSet = new Set<string>()
+  const outMap: Record<string, { dimValues: string[]; observations: Record<string, number | null> }> = {}
+
+  for (const [key, s] of Object.entries(seriesMap)) {
+    const byYear: Record<string, number[]> = {}
+    for (const [tp, val] of Object.entries(s.observations)) {
+      if (val == null || Number.isNaN(val)) continue
+      const yr = tp.slice(0, 4)
+      if (!/^\d{4}$/.test(yr)) continue
+      ;(byYear[yr] ??= []).push(val)
+      yearsSet.add(yr)
+    }
+    const annualObs: Record<string, number | null> = {}
+    for (const [yr, vals] of Object.entries(byYear)) {
+      const total = vals.reduce((a, b) => a + b, 0)
+      annualObs[yr] = +(mode === 'sum' ? total : total / vals.length).toFixed(2)
+    }
+    outMap[key] = { dimValues: s.dimValues, observations: annualObs }
+  }
+
+  return {
+    seriesMap: outMap,
+    timeValues: Array.from(yearsSet).sort((a, b) => a.localeCompare(b)),
+  }
+}
+
 export async function fetchData(flow: Dataflow, key = 'all'): Promise<{
   structure: DatasetStructure | null
   seriesMap: Record<string, { dimValues: string[]; observations: Record<string, number | null> }>

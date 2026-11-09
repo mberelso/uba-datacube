@@ -219,8 +219,15 @@ const ROUTE_IMAGES: Record<string, string> = {
   '/wind': `${SITE_URL}/og-wind.png`,
   '/solar': `${SITE_URL}/og-solar.png`,
   '/hitze': `${SITE_URL}/og-hitze.png`,
-  '/regionen': `${SITE_URL}/og-image.png`,
-  '/vergleich': `${SITE_URL}/og-image.png`,
+  '/mispel': `${SITE_URL}/og-mispel.png`,
+  '/regionen': `${SITE_URL}/og-regionen.png`,
+  '/vergleich': `${SITE_URL}/og-vergleich.png`,
+  ...Object.fromEntries(
+    Object.values(BUNDESLAENDER).map((st) => [
+      `/regionen/${st.slug}`,
+      `${SITE_URL}/og-regionen.png`,
+    ])
+  ),
 }
 const DATASET_ROUTES = Object.keys(DATASET_CONTENT).map(
   id => `/dataset/${encodeURIComponent(id)}`

@@ -3,7 +3,7 @@ const { Resvg } = require('@resvg/resvg-js')
 const fs = require('fs')
 const path = require('path')
 
-const SLUGS = ['og-image', 'og-wind', 'og-solar', 'og-hitze']
+const SLUGS = ['og-image', 'og-wind', 'og-solar', 'og-hitze', 'og-mispel', 'og-regionen', 'og-vergleich']
 
 for (const slug of SLUGS) {
   const svgPath = path.join(__dirname, `../public/${slug}.svg`)

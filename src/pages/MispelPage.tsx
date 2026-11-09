@@ -131,6 +131,7 @@ const MispelPage: React.FC = () => {
         title="MiSpeL-Simulator: BNetzA-Pauschalrechner für Heimspeicher"
         description="Kostenloser MiSpeL-Simulator nach BNetzA-Festlegung Az. 618-25-02 (01.10.2026): Berechnen Sie EEG-Pauschaloption, Indifferenzbereich & Netzentgeltersparnis für Heimspeicher bis 30 kWp."
         path="/mispel"
+        image="https://www.umweltpuls.de/og-mispel.png"
         jsonLd={[FAQ_JSON_LD, APP_JSON_LD]}
       />
 

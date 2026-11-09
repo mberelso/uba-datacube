@@ -275,6 +275,7 @@ export default function ComparePage() {
         title="Datenvergleich & Umwelt-Indikatoren"
         description="Vergleiche zwei Umweltdatenreihen des UBA, DWD und Marktstammdatenregisters auf einer gemeinsamen Zeitachse mit Dual-Y-Achse und Korrelationsanalyse."
         path="/vergleich"
+        image="https://www.umweltpuls.de/og-vergleich.png"
       />
 
       {/* Header */}

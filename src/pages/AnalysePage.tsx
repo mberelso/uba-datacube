@@ -487,6 +487,69 @@ function PrecipitationChart() {
 // ENERGIEWENDE
 // ═══════════════════════════════════════════════════════════════════════════════
 
+function RenewableCapacityChart({ onShare }: { onShare: (d: SocialCardData) => void }) {
+  const { data, loading, error } = useData(async () => {
+    const named = await fetchDataSeries('DF_ENERGY_AGEE_CAPACITY', '1.0', {
+      'Photovoltaik':      { D_ENERGY_SOURCES: 'PV' },
+      'Wind an Land':      { D_ENERGY_SOURCES: 'WI_L' },
+      'Wind auf See':      { D_ENERGY_SOURCES: 'WI_S' },
+      'Biomasse':          { D_ENERGY_SOURCES: 'BIO' },
+      'Wasserkraft':       { D_ENERGY_SOURCES: 'WA' },
+    })
+    const years = new Set<string>()
+    for (const pts of Object.values(named)) pts.forEach(p => years.add(p.year))
+    return Array.from(years).sort().map(year => {
+      const row: Record<string, number | string | null> = { year, gesamt: 0 }
+      for (const [label, pts] of Object.entries(named)) {
+        const pt = pts.find(p => p.year === year)
+        const valGw = pt ? +(pt.value / 1000).toFixed(1) : 0
+        row[label] = valGw
+        row['gesamt'] = +((row['gesamt'] as number) + valGw).toFixed(1)
+      }
+      return row
+    })
+  })
+  const latest = data?.[data.length - 1]
+  const totalGw = numVal(latest?.['gesamt'])
+
+  const socialCard: SocialCardData | undefined = data && latest && totalGw != null ? {
+    category: 'energie',
+    metric: `${fmt(totalGw, 1)} GW`,
+    metricLabel: 'Installierte Erneuerbare-Leistung',
+    headline: 'Kraftwerkspark der Energiewende',
+    story: 'Photovoltaik und Windenergie bilden das Rückgrat der deutschen Stromerzeugung. Über 190 GW erneuerbare Leistung sind bereits installiert.',
+    sparkline: data.map(r => typeof r['gesamt'] === 'number' ? (r['gesamt'] as number) : 0),
+    yearRange: `${strVal(data[0]?.year)} – ${strVal(latest.year)}`,
+    datasetId: 'DF_ENERGY_AGEE_CAPACITY',
+  } : undefined
+
+  return (
+    <ChartCard
+      title="Installierte Leistung Erneuerbarer Energien"
+      subtitle="Gigawatt (GW) nach Energieträger · gestapelt (1990–heute)"
+      kpi={totalGw} kpiUnit="GW gesamt" kpiYear={strVal(latest?.year)}
+      color="#16a34a" loading={loading} error={error}
+      flowId="DF_ENERGY_AGEE_CAPACITY" source="Quelle: Umweltbundesamt / AGEE-Stat"
+      socialCard={socialCard} onShare={onShare}
+    >
+      <ResponsiveContainer width="100%" height="100%">
+        <AreaChart data={data ?? []} margin={{ top: 16, right: 12, left: 0, bottom: 0 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+          <XAxis dataKey="year" tick={{ fontSize: 11, fill: '#64748b' }} interval={4} />
+          <YAxis tick={{ fontSize: 11, fill: '#64748b' }} unit=" GW" width={44} />
+          <Tooltip content={<TT unit="GW" />} />
+          <Legend wrapperStyle={{ fontSize: 10 }} />
+          <Area type="monotone" dataKey="Wasserkraft"  stackId="cap" stroke="#0369a1" fill="#bae6fd" strokeWidth={1.2} connectNulls />
+          <Area type="monotone" dataKey="Biomasse"     stackId="cap" stroke="#15803d" fill="#bbf7d0" strokeWidth={1.2} connectNulls />
+          <Area type="monotone" dataKey="Wind auf See" stackId="cap" stroke="#0284c7" fill="#7dd3fc" strokeWidth={1.2} connectNulls />
+          <Area type="monotone" dataKey="Wind an Land" stackId="cap" stroke="#0f766e" fill="#99f6e4" strokeWidth={1.5} connectNulls />
+          <Area type="monotone" dataKey="Photovoltaik" stackId="cap" stroke="#f59e0b" fill="#fde68a" strokeWidth={1.5} connectNulls />
+        </AreaChart>
+      </ResponsiveContainer>
+    </ChartCard>
+  )
+}
+
 function RenewableShareChart({ onShare }: { onShare: (d: SocialCardData) => void }) {
   const { data, loading, error } = useData(() =>
     fetchSingleSeries('UBA,DF_ENERGY_AGEE_SHARE,1.0', 'DE.A.PZ.SHARE_EE_GFEC_RED.EE'))
@@ -959,6 +1022,48 @@ function RiverDischargeChart() {
             {pts?.map(e => <Cell key={e.year} fill={e.value < 0 ? '#ef4444' : '#0891b2'} />)}
           </Bar>
         </ComposedChart>
+      </ResponsiveContainer>
+    </ChartCard>
+  )
+}
+
+function LowWaterDaysChart() {
+  const { data, loading, error } = useData(async () => {
+    const named = await fetchDataSeries('DF_DAS_WASSER_WW_I_6', '1.0', {
+      'Sommerhalbjahr': { D_OBS_PERIOD: 'HyS' },
+      'Winterhalbjahr': { D_OBS_PERIOD: 'HyW' },
+    })
+    const years = new Set<string>()
+    for (const pts of Object.values(named)) pts.forEach(p => years.add(p.year))
+    return Array.from(years).sort().map(year => {
+      const row: Record<string, number | string | null> = { year }
+      for (const [label, pts] of Object.entries(named)) {
+        const pt = pts.find(p => p.year === year)
+        row[label] = pt ? +pt.value.toFixed(1) : null
+      }
+      return row
+    })
+  })
+  const latest = data?.[data.length - 1]
+
+  return (
+    <ChartCard
+      title="Niedrigwassertage in Fließgewässern"
+      subtitle="DAS WW-I-6 · Mittlere Anzahl Tage unter dem Niedrigwasserschwellenwert"
+      kpi={numVal(latest?.['Sommerhalbjahr'])} kpiUnit="Tage (Sommer)" kpiYear={strVal(latest?.year)}
+      color="#d97706" loading={loading} error={error}
+      flowId="DF_DAS_WASSER_WW_I_6" source="Quelle: Umweltbundesamt / DAS"
+    >
+      <ResponsiveContainer width="100%" height="100%">
+        <LineChart data={data ?? []} margin={{ top: 16, right: 12, left: 0, bottom: 0 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+          <XAxis dataKey="year" tick={{ fontSize: 11, fill: '#64748b' }} interval={6} />
+          <YAxis tick={{ fontSize: 11, fill: '#64748b' }} unit=" d" width={36} />
+          <Tooltip content={<TT unit="Tage" />} />
+          <Legend wrapperStyle={{ fontSize: 10 }} />
+          <Line type="monotone" dataKey="Sommerhalbjahr" stroke="#d97706" strokeWidth={2} dot={false} connectNulls />
+          <Line type="monotone" dataKey="Winterhalbjahr" stroke="#0284c7" strokeWidth={1.5} dot={false} connectNulls />
+        </LineChart>
       </ResponsiveContainer>
     </ChartCard>
   )
@@ -1532,6 +1637,7 @@ export default function AnalysePage() {
       </Section>
 
       <Section title="Energiewende & Verkehr" icon="⚡" color="#16a34a">
+        <RenewableCapacityChart onShare={setModalCard} />
         <RenewableShareChart onShare={setModalCard} />
         <WindExpansionChart />
         <SolarExpansionChart />
@@ -1553,6 +1659,7 @@ export default function AnalysePage() {
       <Section title="Wasser" icon="💧" color="#0369a1">
         <WaterTempChart />
         <RiverDischargeChart />
+        <LowWaterDaysChart />
       </Section>
 
       <Section title="Abfall & Kreislaufwirtschaft" icon="♻️" color="#0891b2">

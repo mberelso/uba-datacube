@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="55%" stop-color="#1B2B3A"/>
+      <stop offset="100%" stop-color="#0284c7" stop-opacity="0.55"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- Left accent bar -->
+  <rect x="80" y="140" width="4" height="320" rx="2" fill="#38bdf8"/>
+
+  <!-- Eyebrow -->
+  <text x="110" y="162" font-family="system-ui, -apple-system, sans-serif"
+    font-size="22" font-weight="700" fill="#7dd3fc" letter-spacing="3">REGIONAL-DASHBOARD · ALLE 16 BUNDESLÄNDER</text>
+
+  <!-- Title -->
+  <text x="108" y="254" font-family="system-ui, -apple-system, sans-serif"
+    font-size="70" font-weight="800" fill="white" letter-spacing="-2">Wie grün ist dein</text>
+  <text x="108" y="336" font-family="system-ui, -apple-system, sans-serif"
+    font-size="70" font-weight="800" fill="white" letter-spacing="-2">Bundesland?</text>
+
+  <!-- Subtitle -->
+  <text x="110" y="404" font-family="system-ui, -apple-system, sans-serif"
+    font-size="27" font-weight="400" fill="rgba(255,255,255,0.7)" letter-spacing="0.5">Heiße Tage · Hitzerekorde · Windkraft (MW) · Photovoltaik (MW) · Industrie</text>
+
+  <!-- Map pin motif (right) -->
+  <g transform="translate(980,245)">
+    <path d="M0 -85 C46 -85 82 -49 82 -3 C82 52 0 115 0 115 C0 115 -82 52 -82 -3 C-82 -49 -46 -85 0 -85 Z" fill="rgba(56,189,248,0.2)" stroke="#38bdf8" stroke-width="10"/>
+    <circle cx="0" cy="-6" r="28" fill="#38bdf8"/>
+  </g>
+
+  <!-- Wordmark + domain -->
+  <text x="110" y="560" font-family="system-ui, -apple-system, sans-serif"
+    font-size="30" font-weight="800" fill="white" letter-spacing="-1">Umwelt<tspan fill="#6B9A5E">puls</tspan><tspan font-weight="600" fill="rgba(255,255,255,0.4)" letter-spacing="1.5">   ·   WWW.UMWELTPULS.DE/REGIONEN</tspan></text>
+</svg>
